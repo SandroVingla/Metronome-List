@@ -1,0 +1,376 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #475569;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+
+.header .subtitle {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.global-controls {
+    background: #64748b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.channel-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.channel-label {
+    color: #e2e8f0;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.channel-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.channel-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.channel-btn.inactive {
+    background: #6b7280;
+}
+
+.channel-btn.inactive:hover {
+    background: #9ca3af;
+}
+
+.channel-btn.active {
+    background: #dc2626;
+}
+
+.audio-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    justify-content: center;
+}
+
+.audio-label {
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.audio-info {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 10px 20px;
+    background: #374151;
+    border-radius: 8px;
+    border: 1px solid #6b7280;
+}
+
+.add-btn {
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-btn:hover {
+    background: #15803d;
+    transform: scale(1.05);
+}
+
+.metronome-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 100px 120px 80px 60px;
+    gap: 15px;
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #d1d5db;
+    font-size: 0.9rem;
+}
+
+.metronome-item {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 100px 120px 80px 60px;
+    gap: 15px;
+    padding: 15px 20px;
+    background: #64748b;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.metronome-item.playing {
+    background: #1e3a2e;
+    border-left: 4px solid #16a34a;
+}
+
+.item-number {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #f59e0b;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.music-input {
+    background: #4b5563;
+    border: 1px solid #6b7280;
+    border-radius: 8px;
+    color: white;
+    padding: 8px 12px;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.music-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #374151;
+}
+
+.music-input::placeholder {
+    color: #9ca3af;
+}
+
+.bmp-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bpm-input {
+    background: #16a34a;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 8px 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    width: 70px;
+}
+
+.bpm-input:focus {
+    outline: none;
+    background: #15803d;
+}
+
+.bpm-label {
+    color: #d1d5db;
+    font-size: 0.9rem;
+}
+
+.play-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s;
+}
+
+.play-btn.play {
+    background: #16a34a;
+    color: white;
+}
+
+.play-btn.pause {
+    background: #dc2626;
+    color: white;
+}
+
+.play-btn:hover {
+    transform: scale(1.05);
+}
+
+.time-select {
+    background: #4b5563;
+    border: 1px solid #6b7280;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.time-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.beat-indicators {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.beat-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #6b7280;
+    transition: all 0.2s;
+}
+
+.beat-dot.active {
+    background: #16a34a;
+    box-shadow: 0 0 8px #16a34a;
+}
+
+.beat-dot.accent {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+.remove-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.remove-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.1);
+}
+
+.timbre-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timbre-select {
+    background: #374151;
+    color: white;
+    border: 1px solid #6b7280;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.timbre-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.volume-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.volume-slider {
+    width: 80px;
+    height: 6px;
+    border-radius: 3px;
+    background: #374151;
+    outline: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #16a34a;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #16a34a;
+    cursor: pointer;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .global-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .metronome-header,
+    .metronome-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .audio-section {
+        justify-content: center;
+    }
+}

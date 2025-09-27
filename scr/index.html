@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metronome List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Metronome List</h1>
+            <div class="subtitle">
+                🎹 Use as teclas numéricas 1-9 e 0 para tocar/pausar os metrônomos (quando não estiver editando campos)
+            </div>
+        </div>
+
+        <div class="global-controls">
+            <div class="channel-section">
+                <div class="channel-label">L R C</div>
+                <div class="channel-buttons">
+                    <button class="channel-btn inactive" onclick="setGlobalChannel('L')">L</button>
+                    <button class="channel-btn inactive" onclick="setGlobalChannel('R')">R</button>
+                    <button class="channel-btn active" onclick="setGlobalChannel('C')">C</button>
+                </div>
+            </div>
+
+            <div class="audio-section">
+                <div class="timbre-section">
+                    <span style="color: #9ca3af;">🎵</span>
+                    <select id="timbreSelect" class="timbre-select" onchange="changeTimbre(this.value)">
+                        <option value="click">Click Original</option>
+                        <option value="soft">Soft Click</option>
+                        <option value="electronic">Electronic</option>
+                        <option value="multitrack">Multitrack</option>
+                        <option value="warm">Warm Tone</option>
+                    </select>
+                </div>
+                
+                <div class="volume-section">
+                    <span style="color: #9ca3af;">🔊</span>
+                    <input type="range" class="volume-slider" min="0" max="100" value="50" id="volumeSlider">
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addMetronome()" title="Adicionar novo metrônomo">+</button>
+        </div>
+
+        <div class="metronome-header">
+            <div>#</div>
+            <div>MÚSICA</div>
+            <div>TEMPO</div>
+            <div>PLAY/PAUSE</div>
+            <div>COMPASSO</div>
+            <div>BEAT</div>
+            <div></div>
+        </div>
+
+        <div id="metronomeList"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
