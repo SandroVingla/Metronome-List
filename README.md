@@ -34,7 +34,7 @@ Um metrônomo web profissional com múltiplas faixas, controle de canais e diver
 
 ### Uso Online
 
-1. Acesse: [https://github.com/SandroVingla/Metronome-List](https://seuusuario.github.io/metronome-list)
+1. Acesse: https://metronome-list.netlify.app/
 2. Configure sua placa de áudio como padrão no sistema
 3. Ajuste o BPM e compasso desejado
 4. Clique em **Play** (▶️) para iniciar
