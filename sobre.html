@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - Metronome List</title>
+    <meta name="description" content="Conheça o Metronome List, uma ferramenta profissional e gratuita para músicos de todos os níveis.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>🎵 Metronome List</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Metrônomo</a></li>
+                <li><a href="como-usar.html">Como Usar</a></li>
+                <li><a href="guia-completo.html">Guia Completo</a></li>
+                <li><a href="sobre.html" class="active">Sobre</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+            </ul>
+            <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="content-page">
+        <div class="content-header">
+            <h1>🎵 Sobre o Metronome List</h1>
+            <p class="subtitle">Ferramenta profissional e gratuita para músicos</p>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Nossa Missão</h2>
+       <p>
+                O <strong>Metronome List</strong> nasceu com um objetivo claro:
+                <strong>fazer você ganhar tempo e tocar mais</strong>.
+            </p>
+            <p>
+                Seja em ensaios, shows ou produções em estúdio, todo músico já passou pela mesma situação —
+                ter que ajustar manualmente o BPM de cada música, uma por uma, até conseguir começar.
+                Esse processo toma tempo, atrasa a dinâmica do ensaio e quebra o ritmo da performance.
+            </p>
+            <p>
+                Pensando nisso, o Metronome List foi criado como uma
+                <strong>solução rápida e inteligente</strong>
+                para quem precisa trocar de metrônomo com agilidade e organização.
+            </p>
+    
+            <ul style="margin: 20px 0;">
+                <li>🔹 Clique, escolha o BPM e toque — <strong>sem enrolação</strong>.</li>
+                <li>🔹 Monte sua lista de músicas e <strong>alterna entre elas em segundos</strong>.</li>
+                <li>🔹 Funciona para qualquer estilo, nível ou instrumento.</li>
+            </ul>
+
+            <p>Ideal para:</p>
+            <ul>
+                <li>✅ <strong>Músicos profissionais</strong> que precisam de precisão e velocidade em palco ou estúdio.</li>
+                <li>✅ <strong>Iniciantes</strong> que estão aprendendo a tocar com click de forma prática e visual.</li>
+                <li>✅ <strong>Bandas, professores e produtores</strong> que buscam um sistema simples e direto.</li>
+            </ul>
+
+            <p style="font-weight: bold; margin-top: 20px;">
+                🎯 O Metronome List não é só um metrônomo — é um acelerador de performance.<br>
+                Se o tempo é valioso na sua música, ele foi feito para você.
+            </p>
+        </div>
+
+        <div class="content-section">
+            <h2>✨ Diferenciais</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🎹 Múltiplas Faixas</h3>
+                    <p>Diferente de outros metrônomos online, permitimos até 10 metrônomos simultâneos com configurações independentes. Perfeito para preparar setlists, praticar mudanças de andamento e organizar seu repertório.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🎼 5 Timbres Profissionais</h3>
+                    <p>Cada timbre foi cuidadosamente desenvolvido usando Web Audio API para oferecer qualidade de áudio superior. Não são samples gravados, mas sons sintetizados em tempo real com precisão absoluta.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🔊 Controle Estéreo</h3>
+                    <p>Recurso profissional raramente encontrado em metrônomos online. Posicione o som no canal esquerdo, direito ou central - essencial para gravações e performances ao vivo.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>⚡ Performance</h3>
+                    <p>Construído com tecnologia moderna (Web Audio API), garantindo timing preciso e latência mínima. Funciona perfeitamente mesmo em dispositivos mais antigos.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📱 Responsivo</h3>
+                    <p>Interface adaptável para desktop, tablet e smartphone. Use em qualquer dispositivo sem perder funcionalidades.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🔒 Privacidade</h3>
+                    <p>Não coletamos dados pessoais. Não há rastreamento invasivo. Seu uso é completamente privado e seguro.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🛠️ Tecnologia</h2>
+            <p>O Metronome List é desenvolvido usando tecnologias web modernas:</p>
+            
+            <h3>Web Audio API</h3>
+            <p>Utilizamos a Web Audio API nativa dos navegadores para gerar sons em tempo real. Isso garante:</p>
+            <ul>
+                <li>Timing absolutamente preciso (menos de 1ms de variação)</li>
+                <li>Latência mínima entre cliques</li>
+                <li>Qualidade de áudio profissional</li>
+                <li>Funcionamento offline após carregamento inicial</li>
+            </ul>
+
+            <h3>Design Responsivo</h3>
+            <p>Interface construída com CSS moderno que se adapta a qualquer tamanho de tela, mantendo usabilidade e estética em todos os dispositivos.</p>
+
+            <h3>JavaScript Vanilla</h3>
+            <p>Código limpo e eficiente sem dependências pesadas de frameworks. Resultado: carregamento rápido e performance excepcional.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>🎓 Para Quem é o Metronome List?</h2>
+            
+            <div class="audience-section">
+                <h3>Estudantes de Música</h3>
+                <p>Ferramenta essencial para desenvolvimento de timing e prática diária. Os múltiplos metrônomos permitem organizar exercícios e peças do repertório com configurações salvas.</p>
+            </div>
+
+            <div class="audience-section">
+                <h3>Professores de Música</h3>
+                <p>Recurso pedagógico valioso para demonstrações em aula e tarefas de casa. Compartilhe o link com seus alunos para garantir que pratiquem com ferramenta de qualidade.</p>
+            </div>
+
+            <div class="audience-section">
+                <h3>Músicos Profissionais</h3>
+                <p>Qualidade de estúdio para ensaios, gravações e performances. O controle estéreo e timbres profissionais atendem às demandas de produção musical séria.</p>
+            </div>
+
+            <div class="audience-section">
+                <h3>Bandas e Grupos</h3>
+                <p>Ferramenta colaborativa para ensaios sincronizados. Todos podem usar a mesma configuração de BPM e compasso para praticar individualmente antes do ensaio coletivo.</p>
+            </div>
+
+            <div class="audience-section">
+                <h3>Produtores Musicais</h3>
+                <p>Click track confiável para gravações. Os timbres Electronic e Multitrack foram especificamente desenvolvidos para uso em produção musical.</p>
+            </div>
+        </div>
+
+        <!--<div class="content-section">
+            <h2>📈 Desenvolvimento Contínuo</h2>
+            <p>O Metronome List está em constante evolução. Planejamos adicionar:</p>
+            <ul>
+                <li>Mais timbres personalizáveis</li>
+                <li>Padrões rítmicos complexos e polirritmos</li>
+                <li>Salvamento de configurações na nuvem</li>
+                <li>Modo escuro e temas personalizáveis</li>
+                <li>Integração com DAWs via MIDI</li>
+                <li>Aplicativo mobile nativo</li>
+            </ul>
+            <p>Suas sugestões e feedback são sempre bem-vindos!</p>
+        </div>
+
+        <div class="content-section">
+            <h2>💡 Filosofia Open Source</h2>
+            <p>Acreditamos no poder da comunidade e do compartilhamento de conhecimento. Por isso, o código-fonte do Metronome List está disponível publicamente no GitHub.</p>
+            
+            <p>Desenvolvedores são encorajados a:</p>
+            <ul>
+                <li>Estudar o código e aprender sobre Web Audio API</li>
+                <li>Contribuir com melhorias e correções</li>
+                <li>Sugerir novos recursos</li>
+                <li>Reportar bugs e problemas</li>
+                <li>Fazer fork do projeto para suas próprias necessidades</li>
+            </ul>
+
+            <p><a href="https://github.com/SandroVingla/Metronome-List" target="_blank" class="github-link">Visite nosso repositório no GitHub →</a></p>
+        </div>
+
+        <div class="content-section">
+            <h2>🤝 Apoie o Projeto</h2>
+            <p>O Metronome List é e sempre será gratuito. No entanto, manter e desenvolver a ferramenta requer tempo e recursos. Você pode apoiar o projeto de várias formas:</p>
+            
+            <ul>
+                <li><strong>Compartilhe:</strong> Indique para outros músicos e professores</li>
+                <li><strong>Contribua:</strong> Envie sugestões e reporte bugs</li>
+                <li><strong>Desenvolva:</strong> Contribua com código no GitHub</li>
+                <li><strong>Feedback:</strong> Conte sua experiência e como melhoramos sua prática</li>
+            </ul>
+        </div>-->
+
+        <div class="content-section">
+            <h2>📞 Contato</h2>
+            <p>Tem dúvidas, sugestões ou quer reportar um problema? Entre em contato:</p>
+            <ul>
+                <li><strong>GitHub Issues:</strong> <a href="https://github.com/SandroVingla/Metronome-List/issues" target="_blank">Reporte bugs e sugestões</a></li>
+                <li><strong>Email:</strong> Envie suas dúvidas e comentários</li>
+                <li><strong>Redes Sociais:</strong> Acompanhe novidades e atualizações</li>
+            </ul>
+        </div>
+
+        <div class="cta-section">
+            <h2>Pronto para começar?</h2>
+            <p>Experimente o metrônomo profissional mais completo e gratuito da web!</p>
+            <a href="index.html" class="cta-button">Usar o Metrônomo →</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Metronome List. Todos os direitos reservados.</p>
+        <p>
+            <a href="privacy.html">Política de Privacidade</a> |
+            <a href="sobre.html">Sobre</a> |
+            <a href="https://github.com/SandroVingla/Metronome-List" target="_blank">GitHub</a>
+        </p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

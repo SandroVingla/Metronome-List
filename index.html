@@ -8,68 +8,58 @@
     <title>Metronome List - Metrônomo Online Profissional Grátis</title>
     <meta name="description" content="Metrônomo online profissional com múltiplas faixas, 5 timbres de alta qualidade, controle de canais L/R/C e BPM de 60-200. Perfeito para músicos, DJs e produtores.">
     <meta name="keywords" content="metronomo online, metronomo gratis, click track, metronome, bpm, musica, ritmo, batida, metrônomo profissional">
-    <meta name="author" content="Seu Nome">
+    <meta name="author" content="Metronome List">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sandrovingla.github.io/metronome-list/">
+    <meta property="og:url" content="https://metronome-list.netlify.app/">
     <meta property="og:title" content="Metronome List - Metrônomo Online Profissional">
     <meta property="og:description" content="Metrônomo online com múltiplas faixas, 5 timbres profissionais e controle avançado de canais.">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <!--<meta property="twitter:url" content="https://github.com/SandroVingla/Metronome-List/">-->
+    <meta property="twitter:url" content="https://metronome-list.netlify.app/">
     <meta property="twitter:title" content="Metronome List - Metrônomo Online Profissional">
     <meta property="twitter:description" content="Metrônomo online com múltiplas faixas e timbres profissionais.">
-    <meta property="og:url" content="https://metronome-list.netlify.app/">
-    <meta property="twitter:url" content="https://metronome-list.netlify.app/">
-
     
     <link rel="stylesheet" href="style.css">
 
-    <!-- Google Analytics (opcional - adicione seu código) -->
-    <!-- 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX');
-    </script>
-    -->
-    
-    <!-- Google AdSense (adicione após aprovação) -->
-    <!-- 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
-         crossorigin="anonymous"></script>
-    -->
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4957093969222138"
      crossorigin="anonymous"></script>
 
-      <!-- Favicon -->
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
-    
 </head>
 <body>
-    <!-- Espaço para Banner AdSense (adicionar após aprovação) -->
-    <!-- 
-    <div style="text-align: center; margin: 20px 0;">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXX"
-             data-ad-slot="XXXXXXXXXX"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-    -->
+    <!-- Menu de Navegação -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>🎵 Metronome List</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Metrônomo</a></li>
+                <li><a href="como-usar.html">Como Usar</a></li>
+                <li><a href="guia-completo.html">Guia Completo</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+            </ul>
+            <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- Banner Introdutório Compacto 
+    <div class="intro-banner">
+        <div class="intro-content">
+            <h2>Metrônomo Online Profissional - Gratuito</h2>
+        </div>
+    </div>-->
     
+    <!-- Aplicação do Metrônomo -->
     <div class="container">
         <div class="header">
-            <h1>Metronome List</h1>
             <div class="subtitle">
                 🎹 Use as teclas numéricas 1-9 e 0 para tocar/pausar os metrônomos (quando não estiver editando campos)
             </div>
@@ -119,13 +109,42 @@
         <div id="metronomeList"></div>
     </div>
 
-   <script src="script.js"></script>
-    <footer style="text-align:center; margin:40px 0; color:#9ca3af; font-size:14px;">
+    <!-- Links Rápidos 
+    <div class="quick-links">
+        <div class="quick-links-container">
+            <div class="quick-link-card">
+                <h3>📖 Como Usar</h3>
+                <p>Aprenda a usar todos os recursos do metrônomo</p>
+                <a href="como-usar.html" class="btn-link">Ver Tutorial →</a>
+            </div>
+            <div class="quick-link-card">
+                <h3>🎯 Guia Completo</h3>
+                <p>Técnicas avançadas e dicas profissionais</p>
+                <a href="guia-completo.html" class="btn-link">Ler Guia →</a>
+            </div>
+            <div class="quick-link-card">
+                <h3>❓ FAQ</h3>
+                <p>Perguntas frequentes e respostas</p>
+                <a href="faq.html" class="btn-link">Ver FAQ →</a>
+            </div>
+        </div>
+    </div>-->
+
+    <footer>
         <p>© 2025 Metronome List. Todos os direitos reservados.</p>
         <p>
-            <a href="/privacy.html" style="color:#9ca3af; text-decoration:none;">Política de Privacidade</a> |
-            <a href="https://github.com/SandroVingla/Metronome-List" target="_blank" style="color:#9ca3af; text-decoration:none;">GitHub</a>
+            <a href="privacy.html">Política de Privacidade</a> |
+            <a href="sobre.html">Sobre</a> |
+            <a href="https://github.com/SandroVingla/Metronome-List" target="_blank">GitHub</a>
         </p>
     </footer>
+
+    <script src="script.js"></script>
+    <script>
+        function toggleMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>
