@@ -121,6 +121,279 @@
                     <li>Ter configurações salvas para diferentes músicas</li>
                 </ul>
             </div>
+        </div>         
+
+        <!DOCTYPE html>
+<html lang="pt-BR">
+ 
+<body>
+
+        <div class="content-section">
+            <h2>💾 Salvamento e Compartilhamento</h2>
+            
+            <div class="step-box">
+                <h3>Salvamento Automático</h3>
+                <p>O Metronome List salva automaticamente sua última configuração. Quando você fechar e reabrir a página, seus metrônomos estarão exatamente como você deixou, incluindo:</p>
+                <ul>
+                    <li>Nomes das músicas</li>
+                    <li>BPM de cada metrônomo</li>
+                    <li>Compassos configurados</li>
+                    <li>Configurações globais (volume, timbre, canal)</li>
+                </ul>
+                <p><strong>Importante:</strong> Esta configuração fica salva apenas no seu navegador. Se limpar o histórico/cache, será perdida.</p>
+            </div>
+
+            <div class="step-box">
+                <h3>💾 Salvar Setlist</h3>
+                <p>Clique no botão <strong>💾</strong> (Salvar) nos controles globais para salvar um setlist nomeado:</p>
+                <ol>
+                    <li>Configure todos os metrônomos como deseja</li>
+                    <li>Clique no botão 💾</li>
+                    <li>Digite um nome (ex: "Show Sábado", "Ensaio Banda")</li>
+                    <li>Clique OK</li>
+                </ol>
+                <p>Seu setlist aparecerá na seção "💾 Meus Setlists" abaixo da lista de metrônomos. Você pode salvar quantos setlists quiser!</p>
+            </div>
+
+            <div class="step-box">
+                <h3>🌐 Compartilhar Setlist</h3>
+                <p>Clique no botão <strong>🌐</strong> (Compartilhar) para tornar seu setlist público:</p>
+                <ol>
+                    <li>Configure o setlist que deseja compartilhar</li>
+                    <li>Clique no botão 🌐</li>
+                    <li>Digite um nome para o setlist</li>
+                    <li>Digite seu nome ou apelido (opcional)</li>
+                    <li>Clique OK</li>
+                </ol>
+                <p><strong>⚠️ Atenção:</strong> Setlists compartilhados são <strong>públicos</strong> e visíveis para todos os usuários do Metronome List. Não compartilhe informações privadas!</p>
+                <p><strong>Nota:</strong> Compartilhamento só funciona quando hospedado no Claude.ai. Localmente, use Exportar/Importar JSON.</p>
+            </div>
+
+            <div class="step-box">
+                <h3>📥 Exportar para JSON</h3>
+                <p>Clique no botão <strong>📥</strong> (Exportar) para baixar seu setlist como arquivo:</p>
+                <ol>
+                    <li>Configure seu setlist</li>
+                    <li>Clique no botão 📥</li>
+                    <li>Digite um nome</li>
+                    <li>Um arquivo .json será baixado</li>
+                </ol>
+                <p><strong>Para que serve:</strong></p>
+                <ul>
+                    <li>Fazer backup dos seus setlists</li>
+                    <li>Compartilhar via WhatsApp, email, Google Drive</li>
+                    <li>Transferir entre dispositivos diferentes</li>
+                    <li>Guardar setlists importantes com segurança</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <h3>📤 Importar de JSON</h3>
+                <p>Clique no botão <strong>📤</strong> (Importar) para carregar um setlist de arquivo:</p>
+                <ol>
+                    <li>Clique no botão 📤</li>
+                    <li>Selecione o arquivo .json</li>
+                    <li>O setlist será carregado automaticamente</li>
+                </ol>
+                <p><strong>Use para:</strong></p>
+                <ul>
+                    <li>Restaurar backups</li>
+                    <li>Carregar setlists enviados por outras pessoas</li>
+                    <li>Transferir configurações entre computadores</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📋 Gerenciador de Setlists</h2>
+            
+            <div class="feature-detail">
+                <h3>Como Acessar</h3>
+                <p>O Gerenciador de Setlists fica logo abaixo da lista de metrônomos. Ele possui duas seções principais:</p>
+                <ul>
+                    <li><strong>💾 Meus Setlists:</strong> Setlists que você salvou localmente</li>
+                    <li><strong>🌐 Setlists Compartilhados:</strong> Setlists públicos de todos os usuários</li>
+                </ul>
+                <p>Clique no botão <strong>▼</strong> no canto direito para expandir ou recolher o gerenciador.</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Carregar um Setlist</h3>
+                <p>Para carregar qualquer setlist salvo ou compartilhado:</p>
+                <ol>
+                    <li>Localize o setlist desejado no gerenciador</li>
+                    <li>Clique no botão <strong>"Carregar"</strong></li>
+                    <li>Todos os metrônomos serão substituídos</li>
+                    <li>As configurações globais também serão aplicadas</li>
+                </ol>
+                <p><strong>⚠️ Aviso:</strong> Carregar um setlist substitui sua configuração atual. Salve antes se não quiser perder!</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Deletar Setlists</h3>
+                <p>Para deletar um dos seus setlists salvos:</p>
+                <ol>
+                    <li>Encontre o setlist em "💾 Meus Setlists"</li>
+                    <li>Clique no botão vermelho <strong>"×"</strong></li>
+                    <li>Confirme a exclusão</li>
+                </ol>
+                <p><strong>Nota:</strong> Você só pode deletar seus próprios setlists salvos. Setlists compartilhados não podem ser deletados.</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Informações Exibidas</h3>
+                <p>Cada setlist mostra:</p>
+                <ul>
+                    <li><strong>Nome:</strong> Título do setlist</li>
+                    <li><strong>Quantidade:</strong> Número de músicas/metrônomos</li>
+                    <li><strong>Data:</strong> Quando foi criado</li>
+                    <li><strong>Autor:</strong> Quem criou (apenas setlists compartilhados)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Casos de Uso Práticos</h2>
+            
+            <div class="feature-detail">
+                <h3>Para Bandas</h3>
+                <p><strong>Cenário:</strong> Banda precisa ensaiar setlist do show</p>
+                <ol>
+                    <li>Líder da banda cria setlist completo do show</li>
+                    <li>Compartilha usando o botão 🌐 (se no Claude.ai)</li>
+                    <li>OU exporta como JSON e envia no grupo do WhatsApp</li>
+                    <li>Cada membro importa/carrega o setlist</li>
+                    <li>Todos praticam com as mesmas configurações</li>
+                </ol>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Para Professores de Música</h3>
+                <p><strong>Cenário:</strong> Professor quer passar exercícios para alunos</p>
+                <ol>
+                    <li>Cria setlist com exercícios da aula</li>
+                    <li>Exporta como JSON (📥)</li>
+                    <li>Envia arquivo por email ou Google Classroom</li>
+                    <li>Alunos importam (📤) e praticam em casa</li>
+                    <li>Garante que todos praticam no BPM correto</li>
+                </ol>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Para Shows/Apresentações</h3>
+                <p><strong>Cenário:</strong> Músico tem show importante</p>
+                <ol>
+                    <li>Cria setlist com todas as músicas do show</li>
+                    <li>Salva como "Show 15/11" (💾)</li>
+                    <li>Exporta backup JSON por segurança</li>
+                    <li>No dia do show, carrega o setlist</li>
+                    <li>Usa atalhos 1-9 para mudar entre músicas rapidamente</li>
+                </ol>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Para Estudo Pessoal</h3>
+                <p><strong>Cenário:</strong> Músico organiza rotina de estudos</p>
+                <ol>
+                    <li>Cria "Aquecimento Segunda" com exercícios técnicos</li>
+                    <li>Cria "Repertório Clássico" com peças que está estudando</li>
+                    <li>Cria "Músicas do Recital" com programa da apresentação</li>
+                    <li>Salva todos (💾)</li>
+                    <li>Carrega o apropriado para cada sessão de estudo</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🚀 Primeiros Passos</h2>
+            
+            <div class="step-box">
+                <h3>Passo 1: Configuração Básica</h3>
+                <p>Ao abrir a aplicação, você verá três metrônomos pré-configurados prontos para uso. Cada metrônomo possui:</p>
+                <ul>
+                    <li><strong>Campo Música:</strong> Digite o nome da música ou exercício que está praticando</li>
+                    <li><strong>BPM (Batidas Por Minuto):</strong> Ajuste entre 60 e 200 BPM conforme sua necessidade</li>
+                    <li><strong>Compasso:</strong> Selecione entre 2/4, 3/4, 4/4 ou 6/8</li>
+                    <li><strong>Indicadores de Beat:</strong> Visualize os pulsos em tempo real</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <h3>Passo 2: Ajustar o BPM</h3>
+                <p>O BPM (Batidas Por Minuto) determina a velocidade do metrônomo. Clique no campo verde com o número e digite o valor desejado:</p>
+                <ul>
+                    <li><strong>60-80 BPM:</strong> Ideal para iniciantes e exercícios técnicos lentos</li>
+                    <li><strong>80-120 BPM:</strong> Andamento moderado, perfeito para a maioria das músicas</li>
+                    <li><strong>120-160 BPM:</strong> Andamento rápido para rock, pop e exercícios avançados</li>
+                    <li><strong>160-200 BPM:</strong> Andamento muito rápido para metal, punk e desafios técnicos</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <h3>Passo 3: Escolher o Compasso</h3>
+                <p>O compasso define quantos tempos existem em cada ciclo:</p>
+                <ul>
+                    <li><strong>2/4:</strong> Dois tempos por compasso - usado em marchas</li>
+                    <li><strong>3/4:</strong> Três tempos por compasso - usado em valsas</li>
+                    <li><strong>4/4:</strong> Quatro tempos por compasso - o mais comum na música popular</li>
+                    <li><strong>6/8:</strong> Seis tempos por compasso - usado em ritmos compostos</li>
+                </ul>
+                <p>O primeiro tempo de cada compasso sempre tem ênfase visual (cor dourada) e sonora mais forte.</p>
+            </div>
+
+            <div class="step-box">
+                <h3>Passo 4: Iniciar o Metrônomo</h3>
+                <p>Clique no botão verde de play (▶) para iniciar o metrônomo. Quando estiver tocando:</p>
+                <ul>
+                    <li>O botão mudará para vermelho com ícone de pausa (⏸)</li>
+                    <li>Os indicadores de beat acenderão conforme o ritmo</li>
+                    <li>O primeiro tempo terá cor dourada (acento)</li>
+                    <li>Os demais tempos terão cor verde</li>
+                </ul>
+                <p><strong>Dica:</strong> Apenas um metrônomo pode tocar por vez. Ao iniciar um novo, o anterior será pausado automaticamente.</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎛️ Controles Globais</h2>
+            
+            <div class="feature-detail">
+                <h3>Controle de Canais (L/R/C)</h3>
+                <p>Posicione o som do metrônomo no campo estéreo conforme sua preferência:</p>
+                <ul>
+                    <li><strong>L (Esquerda):</strong> Som apenas no canal esquerdo dos fones/caixas</li>
+                    <li><strong>R (Direita):</strong> Som apenas no canal direito dos fones/caixas</li>
+                    <li><strong>C (Centro):</strong> Som balanceado em ambos os canais</li>
+                </ul>
+                <p><strong>Uso prático:</strong> Em gravações, você pode colocar o metrônomo em um canal e a faixa guia em outro, facilitando a mixagem posterior.</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Seletor de Timbre</h3>
+                <p>Escolha entre 5 timbres profissionais, cada um otimizado para diferentes situações:</p>
+                <ul>
+                    <li><strong>Click Original:</strong> Som clássico de metrônomo mecânico, ideal para prática clássica</li>
+                    <li><strong>Soft Click:</strong> Versão mais suave, perfeita para sessões longas de estudo</li>
+                    <li><strong>Electronic:</strong> Som moderno para música eletrônica, rock e pop</li>
+                    <li><strong>Multitrack:</strong> Desenvolvido para gravações em estúdio</li>
+                    <li><strong>Warm Tone:</strong> Tom musical e orgânico, menos mecânico</li>
+                </ul>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Controle de Volume</h3>
+                <p>Ajuste o volume usando o slider horizontal. Arraste para a esquerda para diminuir e para a direita para aumentar. O volume afeta todos os metrônomos igualmente.</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Adicionar Novos Metrônomos</h3>
+                <p>Clique no botão verde "+" para adicionar até 10 metrônomos independentes. Use múltiplos metrônomos para:</p>
+                <ul>
+                    <li>Preparar setlists completas com configurações diferentes</li>
+                    <li>Praticar mudanças de andamento</li>
+                    <li>Ter configurações salvas para diferentes músicas</li>
+                </ul>
+            </div>
         </div>
 
         <div class="content-section">
@@ -144,22 +417,57 @@
             <div class="tips-grid">
                 <div class="tip-card">
                     <h4>🎯 Para Iniciantes</h4>
-                    <p>Comece com BPM baixo (60-70) e aumente gradualmente apenas quando conseguir tocar perfeitamente.</p>
+                    <p>Comece com BPM baixo (60-70) e aumente gradualmente. Salve seu progresso com setlists nomeados por semana.</p>
                 </div>
                 <div class="tip-card">
                     <h4>🎸 Para Instrumentistas</h4>
-                    <p>Use o timbre "Soft Click" para sessões longas de prática sem cansar os ouvidos.</p>
+                    <p>Use o timbre "Soft Click" para sessões longas. Exporte backups dos seus setlists importantes.</p>
                 </div>
                 <div class="tip-card">
                     <h4>🎤 Para Cantores</h4>
-                    <p>Configure o metrônomo no canal L ou R para manter o outro canal livre para playback.</p>
+                    <p>Configure canal L ou R para manter o outro canal livre. Compartilhe setlists com sua banda.</p>
                 </div>
                 <div class="tip-card">
                     <h4>🎹 Para Produtores</h4>
-                    <p>Use o timbre "Multitrack" em gravações profissionais para melhor clareza na mixagem.</p>
+                    <p>Use timbre "Multitrack" em gravações. Crie setlists para cada projeto de estúdio.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>💾 Backup Regular</h4>
+                    <p>Exporte seus setlists importantes como JSON mensalmente. Guarde em nuvem (Drive, Dropbox).</p>
+                </div>
+                <div class="tip-card">
+                    <h4>🎓 Para Professores</h4>
+                    <p>Crie biblioteca de setlists por nível de dificuldade. Compartilhe com seus alunos.</p>
                 </div>
             </div>
         </div>
+
+        <div class="content-section">
+            <h2>⚠️ Avisos Importantes</h2>
+            
+            <div class="faq-item">
+                <h4>Sobre Dados Salvos</h4>
+                <p>Os setlists salvos localmente (💾) ficam armazenados no seu navegador. Se você limpar o histórico, cache ou dados do site, eles serão perdidos. Por isso, é importante fazer backups exportando como JSON.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Sobre Compartilhamento Público</h4>
+                <p>Setlists compartilhados (🌐) são públicos e permanentes. Não compartilhe informações pessoais, senhas ou dados sensíveis. Uma vez compartilhado, não pode ser editado ou deletado.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Sobre Compatibilidade</h4>
+                <p>O recurso de compartilhamento (🌐) funciona apenas quando o site está hospedado no Claude.ai. Se você está testando localmente (localhost/127.0.0.1), use Exportar/Importar JSON para compartilhar.</p>
+            </div>
+
+            <div class="faq-item">
+                <h4>Sobre Limite de Setlists</h4>
+                <p>Não há limite para quantos setlists você pode salvar localmente. No gerenciador, são mostrados os 10 setlists compartilhados mais recentes.</p>
+            </div>
+        </div>
+
+         
+        
 
         <div class="cta-section">
             <h2>Pronto para começar?</h2>

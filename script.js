@@ -1,4 +1,3 @@
-
 // Variáveis globais
 let metronomes = [];
 let nextId = 1;
@@ -7,31 +6,97 @@ let globalVolume = 0.5;
 let selectedTimbre = 'click';
 let audioContext = null;
 let intervals = {};
+let savedSetlists = [];
+let sharedSetlists = [];
+
+// Detectar se storage está disponível
+const hasClaudeStorage = typeof window.storage !== 'undefined';
+
+// Funções de storage com fallback para localStorage
+async function storageSet(key, value, shared = false) {
+    if (hasClaudeStorage) {
+        try {
+            return await window.storage.set(key, value, shared);
+        } catch (e) {
+            console.log('Erro storage:', e);
+            return null;
+        }
+    } else {
+        localStorage.setItem(key, value);
+        return { key, value, shared };
+    }
+}
+
+async function storageGet(key, shared = false) {
+    if (hasClaudeStorage) {
+        try {
+            return await window.storage.get(key, shared);
+        } catch (e) {
+            return null;
+        }
+    } else {
+        const value = localStorage.getItem(key);
+        return value ? { key, value, shared } : null;
+    }
+}
+
+async function storageDelete(key, shared = false) {
+    if (hasClaudeStorage) {
+        try {
+            return await window.storage.delete(key, shared);
+        } catch (e) {
+            return null;
+        }
+    } else {
+        localStorage.removeItem(key);
+        return { key, deleted: true, shared };
+    }
+}
+
+async function storageList(prefix, shared = false) {
+    if (hasClaudeStorage) {
+        try {
+            return await window.storage.list(prefix, shared);
+        } catch (e) {
+            return { keys: [] };
+        }
+    } else {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(prefix)) {
+                keys.push(key);
+            }
+        }
+        return { keys };
+    }
+}
 
 // Inicializar
-function init() {
-    // Criar contexto de áudio
+async function init() {
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
         console.log('Erro ao criar contexto de áudio:', e);
     }
 
-    // Ativar áudio no primeiro clique
     document.addEventListener('click', function() {
         if (audioContext && audioContext.state === 'suspended') {
             audioContext.resume();
         }
     }, { once: true });
 
-    // Controle de volume e timbre
-    document.getElementById('volumeSlider').addEventListener('input', function() {
-        globalVolume = this.value / 100;
-    });
+    const volumeSlider = document.getElementById('volumeSlider');
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', function() {
+            globalVolume = this.value / 100;
+        });
+    }
 
-    // Atalhos de teclado
     document.addEventListener('keydown', function(e) {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') {
+        if (document.activeElement.tagName === 'INPUT' || 
+            document.activeElement.tagName === 'SELECT' ||
+            document.activeElement.tagName === 'TEXTAREA') {
             return;
         }
 
@@ -46,26 +111,376 @@ function init() {
         }
     });
 
-    // Adicionar metrônomos iniciais
-    addMetronome();
-    addMetronome();
-    addMetronome();
+    await loadSavedSetlists();
+    await loadSharedSetlists();
+
+    const lastConfig = await loadLastConfig();
+    if (lastConfig && lastConfig.length > 0) {
+        metronomes = lastConfig;
+        nextId = Math.max(...metronomes.map(m => m.id)) + 1;
+    } else {
+        addMetronome();
+        addMetronome();
+        addMetronome();
+    }
+    
+    renderMetronomes();
+    renderSetlistManager();
 }
 
-// Definir canal global
+async function saveLastConfig() {
+    try {
+        const config = metronomes.map(m => ({
+            id: m.id,
+            name: m.name,
+            bpm: m.bpm,
+            timeSignature: m.timeSignature,
+            beats: m.beats
+        }));
+        await storageSet('last-config', JSON.stringify(config), false);
+    } catch (error) {
+        console.log('Erro ao salvar:', error);
+    }
+}
+
+async function loadLastConfig() {
+    try {
+        const result = await storageGet('last-config', false);
+        if (result && result.value) {
+            const config = JSON.parse(result.value);
+            return config.map(m => ({
+                ...m,
+                isPlaying: false,
+                currentBeat: 0
+            }));
+        }
+    } catch (error) {
+        console.log('Sem config anterior');
+    }
+    return null;
+}
+
+async function saveSetlist() {
+    const name = prompt('Digite um nome para este setlist:');
+    if (!name) return;
+
+    try {
+        const setlistData = {
+            name: name,
+            date: new Date().toISOString(),
+            metronomes: metronomes.map(m => ({
+                id: m.id,
+                name: m.name,
+                bpm: m.bpm,
+                timeSignature: m.timeSignature,
+                beats: m.beats
+            })),
+            globalSettings: {
+                channel: globalChannel,
+                volume: globalVolume,
+                timbre: selectedTimbre
+            }
+        };
+
+        const setlistId = 'setlist-' + Date.now();
+        await storageSet(setlistId, JSON.stringify(setlistData), false);
+        
+        alert('Setlist "' + name + '" salvo!');
+        await loadSavedSetlists();
+        renderSetlistManager();
+    } catch (error) {
+        alert('Erro: ' + error.message);
+    }
+}
+
+async function shareSetlist() {
+    if (!hasClaudeStorage) {
+        alert('⚠️ Compartilhamento só no Claude.ai\n\nUse "Exportar JSON" para compartilhar manualmente.');
+        return;
+    }
+    
+    const name = prompt('Nome para compartilhar:');
+    if (!name) return;
+
+    try {
+        const setlistData = {
+            name: name,
+            author: prompt('Seu nome (opcional):') || 'Anônimo',
+            date: new Date().toISOString(),
+            metronomes: metronomes.map(m => ({
+                id: m.id,
+                name: m.name,
+                bpm: m.bpm,
+                timeSignature: m.timeSignature,
+                beats: m.beats
+            })),
+            globalSettings: {
+                channel: globalChannel,
+                volume: globalVolume,
+                timbre: selectedTimbre
+            }
+        };
+
+        const shareId = 'shared-' + Date.now();
+        await storageSet(shareId, JSON.stringify(setlistData), true);
+        
+        alert('Setlist compartilhado!');
+        await loadSharedSetlists();
+        renderSetlistManager();
+    } catch (error) {
+        alert('Erro: ' + error.message);
+    }
+}
+
+async function loadSavedSetlists() {
+    try {
+        const result = await storageList('setlist-', false);
+        if (result && result.keys) {
+            savedSetlists = [];
+            for (const key of result.keys) {
+                const data = await storageGet(key, false);
+                if (data && data.value) {
+                    savedSetlists.push({
+                        key: key,
+                        data: JSON.parse(data.value)
+                    });
+                }
+            }
+            savedSetlists.sort((a, b) => new Date(b.data.date) - new Date(a.data.date));
+        }
+    } catch (error) {
+        console.log('Erro ao listar setlists:', error);
+    }
+}
+
+async function loadSharedSetlists() {
+    if (!hasClaudeStorage) {
+        sharedSetlists = [];
+        return;
+    }
+    
+    try {
+        const result = await storageList('shared-', true);
+        if (result && result.keys) {
+            sharedSetlists = [];
+            for (const key of result.keys) {
+                const data = await storageGet(key, true);
+                if (data && data.value) {
+                    sharedSetlists.push({
+                        key: key,
+                        data: JSON.parse(data.value)
+                    });
+                }
+            }
+            sharedSetlists.sort((a, b) => new Date(b.data.date) - new Date(a.data.date));
+        }
+    } catch (error) {
+        console.log('Erro setlists compartilhados:', error);
+    }
+}
+
+async function loadSetlist(key, isShared = false) {
+    try {
+        const result = await storageGet(key, isShared);
+        if (result && result.value) {
+            const setlistData = JSON.parse(result.value);
+            
+            metronomes.forEach(m => {
+                if (m.isPlaying) stopMetronome(m.id);
+            });
+            
+            metronomes = setlistData.metronomes.map(m => ({
+                ...m,
+                isPlaying: false,
+                currentBeat: 0
+            }));
+            nextId = Math.max(...metronomes.map(m => m.id)) + 1;
+            
+            if (setlistData.globalSettings) {
+                globalChannel = setlistData.globalSettings.channel || 'C';
+                globalVolume = setlistData.globalSettings.volume || 0.5;
+                selectedTimbre = setlistData.globalSettings.timbre || 'click';
+                
+                const volumeSlider = document.getElementById('volumeSlider');
+                const timbreSelect = document.getElementById('timbreSelect');
+                if (volumeSlider) volumeSlider.value = globalVolume * 100;
+                if (timbreSelect) timbreSelect.value = selectedTimbre;
+                
+                document.querySelectorAll('.channel-btn').forEach(btn => {
+                    btn.className = 'channel-btn inactive';
+                });
+                const activeBtn = Array.from(document.querySelectorAll('.channel-btn'))
+                    .find(btn => btn.textContent === globalChannel);
+                if (activeBtn) activeBtn.className = 'channel-btn active';
+            }
+            
+            renderMetronomes();
+            alert('Setlist carregado!');
+        }
+    } catch (error) {
+        alert('Erro ao carregar: ' + error.message);
+    }
+}
+
+async function deleteSetlist(key) {
+    if (!confirm('Deletar este setlist?')) return;
+    
+    try {
+        await storageDelete(key, false);
+        await loadSavedSetlists();
+        renderSetlistManager();
+        alert('Setlist deletado!');
+    } catch (error) {
+        alert('Erro: ' + error.message);
+    }
+}
+
+function exportSetlist() {
+    const setlistData = {
+        name: prompt('Nome do setlist:') || 'Meu Setlist',
+        date: new Date().toISOString(),
+        metronomes: metronomes.map(m => ({
+            name: m.name,
+            bpm: m.bpm,
+            timeSignature: m.timeSignature,
+            beats: m.beats
+        })),
+        globalSettings: {
+            channel: globalChannel,
+            volume: globalVolume,
+            timbre: selectedTimbre
+        }
+    };
+    
+    const json = JSON.stringify(setlistData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = setlistData.name.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importSetlist() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const setlistData = JSON.parse(event.target.result);
+                
+                metronomes.forEach(m => {
+                    if (m.isPlaying) stopMetronome(m.id);
+                });
+                
+                metronomes = setlistData.metronomes.map((m, index) => ({
+                    id: index + 1,
+                    name: m.name,
+                    bpm: m.bpm,
+                    timeSignature: m.timeSignature,
+                    beats: m.beats,
+                    isPlaying: false,
+                    currentBeat: 0
+                }));
+                nextId = metronomes.length + 1;
+                
+                if (setlistData.globalSettings) {
+                    globalChannel = setlistData.globalSettings.channel || 'C';
+                    globalVolume = setlistData.globalSettings.volume || 0.5;
+                    selectedTimbre = setlistData.globalSettings.timbre || 'click';
+                    
+                    const volumeSlider = document.getElementById('volumeSlider');
+                    const timbreSelect = document.getElementById('timbreSelect');
+                    if (volumeSlider) volumeSlider.value = globalVolume * 100;
+                    if (timbreSelect) timbreSelect.value = selectedTimbre;
+                }
+                
+                renderMetronomes();
+                alert('Setlist importado!');
+            } catch (error) {
+                alert('Erro ao importar: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function renderSetlistManager() {
+    const container = document.getElementById('setlistManager');
+    if (!container) return;
+    
+    let html = '<div class="setlist-section">';
+    html += '<h3>💾 Meus Setlists</h3>';
+    
+    if (savedSetlists.length === 0) {
+        html += '<p class="empty-message">Nenhum setlist salvo</p>';
+    } else {
+        savedSetlists.forEach(setlist => {
+            const date = new Date(setlist.data.date).toLocaleDateString('pt-BR');
+            html += `
+                <div class="setlist-item">
+                    <div class="setlist-info">
+                        <strong>${setlist.data.name}</strong>
+                        <small>${setlist.data.metronomes.length} músicas • ${date}</small>
+                    </div>
+                    <div class="setlist-actions">
+                        <button onclick="loadSetlist('${setlist.key}')" class="btn-load">Carregar</button>
+                        <button onclick="deleteSetlist('${setlist.key}')" class="btn-delete">×</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    html += '<div class="setlist-section">';
+    html += '<h3>🌐 Setlists Compartilhados</h3>';
+    
+    if (!hasClaudeStorage) {
+        html += '<p class="empty-message">⚠️ <br>Use "Exportar/Importar JSON"</p>';
+    } else if (sharedSetlists.length === 0) {
+        html += '<p class="empty-message">Nenhum compartilhado</p>';
+    } else {
+        sharedSetlists.slice(0, 10).forEach(setlist => {
+            const date = new Date(setlist.data.date).toLocaleDateString('pt-BR');
+            html += `
+                <div class="setlist-item shared">
+                    <div class="setlist-info">
+                        <strong>${setlist.data.name}</strong>
+                        <small>Por ${setlist.data.author} • ${setlist.data.metronomes.length} músicas • ${date}</small>
+                    </div>
+                    <div class="setlist-actions">
+                        <button onclick="loadSetlist('${setlist.key}', true)" class="btn-load">Carregar</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
 function setGlobalChannel(channel) {
     globalChannel = channel;
     document.querySelectorAll('.channel-btn').forEach(btn => {
         btn.className = 'channel-btn inactive';
     });
     event.target.className = 'channel-btn active';
+    saveLastConfig();
 }
 
-// Adicionar metrônomo
 function addMetronome() {
     if (metronomes.length >= 10) return;
 
-    const newMetronome = {
+    metronomes.push({
         id: nextId++,
         name: 'Música ' + (metronomes.length + 1),
         bpm: 120,
@@ -73,22 +488,20 @@ function addMetronome() {
         beats: 4,
         isPlaying: false,
         currentBeat: 0
-    };
+    });
 
-    metronomes.push(newMetronome);
     renderMetronomes();
+    saveLastConfig();
 }
 
-// Remover metrônomo
 function removeMetronome(id) {
     if (metronomes.length <= 1) return;
-
     stopMetronome(id);
     metronomes = metronomes.filter(m => m.id !== id);
     renderMetronomes();
+    saveLastConfig();
 }
 
-// Atualizar metrônomo
 function updateMetronome(id, field, value) {
     const metronome = metronomes.find(m => m.id === id);
     if (!metronome) return;
@@ -109,9 +522,9 @@ function updateMetronome(id, field, value) {
     }
 
     renderMetronomes();
+    saveLastConfig();
 }
 
-// Toggle play/pause
 function toggleMetronome(id) {
     const metronome = metronomes.find(m => m.id === id);
     if (!metronome) return;
@@ -123,12 +536,10 @@ function toggleMetronome(id) {
     }
 }
 
-// Iniciar metrônomo
 function startMetronome(id) {
     const metronome = metronomes.find(m => m.id === id);
     if (!metronome || metronome.isPlaying) return;
 
-    // Parar todos os outros metrônomos (comportamento solo)
     metronomes.forEach(m => {
         if (m.id !== id && m.isPlaying) {
             stopMetronome(m.id);
@@ -140,7 +551,6 @@ function startMetronome(id) {
 
     const interval = 60000 / metronome.bpm;
 
-    // Tocar primeiro beat
     playSound(metronome);
     updateBeatIndicator(id, 0);
 
@@ -153,7 +563,6 @@ function startMetronome(id) {
     renderMetronomes();
 }
 
-// Parar metrônomo
 function stopMetronome(id) {
     const metronome = metronomes.find(m => m.id === id);
     if (!metronome) return;
@@ -169,12 +578,11 @@ function stopMetronome(id) {
     renderMetronomes();
 }
 
-// Mudar timbre
 function changeTimbre(timbre) {
     selectedTimbre = timbre;
+    saveLastConfig();
 }
 
-// Tocar som com diferentes timbres
 function playSound(metronome) {
     if (!audioContext) return;
 
@@ -182,7 +590,7 @@ function playSound(metronome) {
 
     switch (selectedTimbre) {
         case 'click':
-            playClickSound(isFirstBeat); // Original que você gosta
+            playClickSound(isFirstBeat);
             break;
         case 'soft':
             playSoftClickSound(isFirstBeat);
@@ -201,7 +609,6 @@ function playSound(metronome) {
     }
 }
 
-// Click original (mantido como estava - você gosta dele)
 function playClickSound(isFirstBeat) {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -221,7 +628,6 @@ function playClickSound(isFirstBeat) {
     oscillator.stop(audioContext.currentTime + 0.08);
 }
 
-// Soft Click - mais suave e confortável
 function playSoftClickSound(isFirstBeat) {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
@@ -237,7 +643,6 @@ function playSoftClickSound(isFirstBeat) {
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     oscillator.type = 'sine';
 
-    // Filtro suave para não machucar o ouvido
     filterNode.type = 'lowpass';
     filterNode.frequency.setValueAtTime(2000, audioContext.currentTime);
     filterNode.Q.setValueAtTime(0.5, audioContext.currentTime);
@@ -248,7 +653,6 @@ function playSoftClickSound(isFirstBeat) {
     oscillator.stop(audioContext.currentTime + 0.12);
 }
 
-// Electronic - estilo profissional e suave
 function playElectronicSound(isFirstBeat) {
     const oscillator1 = audioContext.createOscillator();
     const oscillator2 = audioContext.createOscillator();
@@ -273,7 +677,6 @@ function playElectronicSound(isFirstBeat) {
     oscillator1.type = 'sine';
     oscillator2.type = 'triangle';
 
-    // Filtro suave e profissional
     filterNode.type = 'bandpass';
     filterNode.frequency.setValueAtTime(1200, audioContext.currentTime);
     filterNode.Q.setValueAtTime(2, audioContext.currentTime);
@@ -286,13 +689,11 @@ function playElectronicSound(isFirstBeat) {
     oscillator2.stop(audioContext.currentTime + 0.1);
 }
 
-// Estilo Multitrack - usado em gravações profissionais
 function playMultitrackSound(isFirstBeat) {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     const pannerNode = audioContext.createStereoPanner();
     const filterNode = audioContext.createBiquadFilter();
-    const reverbNode = audioContext.createConvolver();
 
     oscillator.connect(filterNode);
     filterNode.connect(gainNode);
@@ -303,7 +704,6 @@ function playMultitrackSound(isFirstBeat) {
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     oscillator.type = 'triangle';
 
-    // Som mais aberto e natural para multitracks
     filterNode.type = 'highpass';
     filterNode.frequency.setValueAtTime(300, audioContext.currentTime);
     filterNode.Q.setValueAtTime(0.7, audioContext.currentTime);
@@ -314,7 +714,6 @@ function playMultitrackSound(isFirstBeat) {
     oscillator.stop(audioContext.currentTime + 0.15);
 }
 
-// Warm Tone - som mais quente e musical
 function playWarmToneSound(isFirstBeat) {
     const oscillator1 = audioContext.createOscillator();
     const oscillator2 = audioContext.createOscillator();
@@ -339,7 +738,6 @@ function playWarmToneSound(isFirstBeat) {
     oscillator2.type = 'triangle';
     oscillator3.type = 'sine';
 
-    // Tom mais quente e musical
     filterNode.type = 'lowpass';
     filterNode.frequency.setValueAtTime(1500, audioContext.currentTime);
     filterNode.Q.setValueAtTime(1, audioContext.currentTime);
@@ -354,39 +752,32 @@ function playWarmToneSound(isFirstBeat) {
     oscillator3.stop(audioContext.currentTime + 0.18);
 }
 
-// Configurar pan e volume (função helper atualizada)
 function setupPanAndVolume(pannerNode, gainNode, isFirstBeat, duration, firstVolume = 0.25, secondVolume = 0.18) {
-    // Pan L/R/Center
     let panValue = 0;
     if (globalChannel === 'L') panValue = -1;
     if (globalChannel === 'R') panValue = 1;
     pannerNode.pan.setValueAtTime(panValue, audioContext.currentTime);
 
-    // Envelope de volume suave para não machucar o ouvido
     const volume = (isFirstBeat ? firstVolume : secondVolume) * globalVolume;
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
 }
 
-// Atualizar indicadores de beat
 function updateBeatIndicator(id, currentBeat) {
     const indicators = document.querySelectorAll('[data-id="' + id + '"] .beat-dot');
     indicators.forEach((dot, index) => {
         dot.className = 'beat-dot';
         if (index === currentBeat) {
-            if (index === 0) {
-                dot.className = 'beat-dot accent';
-            } else {
-                dot.className = 'beat-dot active';
-            }
+            dot.className = 'beat-dot ' + (index === 0 ? 'accent' : 'active');
         }
     });
 }
 
-// Renderizar lista de metrônomos
 function renderMetronomes() {
     const list = document.getElementById('metronomeList');
+    if (!list) return;
+    
     list.innerHTML = '';
 
     metronomes.forEach((m, index) => {
@@ -405,25 +796,21 @@ function renderMetronomes() {
 
         item.innerHTML = `
             <div class="item-number">${index + 1}</div>
-            
             <div>
                 <input type="text" class="music-input" placeholder="Nome da música..." 
-                        value="${m.name}" onchange="updateMetronome(${m.id}, 'name', this.value)">
+                       value="${m.name}" onchange="updateMetronome(${m.id}, 'name', this.value)">
             </div>
-            
             <div class="bmp-container">
                 <input type="number" class="bpm-input" min="60" max="200" 
-                        value="${m.bpm}" onchange="updateMetronome(${m.id}, 'bpm', this.value)">
+                       value="${m.bpm}" onchange="updateMetronome(${m.id}, 'bpm', this.value)">
                 <span class="bpm-label">BPM</span>
             </div>
-            
             <div>
                 <button class="play-btn ${m.isPlaying ? 'pause' : 'play'}" 
                         onclick="toggleMetronome(${m.id})">
                     ${m.isPlaying ? '⏸' : '▶'}
                 </button>
             </div>
-            
             <div>
                 <select class="time-select" onchange="updateMetronome(${m.id}, 'timeSignature', this.value)">
                     <option value="2/4" ${m.timeSignature === '2/4' ? 'selected' : ''}>2/4</option>
@@ -432,11 +819,9 @@ function renderMetronomes() {
                     <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
                 </select>
             </div>
-            
             <div class="beat-indicators">
                 ${beatIndicators}
             </div>
-            
             <div>
                 ${metronomes.length > 1 ? 
                     `<button class="remove-btn" onclick="removeMetronome(${m.id})">×</button>` : ''
@@ -448,5 +833,4 @@ function renderMetronomes() {
     });
 }
 
-// Inicializar quando página carregar
 document.addEventListener('DOMContentLoaded', init);

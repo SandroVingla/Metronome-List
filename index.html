@@ -50,12 +50,13 @@
         </div>
     </nav>
 
-    <!-- Banner Introdutório Compacto 
+    <!-- Banner Introdutório Compacto -->
     <div class="intro-banner">
         <div class="intro-content">
             <h2>Metrônomo Online Profissional - Gratuito</h2>
+            <p>Ferramenta completa com múltiplas faixas, 5 timbres profissionais e controle avançado de canais. <a href="sobre.html" class="learn-more">Saiba mais →</a></p>
         </div>
-    </div>-->
+    </div>
     
     <!-- Aplicação do Metrônomo -->
     <div class="container">
@@ -94,6 +95,13 @@
             </div>
 
             <button class="add-btn" onclick="addMetronome()" title="Adicionar novo metrônomo">+</button>
+            
+            <div class="save-buttons">
+                <button class="save-btn" onclick="saveSetlist()" title="Salvar setlist">💾</button>
+                <!--<button class="share-btn" onclick="shareSetlist()" title="Compartilhar setlist">🌐</button>-->
+                <button class="export-btn" onclick="exportSetlist()" title="Exportar JSON">📥</button>
+                <button class="import-btn" onclick="importSetlist()" title="Importar JSON">📤</button>
+            </div>
         </div>
 
         <div class="metronome-header">
@@ -107,9 +115,18 @@
         </div>
 
         <div id="metronomeList"></div>
+        
+        <!-- Gerenciador de Setlists -->
+        <div class="setlist-manager">
+            <div class="setlist-header">
+                <h2>📋 Gerenciador de Setlists</h2>
+                <button class="toggle-setlists" onclick="toggleSetlistManager()">▼</button>
+            </div>
+            <div id="setlistManager" class="setlist-content"></div>
+        </div>
     </div>
 
-    <!-- Links Rápidos 
+    <!-- Links Rápidos -->
     <div class="quick-links">
         <div class="quick-links-container">
             <div class="quick-link-card">
@@ -128,7 +145,7 @@
                 <a href="faq.html" class="btn-link">Ver FAQ →</a>
             </div>
         </div>
-    </div>-->
+    </div>
 
     <footer>
         <p>© 2025 Metronome List. Todos os direitos reservados.</p>
@@ -144,6 +161,18 @@
         function toggleMenu() {
             const navMenu = document.querySelector('.nav-menu');
             navMenu.classList.toggle('active');
+        }
+        
+        function toggleSetlistManager() {
+            const content = document.getElementById('setlistManager');
+            const button = document.querySelector('.toggle-setlists');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                button.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                button.textContent = '▶';
+            }
         }
     </script>
 </body>
