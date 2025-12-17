@@ -1,0 +1,28 @@
+# robots.txt para Metronome List
+
+# Permitir todos os bots de busca
+User-agent: *
+Allow: /
+
+# Permitir especificamente Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Permitir Googlebot para AdSense
+User-agent: Mediapartners-Google
+Allow: /
+
+# Permitir Googlebot para imagens
+User-agent: Googlebot-Image
+Allow: /
+
+# Não indexar arquivos de configuração ou temporários (se houver)
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://metronome-list.netlify.app/sitemap.xml
+
+# Crawl-delay (opcional - não necessário para Google)
+# Crawl-delay: 1
