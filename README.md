@@ -259,7 +259,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - **Documentação**: [Como Usar](https://metronome-list.netlify.app/como-usar.html)
 - **FAQ**: [Perguntas Frequentes](https://metronome-list.netlify.app/faq.html)
 - **Issues**: [GitHub Issues](https://github.com/SandroVingla/Metronome-List/issues)
-- **Email**: seu-email@exemplo.com
+- **Email**: sanvingla@hotmail.com
 
 ## 🌟 Mostre seu apoio
 
