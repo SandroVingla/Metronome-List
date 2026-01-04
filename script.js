@@ -2,12 +2,19 @@
 let metronomes = [];
 let nextId = 1;
 let globalChannel = 'C';
-let globalVolume = 0.5;
+let globalVolume = 0.7; // Volume fixo do sistema
 let selectedTimbre = 'click';
 let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
 let sharedSetlists = [];
+
+// Variáveis para Tap Tempo
+let tapTimes = [];
+let tapTimeout = null;
+
+// Variável para lembrar último metrônomo usado com espaço
+let lastSpacebarMetronome = null;
 
 // Detectar se storage está disponível
 const hasClaudeStorage = typeof window.storage !== 'undefined';
@@ -86,12 +93,13 @@ async function init() {
         }
     }, { once: true });
 
-    const volumeSlider = document.getElementById('volumeSlider');
-    if (volumeSlider) {
-        volumeSlider.addEventListener('input', function() {
-            globalVolume = this.value / 100;
-        });
-    }
+    // Remover controle de volume (agora é fixo)
+    // const volumeSlider = document.getElementById('volumeSlider');
+    // if (volumeSlider) {
+    //     volumeSlider.addEventListener('input', function() {
+    //         globalVolume = this.value / 100;
+    //     });
+    // }
 
     document.addEventListener('keydown', function(e) {
         if (document.activeElement.tagName === 'INPUT' || 
@@ -101,6 +109,37 @@ async function init() {
         }
 
         const key = e.key;
+        
+        // Espaço para play/pause do metrônomo atual (último tocado ou primeiro)
+        if (key === ' ' || key === 'Spacebar') {
+            e.preventDefault(); // Prevenir scroll da página
+            
+            // Verificar se há metrônomo tocando
+            const playingMetronome = metronomes.find(m => m.isPlaying);
+            
+            if (playingMetronome) {
+                // Se há um tocando, pausar e lembrar qual era
+                lastSpacebarMetronome = playingMetronome.id;
+                toggleMetronome(playingMetronome.id);
+            } else if (lastSpacebarMetronome) {
+                // Se lembrar do último, tocar ele novamente
+                const lastMetronome = metronomes.find(m => m.id === lastSpacebarMetronome);
+                if (lastMetronome) {
+                    toggleMetronome(lastSpacebarMetronome);
+                } else {
+                    // Se o último não existe mais, tocar o primeiro
+                    lastSpacebarMetronome = metronomes[0].id;
+                    toggleMetronome(metronomes[0].id);
+                }
+            } else if (metronomes.length > 0) {
+                // Se não lembra de nenhum, tocar o primeiro e lembrar
+                lastSpacebarMetronome = metronomes[0].id;
+                toggleMetronome(metronomes[0].id);
+            }
+            return;
+        }
+        
+        // Teclas numéricas para metrônomos específicos
         const num = parseInt(key);
         if (num >= 1 && num <= 9) {
             if (metronomes[num - 1]) {
@@ -126,6 +165,62 @@ async function init() {
     
     renderMetronomes();
     renderSetlistManager();
+}
+
+// Função Tap Tempo
+function tapTempo() {
+    const now = Date.now();
+    tapTimes.push(now);
+    
+    // Limpar tap timeout anterior
+    if (tapTimeout) {
+        clearTimeout(tapTimeout);
+    }
+    
+    // Resetar após 2 segundos sem tap
+    tapTimeout = setTimeout(() => {
+        tapTimes = [];
+        document.getElementById('tapBpmDisplay').textContent = '--';
+    }, 2000);
+    
+    // Precisa de pelo menos 2 taps para calcular
+    if (tapTimes.length >= 2) {
+        // Calcular intervalos entre taps
+        const intervals = [];
+        for (let i = 1; i < tapTimes.length; i++) {
+            intervals.push(tapTimes[i] - tapTimes[i - 1]);
+        }
+        
+        // Média dos intervalos
+        const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+        
+        // Converter para BPM (60000ms = 1 minuto)
+        let bpm = Math.round(60000 / avgInterval);
+        
+        // Limitar entre 60-200
+        bpm = Math.max(60, Math.min(200, bpm));
+        
+        // Mostrar BPM calculado
+        document.getElementById('tapBpmDisplay').textContent = bpm;
+        
+        // Aplicar no metrônomo ativo ou primeiro
+        const activeMetronome = metronomes.find(m => m.isPlaying) || metronomes[0];
+        if (activeMetronome) {
+            updateMetronome(activeMetronome.id, 'bpm', bpm);
+        }
+    }
+    
+    // Manter apenas últimos 4 taps
+    if (tapTimes.length > 4) {
+        tapTimes.shift();
+    }
+    
+    // Feedback visual
+    const btn = document.getElementById('tapTempoBtn');
+    btn.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        btn.style.transform = 'scale(1)';
+    }, 100);
 }
 
 async function saveLastConfig() {
@@ -298,12 +393,11 @@ async function loadSetlist(key, isShared = false) {
             
             if (setlistData.globalSettings) {
                 globalChannel = setlistData.globalSettings.channel || 'C';
-                globalVolume = setlistData.globalSettings.volume || 0.5;
+                globalVolume = setlistData.globalSettings.volume || 0.7;
                 selectedTimbre = setlistData.globalSettings.timbre || 'click';
                 
-                const volumeSlider = document.getElementById('volumeSlider');
+                // Não precisa mais atualizar volumeSlider
                 const timbreSelect = document.getElementById('timbreSelect');
-                if (volumeSlider) volumeSlider.value = globalVolume * 100;
                 if (timbreSelect) timbreSelect.value = selectedTimbre;
                 
                 document.querySelectorAll('.channel-btn').forEach(btn => {
@@ -392,12 +486,10 @@ function importSetlist() {
                 
                 if (setlistData.globalSettings) {
                     globalChannel = setlistData.globalSettings.channel || 'C';
-                    globalVolume = setlistData.globalSettings.volume || 0.5;
+                    globalVolume = setlistData.globalSettings.volume || 0.7;
                     selectedTimbre = setlistData.globalSettings.timbre || 'click';
                     
-                    const volumeSlider = document.getElementById('volumeSlider');
                     const timbreSelect = document.getElementById('timbreSelect');
-                    if (volumeSlider) volumeSlider.value = globalVolume * 100;
                     if (timbreSelect) timbreSelect.value = selectedTimbre;
                 }
                 
@@ -444,7 +536,7 @@ function renderSetlistManager() {
     html += '<h3>🌐 Setlists Compartilhados</h3>';
     
     if (!hasClaudeStorage) {
-        html += '<p class="empty-message">⚠️ <br>Use "Exportar/Importar JSON"</p>';
+        html += '<p class="empty-message">⚠️ Compartilhamento só no Claude.ai<br>Use "Exportar/Importar JSON"</p>';
     } else if (sharedSetlists.length === 0) {
         html += '<p class="empty-message">Nenhum compartilhado</p>';
     } else {

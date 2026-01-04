@@ -45,17 +45,52 @@
                 <li><a href="guia-completo.html">Guia Completo</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
                 <li><a href="faq.html">FAQ</a></li>
-                <li><a href="privacy.html">Privacidade</a></li>
             </ul>
             <button class="nav-toggle" onclick="toggleMenu()">☰</button>
         </div>
     </nav>
 
-    <!-- Banner Introdutório Compacto -->
+    <!-- Banner Introdutório Expandido -->
     <div class="intro-banner">
         <div class="intro-content">
             <h2>Metrônomo Online Profissional - Gratuito</h2>
-            <p>Ferramenta completa com múltiplas faixas, 5 timbres profissionais e controle avançado de canais. <a href="sobre.html" class="learn-more">Saiba mais →</a></p>
+            <p>Ferramenta completa com múltiplas faixas, 5 timbres profissionais e controle avançado de canais. Perfeito para músicos, produtores, professores e estudantes de música. <a href="sobre.html" class="learn-more">Saiba mais →</a></p>
+        </div>
+    </div>
+
+    <!-- Seção de Funcionalidades -->
+    <div class="educational-content">
+        <div class="edu-container">
+            <h2>🎵 Recursos e Funcionalidades</h2>
+            <p>🎵 Metronome List – Controle de tempo para apresentações ao vivo. O Metronome List é uma ferramenta profissional para músicos que precisam de precisão, organização e agilidade em apresentações ao vivo, cultos e gravações.</p> 
+            <p>Com ele, é possível montar setlists de até 10 musica simultaneas, definindo BPM, compasso, timbre e canal de saída para cada música. As trocas de andamento acontecem de forma imediata, evitando erros comuns em transições ao vivo e garantindo consistência do início ao fim do repertório.</p>   
+            <p>Simples, confiável e feito para uso real de palco — para que você foque em tocar, não em configurar.</p>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>🎹 Múltiplas Faixas</h3>
+                    <p>Gerencie até 10 metrônomos simultâneos com configurações independentes. Perfeito para preparar setlists completos, praticar mudanças de andamento e organizar seu repertório.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>🎼 5 Timbres Profissionais</h3>
+                    <p>Escolha entre Click Original, Soft Click, Electronic, Multitrack e Warm Tone. Cada timbre sintetizado em tempo real para máxima qualidade e precisão.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>🔊 Controle Estéreo L/R/C</h3>
+                    <p>Posicione o som no canal esquerdo, direito ou central. Essencial para gravações profissionais e monitoramento personalizado em estúdio.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>👆 Tap Tempo</h3>
+                    <p>Calcule o BPM instantaneamente tocando no ritmo da música. Forma rápida e intuitiva de encontrar o andamento exato de qualquer faixa.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>💾 Salvar Setlists</h3>
+                    <p>Salve configurações nomeadas, compartilhe com sua banda, exporte/importe em JSON. Organize todo seu repertório de forma profissional.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>⌨️ Atalhos de Teclado</h3>
+                    <p>Use teclas 1-9, 0 e Espaço para controle rápido. Mude entre metrônomos sem interromper sua prática ou performance ao vivo.</p>
+                </div>
+            </div>  
         </div>
     </div>
     
@@ -63,13 +98,12 @@
     <div class="container">
         <div class="header">
             <div class="subtitle">
-                🎹 Use as teclas numéricas 1-9 e 0 para tocar/pausar os metrônomos (quando não estiver editando campos)
+                ⌨️ Use teclas 1-9 e 0 para tocar/pausar | Espaço para play/pause do metrônomo atual
             </div>
         </div>
 
         <div class="global-controls">
             <div class="channel-section">
-                <div class="channel-label">L R C</div>
                 <div class="channel-buttons">
                     <button class="channel-btn inactive" onclick="setGlobalChannel('L')">L</button>
                     <button class="channel-btn inactive" onclick="setGlobalChannel('R')">R</button>
@@ -89,9 +123,12 @@
                     </select>
                 </div>
                 
-                <div class="volume-section">
-                    <span style="color: #9ca3af;">🔊</span>
-                    <input type="range" class="volume-slider" min="0" max="100" value="50" id="volumeSlider">
+                <div class="tap-tempo-section">
+                    <button class="tap-tempo-btn" id="tapTempoBtn" onclick="tapTempo()">
+                       
+                        <span class="tap-label">Tap Tempo</span>
+                        <span class="tap-bpm" id="tapBpmDisplay">--</span>
+                    </button>
                 </div>
             </div>
 
@@ -99,7 +136,7 @@
             
             <div class="save-buttons">
                 <button class="save-btn" onclick="saveSetlist()" title="Salvar setlist">💾</button>
-                <!--<button class="share-btn" onclick="shareSetlist()" title="Compartilhar setlist">🌐</button>-->
+                <button class="share-btn" onclick="shareSetlist()" title="Compartilhar setlist">🌐</button>
                 <button class="export-btn" onclick="exportSetlist()" title="Exportar JSON">📥</button>
                 <button class="import-btn" onclick="importSetlist()" title="Importar JSON">📤</button>
             </div>
@@ -127,6 +164,35 @@
         </div>
     </div>
 
+    <!-- Seção "Por Que Usar" - Movida para cá -->
+    <div class="why-use-section">
+        <div class="edu-container">
+            <h2>📖 Por Que Usar um Metrônomo Online?</h2>
+            <p>O metrônomo é uma ferramenta essencial para o desenvolvimento musical que existe há mais de 200 anos. Desde sua invenção por Johann Maelzel em 1815, este dispositivo revolucionou a forma como músicos praticam e mantêm o tempo. Nossa versão digital moderna oferece todas as vantagens dos metrônomos tradicionais com recursos avançados impossíveis de alcançar com modelos mecânicos.</p>
+            
+            <p>Usar um metrônomo regularmente traz benefícios comprovados: desenvolvimento de senso rítmico preciso, melhoria na coordenação motora, capacidade de tocar em diferentes andamentos com confiança e preparação adequada para tocar em conjunto com outros músicos. Estudos mostram que músicos que praticam com metrônomo desenvolvem timing mais preciso em até 60% menos tempo comparado àqueles que não utilizam.</p>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3>🎯 Precisão Rítmica</h3>
+                    <p>Desenvolva timing preciso e consistente, essencial para performances profissionais e gravações de qualidade.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>📈 Progressão Gradual</h3>
+                    <p>Aumente velocidade técnica de forma segura, começando devagar e acelerando gradualmente sem vícios.</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>🎼 Múltiplos Estilos</h3>
+                    <p>Pratique diferentes compassos e ritmos, de valsas (3/4) a rock (4/4) e ritmos compostos (6/8).</p>
+                </div>
+                <div class="benefit-card">
+                    <h3>🎸 Para Todos Instrumentos</h3>
+                    <p>Ideal para piano, violão, bateria, sopros, cordas e canto. Versátil para qualquer instrumento musical.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Links Rápidos -->
     <div class="quick-links">
         <div class="quick-links-container">
@@ -144,6 +210,46 @@
                 <h3>❓ FAQ</h3>
                 <p>Perguntas frequentes e respostas</p>
                 <a href="faq.html" class="btn-link">Ver FAQ →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção Sobre Timbres -->
+    <div class="timbres-section">
+        <div class="timbres-container">
+            <h2>5 Timbres Profissionais para Cada Situação</h2>
+            <p>Desenvolvemos 5 timbres distintos usando Web Audio API para oferecer a melhor experiência em diferentes contextos musicais. Cada timbre foi cuidadosamente projetado com características sonoras específicas para atender diferentes necessidades de prática e performance.</p>
+            
+            <div class="timbres-grid">
+                <div class="timbre-card">
+                    <h3>Click Original</h3>
+                    <p><strong>Características:</strong> Som clássico de metrônomo mecânico com frequências de 1200Hz (tempo forte) e 800Hz (tempos fracos).</p>
+                    <p><strong>Ideal para:</strong> Prática clássica, estudos de piano, violino e música de câmara. Proporciona clareza rítmica tradicional.</p>
+                </div>
+                
+                <div class="timbre-card">
+                    <h3>Soft Click</h3>
+                    <p><strong>Características:</strong> Versão suavizada com filtro passa-baixas, reduzindo fadiga auditiva em frequências entre 600-800Hz.</p>
+                    <p><strong>Ideal para:</strong> Sessões prolongadas de estudo, prática de instrumentos de sopro e canto. Som confortável para uso extenso.</p>
+                </div>
+                
+                <div class="timbre-card">
+                    <h3>Electronic</h3>
+                    <p><strong>Características:</strong> Som moderno com dois osciladores (sine + triangle) e filtro bandpass centrado em 1200Hz.</p>
+                    <p><strong>Ideal para:</strong> Rock, pop, música eletrônica. Perfeito para guitarristas, baixistas e bateristas modernos.</p>
+                </div>
+                
+                <div class="timbre-card">
+                    <h3>Multitrack</h3>
+                    <p><strong>Características:</strong> Desenvolvido especificamente para gravações, com filtro highpass que corta frequências abaixo de 300Hz.</p>
+                    <p><strong>Ideal para:</strong> Gravações em estúdio, produções profissionais. Clareza excepcional em mixagens complexas.</p>
+                </div>
+                
+                <div class="timbre-card">
+                    <h3>Warm Tone</h3>
+                    <p><strong>Características:</strong> Três osciladores com harmônicos (fundamental + quinta + oitava) filtrados em 1500Hz para tom quente.</p>
+                    <p><strong>Ideal para:</strong> Prática musical expressiva, jazz, música brasileira. Som menos mecânico, mais orgânico e musical.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -174,6 +280,83 @@
                 content.style.display = 'none';
                 button.textContent = '▶';
             }
+        }
+
+        // Scroll Animations
+        function initScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.15,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                        
+                        // Para elementos com classe scroll-animate, adiciona a animação específica
+                        if (entry.target.classList.contains('fade-in-element')) {
+                            entry.target.classList.add('fade-in');
+                        }
+                        if (entry.target.classList.contains('slide-left-element')) {
+                            entry.target.classList.add('slide-left');
+                        }
+                        if (entry.target.classList.contains('slide-right-element')) {
+                            entry.target.classList.add('slide-right');
+                        }
+                        if (entry.target.classList.contains('scale-up-element')) {
+                            entry.target.classList.add('scale-up');
+                        }
+                        
+                        // Não observar mais depois de animar
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // Observar seções principais
+            const animateElements = [
+                '.educational-content',
+                '.benefit-card',
+                '.why-use-section',
+                '.timbres-section',
+                '.timbre-card',
+                '.quick-link-card'
+            ];
+
+            animateElements.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach((el, index) => {
+                    el.classList.add('scroll-animate');
+                    
+                    // Definir tipo de animação baseado no elemento
+                    if (selector === '.benefit-card' || selector === '.quick-link-card') {
+                        el.classList.add('scale-up-element');
+                        el.classList.add(`delay-${(index % 4) + 1}`);
+                    } else if (selector === '.timbre-card') {
+                        el.classList.add('fade-in-element');
+                        el.classList.add(`delay-${(index % 5) + 1}`);
+                    } else {
+                        el.classList.add('fade-in-element');
+                    }
+                    
+                    observer.observe(el);
+                });
+            });
+
+            // Observar seções completas
+            const sections = document.querySelectorAll('.educational-content, .timbres-section');
+            sections.forEach(section => {
+                section.classList.add('scroll-animate', 'fade-in-element');
+                observer.observe(section);
+            });
+        }
+
+        // Inicializar animações quando página carregar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScrollAnimations);
+        } else {
+            initScrollAnimations();
         }
     </script>
 </body>
