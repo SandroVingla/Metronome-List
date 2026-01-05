@@ -62,9 +62,8 @@
     <div class="educational-content">
         <div class="edu-container">
             <h2>🎵 Recursos e Funcionalidades</h2>
-            <p>🎵 Metronome List – Controle de tempo para apresentações ao vivo. O Metronome List é uma ferramenta profissional para músicos que precisam de precisão, organização e agilidade em apresentações ao vivo, cultos e gravações.</p> 
-            <p>Com ele, é possível montar setlists de até 10 musica simultaneas, definindo BPM, compasso, timbre e canal de saída para cada música. As trocas de andamento acontecem de forma imediata, evitando erros comuns em transições ao vivo e garantindo consistência do início ao fim do repertório.</p>   
-            <p>Simples, confiável e feito para uso real de palco — para que você foque em tocar, não em configurar.</p>
+            <p>O Metronome List oferece recursos profissionais que vão além dos metrônomos tradicionais. Desenvolvido com tecnologia Web Audio API, garantimos precisão absoluta de timing e qualidade de áudio superior para músicos de todos os níveis.</p>
+
             <div class="benefits-grid">
                 <div class="benefit-card">
                     <h3>🎹 Múltiplas Faixas</h3>
@@ -90,7 +89,7 @@
                     <h3>⌨️ Atalhos de Teclado</h3>
                     <p>Use teclas 1-9, 0 e Espaço para controle rápido. Mude entre metrônomos sem interromper sua prática ou performance ao vivo.</p>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
     
@@ -125,7 +124,7 @@
                 
                 <div class="tap-tempo-section">
                     <button class="tap-tempo-btn" id="tapTempoBtn" onclick="tapTempo()">
-                       
+                        <span class="tap-icon">👆</span>
                         <span class="tap-label">Tap Tempo</span>
                         <span class="tap-bpm" id="tapBpmDisplay">--</span>
                     </button>
@@ -214,6 +213,57 @@
         </div>
     </div>
 
+    <!-- Seção Apoiar o Projeto -->
+    <div class="support-section">
+        <div class="support-container">
+            <h2>💚 Apoie o Projeto</h2>
+            <p class="support-intro">O Metronome List é e sempre será <strong>100% gratuito</strong>. Se esta ferramenta te ajudou, considere fazer uma contribuição para manter o projeto ativo e em constante desenvolvimento!</p>
+            
+            <div class="support-content">
+                <div class="support-text">
+                    <h3>🎵 Por que apoiar?</h3>
+                    <ul class="support-benefits">
+                        <li>✅ Mantém o site online e funcionando</li>
+                        <li>✅ Permite desenvolvimento de novos recursos</li>
+                        <li>✅ Garante atualizações constantes</li>
+                        <li>✅ Apoia um projeto open source</li>
+                    </ul>
+                    <p class="support-thanks">Qualquer valor é muito bem-vindo e ajuda a manter este projeto vivo! 🙏</p>
+                </div>
+                
+                <div class="pix-container">
+                    <h3>💚 PIX</h3>
+                    <p class="pix-instruction">Escaneie o QR Code ou use a chave PIX:</p>
+                    <div class="qr-code-wrapper">
+                        <img src="/assets/qrcodemercadopag.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
+                    </div>
+                    <button class="copy-pix-btn" onclick="copyPixKey()">
+                        📋 Copiar Chave PIX 
+                    </button>
+                    <p class="pix-key" id="pixKey" style="display: none;">e6a591c6-f0a5-4ba8-b553-9b44b7dee73f</p>
+                </div>
+            </div>
+            
+            <div class="other-ways">
+                <p>💡 <strong>Outras formas de apoiar:</strong></p>
+                <div class="other-ways-grid">
+                    <div class="way-card">
+                        <span class="way-icon">⭐</span>
+                        <span class="way-text">Dê uma estrela no GitHub</span>
+                    </div>
+                    <div class="way-card">
+                        <span class="way-icon">📢</span>
+                        <span class="way-text">Compartilhe com amigos</span>
+                    </div>
+                    <div class="way-card">
+                        <span class="way-icon">💬</span>
+                        <span class="way-text">Envie seu feedback</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Seção Sobre Timbres -->
     <div class="timbres-section">
         <div class="timbres-container">
@@ -282,6 +332,26 @@
             }
         }
 
+        // Copiar chave PIX
+        function copyPixKey() {
+            const pixKey = "e6a591c6-f0a5-4ba8-b553-9b44b7dee73f"; // SUBSTITUA pela sua chave real
+            
+            navigator.clipboard.writeText(pixKey).then(() => {
+                const btn = document.querySelector('.copy-pix-btn');
+                const originalText = btn.textContent;
+                
+                btn.textContent = '✅ Chave Copiada!';
+                btn.style.background = '#22c55e';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#16a34a';
+                }, 2000);
+            }).catch(err => {
+                alert('Erro ao copiar. Chave PIX: ' + pixKey);
+            });
+        }
+
         // Scroll Animations
         function initScrollAnimations() {
             const observerOptions = {
@@ -319,6 +389,7 @@
                 '.educational-content',
                 '.benefit-card',
                 '.why-use-section',
+                '.support-section',
                 '.timbres-section',
                 '.timbre-card',
                 '.quick-link-card'
@@ -345,7 +416,7 @@
             });
 
             // Observar seções completas
-            const sections = document.querySelectorAll('.educational-content, .timbres-section');
+            const sections = document.querySelectorAll('.educational-content, .why-use-section, .timbres-section');
             sections.forEach(section => {
                 section.classList.add('scroll-animate', 'fade-in-element');
                 observer.observe(section);
