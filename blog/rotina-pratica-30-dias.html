@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Programa estruturado de 30 dias para desenvolver timing profissional. Exercícios diários, progressão gradual de BPM e técnicas de acompanhamento.">
+    <title>Rotina de Prática: Timing Perfeito em 30 Dias | Metronome List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        article {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            font-size: 1.2rem;
+            color: #555;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .week-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .week-box h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .day-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .day-card h4 {
+            color: #764ba2;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .day-number {
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50%;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .exercise-list {
+            margin-left: 0;
+            list-style: none;
+        }
+
+        .exercise-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .exercise-list li:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-time {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0d47a1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .bpm-badge {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .tip-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .tip-box h4 {
+            color: #0d47a1;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-tracker {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .progress-tracker h4 {
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .cta-box h3 {
+            color: white;
+            margin: 0 0 1rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.7rem;
+        }
+
+        footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            article {
+                padding: 2rem 1rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .day-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Rotina de Prática: Timing Perfeito em 30 Dias</h1>
+            <div class="article-meta">
+                📅 Janeiro 2025 • ⏱️ 15 min de leitura • 📈 Plano de Estudos
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links container">
+            <li><a href="/">← Voltar ao Metrônomo</a></li>
+            <li><a href="/blog.html">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <article>
+            <div class="intro">
+                <strong>30 dias de prática estruturada</strong> podem transformar completamente seu timing musical. Este programa foi desenvolvido com base em princípios de neuroplasticidade e técnicas usadas por músicos profissionais em conservatórios ao redor do mundo. Siga fielmente e você terá timing consistente, preciso e musical.
+            </div>
+
+            <h2>📋 Antes de Começar: Preparação</h2>
+            
+            <h3>O Que Você Vai Precisar:</h3>
+            <ul>
+                <li><strong>Metrônomo confiável:</strong> Use o Metronome List ou app de qualidade</li>
+                <li><strong>30-45 minutos diários:</strong> Comprometimento é essencial</li>
+                <li><strong>Caderno de prática:</strong> Para rastrear progresso</li>
+                <li><strong>Gravador:</strong> Smartphone funciona perfeitamente</li>
+                <li><strong>Paciência:</strong> Resultados vêm com consistência</li>
+            </ul>
+
+            <h3>Como Este Programa Funciona:</h3>
+            <p>O programa está dividido em 4 semanas, cada uma com foco específico. A dificuldade e BPM aumentam gradualmente. <strong>NÃO pule dias.</strong> A construção é cumulativa - cada dia prepara para o próximo.</p>
+
+            <div class="warning-box">
+                <h4>⚠️ REGRA IMPORTANTE:</h4>
+                <p>Se você perder mais de 2 dias seguidos, volte ao início da semana. A consistência é mais importante que velocidade de conclusão. É melhor completar o programa em 5 semanas fazendo corretamente do que em 30 dias fazendo mal feito.</p>
+            </div>
+
+            <h2>🎯 Estrutura de Cada Sessão (30-45 min)</h2>
+
+            <ol>
+                <li><strong>Aquecimento (5 min):</strong> Exercícios de alongamento e respiração</li>
+                <li><strong>Trabalho Rítmico Puro (15 min):</strong> Exercícios específicos do dia</li>
+                <li><strong>Aplicação Musical (15 min):</strong> Aplica conceitos em contexto real</li>
+                <li><strong>Reflexão e Registro (5 min):</strong> Anota progresso e dificuldades</li>
+            </ol>
+
+            <div class="week-box">
+                <h3>🌱 Semana 1: Fundação e Consciência Rítmica</h3>
+                <p><strong>Objetivo:</strong> Estabelecer conexão sólida entre corpo, mente e pulso musical. Desenvolver escuta ativa do metrônomo.</p>
+                <p><strong>BPM Base:</strong> 60-80</p>
+
+                <div class="day-card">
+                    <h4><span class="day-number">1</span> Estabelecendo o Pulso</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">5 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Bater palmas no pulso, olhos fechados
+                        </li>
+                        <li>
+                            <span class="exercise-time">5 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Caminhar no lugar marcando os passos no click
+                        </li>
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">70 BPM</span>
+                            Tocar notas longas do seu instrumento, uma por pulso
+                        </li>
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            Escala de Dó Maior, uma nota por pulso, aumentar 5 BPM a cada repetição (60→75)
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Sentir o pulso "no corpo" antes de tocar.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">2</span> Subdivisões Básicas</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Contar "1-e, 2-e, 3-e, 4-e" em voz alta, bater palmas nos números
+                        </li>
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Bater palmas nas colcheias (e), vocalizar os números
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">70 BPM</span>
+                            Tocar escalas em colcheias no instrumento
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Sentir as subdivisões entre os pulsos principais.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">3</span> Semicolcheias</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">50 BPM</span>
+                            Contar "1-e-&-a" em voz alta por 100 pulsos consecutivos
+                        </li>
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Bater palmas alternando: números (1,2,3,4) depois sílabas (e,&,a)
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Tocar escala cromática em semicolcheias
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Dominar a subdivisão mais fundamental da música.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">4</span> Acentuação em Tempos Fortes</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">70 BPM</span>
+                            Tocar semicolcheias acentuando apenas 1 e 3 de um compasso 4/4
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">75 BPM</span>
+                            Aplicar em música simples (Happy Birthday, Parabéns, etc)
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Desenvolver controle dinâmico dentro do timing.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">5</span> Acentuação em Contratempos</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">70 BPM</span>
+                            Semicolcheias acentuando apenas 2 e 4
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            <span class="bpm-badge">80 BPM</span>
+                            Aplicar padrão em progressão de acordes simples (C-G-Am-F)
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Sentir o groove do backbeat (essencial para pop/rock).</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">6</span> Síncopes Simples</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">10 min</span>
+                            <span class="bpm-badge">60 BPM</span>
+                            Padrão: toca-pausa-toca-pausa (nas colcheias)
+                        </li>
+                        <li>
+                            <span class="exercise-time">20 min</span>
+                            <span class="bpm-badge">70 BPM</span>
+                            Tocar melodias simples com síncopes (ex: tema de "Super Mario")
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Começar a lidar com ritmos que "fogem" do tempo forte.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">7</span> Revisão e Avaliação Semana 1</h4>
+                    <ul class="exercise-list">
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            Gravar: escala cromática 60 BPM em semicolcheias
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            Ouvir gravação e identificar problemas
+                        </li>
+                        <li>
+                            <span class="exercise-time">15 min</span>
+                            Re-gravar focando nas correções
+                        </li>
+                    </ul>
+                    <p><strong>Meta:</strong> Auto-avaliação honesta do progresso.</p>
+                </div>
+            </div>
+
+            <div class="week-box">
+                <h3>🌿 Semana 2: Consolidação e Complexidade</h3>
+                <p><strong>Objetivo:</strong> Aumentar complexidade rítmica enquanto mantém precisão. Desenvolver independência do metrônomo.</p>
+                <p><strong>BPM Base:</strong> 70-100</p>
+
+                <div class="day-card">
+                    <h4><span class="day-number">8-10</span> Tercinas</h4>
+                    <p><strong>Progressão de 3 dias:</strong></p>
+                    <ul class="exercise-list">
+                        <li>Dia 8: Contar e bater tercinas (tri-po-let) - 60 BPM</li>
+                        <li>Dia 9: Tocar escalas em tercinas - 70 BPM</li>
+                        <li>Dia 10: Alternar colcheias e tercinas - 80 BPM</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Dominar subdivisão ternária.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">11-12</span> Metrônomo em Tempos 2 e 4 Apenas</h4>
+                    <ul class="exercise-list">
+                        <li>Configure metrônomo para clicar APENAS nos tempos 2 e 4</li>
+                        <li>Toque exercícios anteriores mantendo 1 e 3 mentalmente</li>
+                        <li>BPM: 80-90</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Começar a desenvolver relógio interno.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">13-14</span> Padrões de Bossa Nova/Samba</h4>
+                    <ul class="exercise-list">
+                        <li>Aprender padrão básico de bossa: 1-&-a, 2-&</li>
+                        <li>Praticar com acompanhamento melódico</li>
+                        <li>BPM: 90-100</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Aplicar timing em groove brasileiro autêntico.</p>
+                </div>
+            </div>
+
+            <div class="week-box">
+                <h3>🌳 Semana 3: Velocidade e Resistência</h3>
+                <p><strong>Objetivo:</strong> Aumentar velocidade mantendo precisão. Desenvolver resistência para sessões longas.</p>
+                <p><strong>BPM Base:</strong> 90-140</p>
+
+                <div class="day-card">
+                    <h4><span class="day-number">15-17</span> Progressão de BPM Sistemática</h4>
+                    <p><strong>Método:</strong> Escolha um exercício difícil (ex: escala em semicolcheias)</p>
+                    <ul class="exercise-list">
+                        <li>Dia 15: 90 BPM - Execute perfeitamente 10x</li>
+                        <li>Dia 16: 100 BPM - Execute perfeitamente 10x</li>
+                        <li>Dia 17: 110 BPM - Execute perfeitamente 10x</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Provar que velocidade vem de repetição perfeita.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">18-19</span> Resistência Rítmica</h4>
+                    <ul class="exercise-list">
+                        <li>20 minutos ininterruptos tocando com metrônomo</li>
+                        <li>Se errar, NÃO pare - continue</li>
+                        <li>BPM confortável: 100</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Treinar recuperação de erro e manter tempo.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">20-21</span> Desafio de Velocidade</h4>
+                    <ul class="exercise-list">
+                        <li>Toque passagem em 120, 130, 140 BPM</li>
+                        <li>Não é para ficar perfeito - é para expandir limites</li>
+                        <li>Depois volte para 110 - vai parecer fácil!</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Expandir zona de conforto técnico.</p>
+                </div>
+            </div>
+
+            <div class="week-box">
+                <h3>🌲 Semana 4: Musicalidade e Independência</h3>
+                <p><strong>Objetivo:</strong> Integrar timing técnico com expressão musical. Tocar sem dependência do metrônomo.</p>
+                <p><strong>BPM Base:</strong> Variável</p>
+
+                <div class="day-card">
+                    <h4><span class="day-number">22-24</span> Rubato Controlado</h4>
+                    <ul class="exercise-list">
+                        <li>Toque frase musical acelerando e desacelerando sutilmente</li>
+                        <li>SEMPRE volte ao tempo original</li>
+                        <li>Grave e analise se o tempo base permaneceu estável</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Expressão musical sem perder o centro rítmico.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">25-26</span> Sem Metrônomo</h4>
+                    <ul class="exercise-list">
+                        <li>Toque 5 minutos SEM metrônomo</li>
+                        <li>Grave</li>
+                        <li>Depois toque COM metrônomo e compare</li>
+                        <li>Seu timing interno está funcionando?</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Testar a independência conquistada.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">27-29</span> Aplicação em Repertório Real</h4>
+                    <ul class="exercise-list">
+                        <li>Escolha 3 músicas que você quer dominar</li>
+                        <li>Pratique com metrônomo do início ao fim</li>
+                        <li>Documente seu BPM por seção</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Aplicar todo conhecimento em contexto musical real.</p>
+                </div>
+
+                <div class="day-card">
+                    <h4><span class="day-number">30</span> Avaliação Final</h4>
+                    <ul class="exercise-list">
+                        <li><span class="exercise-time">15 min</span> Grave performance de música completa COM metrônomo</li>
+                        <li><span class="exercise-time">15 min</span> Grave performance SEM metrônomo</li>
+                        <li><span class="exercise-time">15 min</span> Compare com gravação do Dia 1</li>
+                    </ul>
+                    <p><strong>Meta:</strong> Celebrar progresso e definir próximas metas!</p>
+                </div>
+            </div>
+
+            <h2>📊 Sistema de Rastreamento de Progresso</h2>
+
+            <div class="progress-tracker">
+                <h4>Template de Diário de Prática (copie para seu caderno):</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Exercícios</th>
+                            <th>BPM Inicial</th>
+                            <th>BPM Final</th>
+                            <th>Dificuldades</th>
+                            <th>Vitórias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td colspan="5"><em>Preencha após cada sessão...</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>⚠️ Troubleshooting: Problemas Comuns</h2>
+
+            <h3>❓ "Estou progredindo muito devagar"</h3>
+            <p><strong>Solução:</strong> Progresso lento É progresso. Não compare seu dia 10 com o dia 30 de outra pessoa. Continue consistente.</p>
+
+            <h3>❓ "Perdi 3 dias seguidos"</h3>
+            <p><strong>Solução:</strong> Volte ao início da semana atual. Não tente "compensar" - isso não funciona com desenvolvimento motor.</p>
+
+            <h3>❓ "Um exercício específico é impossível"</h3>
+            <p><strong>Solução:</strong> Reduza o BPM em 20 pontos. Se ainda estiver difícil, simplifique o exercício (menos notas, ritmo mais simples).</p>
+
+            <h3>❓ "Estou ficando entediado"</h3>
+            <p><strong>Solução:</strong> Tédio é normal em desenvolvimento de habilidade. Aumente motivação escolhendo músicas que você AMA para os exercícios de aplicação.</p>
+
+            <div class="tip-box">
+                <h4>💡 Dica de Ouro:</h4>
+                <p>Pratique no MESMO horário todo dia. Seu cérebro aprende melhor com rotina consistente. Músicos profissionais praticam 9h-12h ou 14h-17h. Escolha seu horário e mantenha-o sagrado.</p>
+            </div>
+
+            <h2>🎯 Após os 30 Dias: Mantendo o Timing</h2>
+
+            <p>Completar o programa não é o fim - é o começo de uma vida inteira de timing musical sólido. Aqui está como manter:</p>
+
+            <h3>Rotina de Manutenção (3x por semana):</h3>
+            <ul>
+                <li><strong>Segunda:</strong> 15 min de trabalho técnico com metrônomo</li>
+                <li><strong>Quarta:</strong> 20 min de exercícios de subdivisão</li>
+                <li><strong>Sexta:</strong> 15 min de prática com click em apenas alguns tempos</li>
+            </ul>
+
+            <h3>Testes Mensais:</h3>Testes Mensais:</h3>
+            <ul>
+                <li><strong>Gravação:</strong> Grave-se tocando uma música conhecida com metrônomo. Analise objetivamente.</li>
+                <li><strong>Teste do Click Espaçado:</strong> Click em apenas tempo 1 de cada compasso. Consegue manter?</li>
+                <li><strong>Jam Session:</strong> Toque com outros músicos. Timing real = timing com pessoas.</li>
+                <li><strong>Performance ao Vivo:</strong> Apresente para audiência. Pressão revela timing verdadeiro.</li>
+            </ul>
+
+            <h3>Progressão Contínua:</h3>
+            <p>Após dominar este programa:</p>
+            <ul>
+                <li><strong>Compassos Complexos:</strong> Explore 5/4, 7/8, tempos mistos</li>
+                <li><strong>Polirritmia:</strong> Sobreposição de diferentes subdivisões</li>
+                <li><strong>Rubato Controlado:</strong> Aprenda quando quebrar as regras artisticamente</li>
+                <li><strong>Diferentes Estilos:</strong> Cada gênero tem seu próprio conceito de timing (swing jazz ≠ timing clássico)</li>
+            </ul>
+
+            <div class="cta-box">
+                <h3>🎵 Continue Sua Jornada Musical</h3>
+                <p>Agora que você tem timing sólido, está pronto para explorar técnicas avançadas e diferentes estilos musicais.</p>
+                <a href="/index.html" class="cta-button">← Voltar para o Metrônomo</a>
+                <!--<a href="guia-completo.html" class="cta-button">Guia Completo do Metrônomo</a>-->
+            </div>
+
+            <h2>📊 Checklist Final dos 30 Dias</h2>
+            
+            <div class="tip-box">
+                <h4>✅ Você deve conseguir:</h4>
+                <ul>
+                    <li>Tocar escalas perfeitamente com metrônomo em qualquer BPM (60-140)</li>
+                    <li>Manter tempo em músicas sem metrônomo auditivo</li>
+                    <li>Subdividir mentalmente qualquer compasso</li>
+                    <li>Sentir quando está desviando do tempo (sem precisar ouvir click)</li>
+                    <li>Adaptar-se rapidamente a mudanças de andamento</li>
+                    <li>Tocar confortavelmente com click apenas nos tempos fracos</li>
+                    <li>Gravar takes profissionais mantendo timing consistente</li>
+                </ul>
+            </div>
+
+            <h2>💬 Compartilhe Seu Progresso</h2>
+            
+            <p>Completou o programa? Adoraríamos ouvir sobre sua experiência! Compartilhe:</p>
+            <ul>
+                <li>Qual foi seu maior desafio?</li>
+                <li>Em que dia você sentiu o "click" (trocadilho intencional)?</li>
+                <li>Como seu timing melhorou nas suas músicas favoritas?</li>
+                <li>Que exercício foi mais transformador para você?</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>🌟 Pensamento Final:</h4>
+                <p><em>"Timing não é sobre ser perfeito como uma máquina - é sobre ter controle total para que você possa escolher conscientemente quando ser preciso e quando adicionar feeling humano. Agora você tem essa escolha."</em></p>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; color: #9ca3af;">
+                <strong>Boa sorte na sua jornada musical! 🎵</strong>
+            </p>
+
+        </article>
+    </div>
+
+    <footer>
+        <p>© 2025 Metronome List. Todos os direitos reservados.</p>
+        <p>
+            <a href="privacy.html">Política de Privacidade</a> |
+            |
+            <a href="https://github.com/SandroVingla/Metronome-List" target="_blank">GitHub</a>
+        </p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

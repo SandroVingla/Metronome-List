@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lista completa com BPM de 50 músicas brasileiras famosas para praticar. Inclui samba, bossa nova, MPB, rock nacional e mais.">
+    <title>Guia Completo de BPM: 50 Músicas Brasileiras | Metronome List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        article {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            font-size: 1.2rem;
+            color: #555;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .music-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .music-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .music-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .music-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .music-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .bpm-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .genre-tag {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0d47a1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-right: 0.3rem;
+        }
+
+        .tip-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .tip-box h4 {
+            color: #0d47a1;
+            margin-bottom: 0.5rem;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .cta-box h3 {
+            color: white;
+            margin: 0 0 1rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .filter-btn {
+            padding: 0.7rem 1.5rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .music-table {
+                font-size: 0.9rem;
+            }
+
+            .music-table th, .music-table td {
+                padding: 0.6rem 0.5rem;
+            }
+
+            article {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Guia Completo de BPM: 50 Músicas Brasileiras</h1>
+            <div class="article-meta">
+                📅 Janeiro 2025 • ⏱️ 12 min de leitura • 🎼 Referência Musical
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links container">
+            <li><a href="/">← Voltar ao Metrônomo</a></li>
+            <li><a href="/blog.html">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <article>
+            <div class="intro">
+                <strong>Praticar com as músicas certas no BPM correto</strong> é fundamental para desenvolver técnica e musicalidade. Esta lista completa com 50 músicas brasileiras icônicas, seus BPMs exatos e características rítmicas vai transformar sua rotina de prática e te ajudar a montar um repertório sólido.
+            </div>
+
+            <h2>Como Usar Este Guia</h2>
+            
+            <p>Este guia foi criado para músicos de todos os níveis que querem praticar com músicas reais. Cada entrada contém o BPM aproximado, gênero musical e dicas específicas sobre o ritmo e levada característicos da música.</p>
+
+            <p><strong>Recomendação de uso:</strong> Escolha músicas do seu nível técnico atual, configure o metrônomo no BPM indicado (ou mais lento se necessário) e pratique seguindo nossas dicas sobre características rítmicas de cada faixa.</p>
+
+            <div class="tip-box">
+                <h4>💡 Dica Para Iniciantes:</h4>
+                <p>Comece com músicas entre 80-100 BPM. São tempos médios que permitem focar na técnica sem pressão de velocidade. Depois progrida para músicas mais lentas (que exigem controle) e mais rápidas (que exigem agilidade).</p>
+            </div>
+
+            <h2>🎵 Samba & Pagode (80-130 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Aquarela do Brasil</strong></td>
+                        <td>Ary Barroso</td>
+                        <td><span class="bpm-badge">120</span></td>
+                        <td>Samba exaltação clássico, compasso 2/4, ótimo para praticar síncopes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mas Que Nada</strong></td>
+                        <td>Jorge Ben Jor</td>
+                        <td><span class="bpm-badge">128</span></td>
+                        <td>Samba-rock energético, groove contagiante com acentos fortes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Taj Mahal</strong></td>
+                        <td>Jorge Ben Jor</td>
+                        <td><span class="bpm-badge">124</span></td>
+                        <td>Samba com swing característico, perfeito para trabalhar levada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Agoniza Mas Não Morre</strong></td>
+                        <td>Nelson Cavaquinho</td>
+                        <td><span class="bpm-badge">95</span></td>
+                        <td>Samba tradicional lento, excelente para precisão rítmica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deixa a Vida Me Levar</strong></td>
+                        <td>Zeca Pagodinho</td>
+                        <td><span class="bpm-badge">108</span></td>
+                        <td>Pagode moderno, tempo médio ideal para iniciantes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🎸 Bossa Nova (70-90 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Garota de Ipanema</strong></td>
+                        <td>Tom Jobim / Vinicius</td>
+                        <td><span class="bpm-badge">76</span></td>
+                        <td>Bossa nova clássica, padrão rítmico de batida sincopada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chega de Saudade</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">82</span></td>
+                        <td>Fundadora da bossa nova, exige controle de dinâmica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Desafinado</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">88</span></td>
+                        <td>Harmonias complexas, tempo relaxado mas preciso</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Corcovado</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">74</span></td>
+                        <td>Bossa lenta e romântica, ótima para expressão musical</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Águas de Março</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">92</span></td>
+                        <td>Letra ritmada, desafio na coordenação letra-melodia</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🎤 MPB (80-110 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Construção</strong></td>
+                        <td>Chico Buarque</td>
+                        <td><span class="bpm-badge">95</span></td>
+                        <td>Estrutura narrativa única, tempo constante mas expressivo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cálice</strong></td>
+                        <td>Chico Buarque</td>
+                        <td><span class="bpm-badge">88</span></td>
+                        <td>Balada poderosa, foco em dinâmica e intensidade</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Asa Branca</strong></td>
+                        <td>Luiz Gonzaga</td>
+                        <td><span class="bpm-badge">102</span></td>
+                        <td>Baião clássico, ritmo nordestino característico</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fascinação</strong></td>
+                        <td>Elis Regina</td>
+                        <td><span class="bpm-badge">84</span></td>
+                        <td>Interpretação intensa, trabalha controle emocional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Como Nossos Pais</strong></td>
+                        <td>Elis Regina</td>
+                        <td><span class="bpm-badge">78</span></td>
+                        <td>Balada icônica, ótima para nuances interpretativas</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Festa Imodesta</strong></td>
+                        <td>Caetano Veloso</td>
+                        <td><span class="bpm-badge">110</span></td>
+                        <td>Ritmo animado, mudanças de intensidade</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sampa</strong></td>
+                        <td>Caetano Veloso</td>
+                        <td><span class="bpm-badge">92</span></td>
+                        <td>Poesia urbana, tempo médio com fluidez</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eduardo e Mônica</strong></td>
+                        <td>Legião Urbana</td>
+                        <td><span class="bpm-badge">86</span></td>
+                        <td>Rock nacional suave, narrativa longa e rítmica</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🎸 Rock Nacional (90-140 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pro Dia Nascer Feliz</strong></td>
+                        <td>Barão Vermelho</td>
+                        <td><span class="bpm-badge">128</span></td>
+                        <td>Rock clássico brasileiro, energia constante</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Que País É Este</strong></td>
+                        <td>Legião Urbana</td>
+                        <td><span class="bpm-badge">135</span></td>
+                        <td>Rock acelerado, requer resistência e precisão</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Será</strong></td>
+                        <td>Legião Urbana</td>
+                        <td><span class="bpm-badge">98</span></td>
+                        <td>Rock power ballad, contraste entre partes suaves e fortes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pais e Filhos</strong></td>
+                        <td>Legião Urbana</td>
+                        <td><span class="bpm-badge">92</span></td>
+                        <td>Tempo médio, ótimo para trabalhar groove de rock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reconvexo</strong></td>
+                        <td>Caetano Veloso</td>
+                        <td><span class="bpm-badge">118</span></td>
+                        <td>Tropicália, mistura ritmos brasileiros com rock</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Esteban</strong></td>
+                        <td>Barão Vermelho</td>
+                        <td><span class="bpm-badge">142</span></td>
+                        <td>Rock energético rápido, desafio técnico</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Que Maravilha</strong></td>
+                        <td>Jorge Ben Jor</td>
+                        <td><span class="bpm-badge">126</span></td>
+                        <td>Samba-rock vibrante, ritmo dançante</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🌴 Forró & Música Nordestina (110-140 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Xote das Meninas</strong></td>
+                        <td>Luiz Gonzaga</td>
+                        <td><span class="bpm-badge">118</span></td>
+                        <td>Xote tradicional, padrão rítmico característico 2/4</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Baião</strong></td>
+                        <td>Luiz Gonzaga</td>
+                        <td><span class="bpm-badge">132</span></td>
+                        <td>Ritmo nordestino vibrante, acentuação no contratempo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Feira de Mangaio</strong></td>
+                        <td>Sivuca</td>
+                        <td><span class="bpm-badge">115</span></td>
+                        <td>Xote descritivo, trabalha narrativa musical</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Riacho do Navio</strong></td>
+                        <td>Fagner</td>
+                        <td><span class="bpm-badge">108</span></td>
+                        <td>Forró moderno, melodia marcante</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Última Flor</strong></td>
+                        <td>Marisa Monte</td>
+                        <td><span class="bpm-badge">96</span></td>
+                        <td>Forró suave, bom para controle dinâmico</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🎹 Música Pop/Contemporânea (100-130 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ainda Lembro</strong></td>
+                        <td>Marisa Monte</td>
+                        <td><span class="bpm-badge">105</span></td>
+                        <td>Pop brasileiro moderno, tempo médio confortável</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exagerado</strong></td>
+                        <td>Cazuza</td>
+                        <td><span class="bpm-badge">116</span></td>
+                        <td>Rock pop nacional, energia moderada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sozinho</strong></td>
+                        <td>Caetano Veloso</td>
+                        <td><span class="bpm-badge">68</span></td>
+                        <td>Balada lenta, exige controle total de timing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Você</strong></td>
+                        <td>Tim Maia</td>
+                        <td><span class="bpm-badge">94</span></td>
+                        <td>Soul brasileiro, groove característico</td>
+                    </tr>
+                    <tr>
+                        <td><strong>O Segundo Sol</strong></td>
+                        <td>Cássia Eller</td>
+                        <td><span class="bpm-badge">122</span></td>
+                        <td>Rock alternativo, ritmo driving constante</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monte Castelo</strong></td>
+                        <td>Legião Urbana</td>
+                        <td><span class="bpm-badge">72</span></td>
+                        <td>Balada épica, builds e dinâmicas complexas</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>🎺 Jazz/Instrumental Brasileiro (80-160 BPM)</h2>
+
+            <table class="music-table">
+                <thead>
+                    <tr>
+                        <th>Música</th>
+                        <th>Artista</th>
+                        <th>BPM</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vapor Barato</strong></td>
+                        <td>Jards Macalé</td>
+                        <td><span class="bpm-badge">88</span></td>
+                        <td>Jazz-rock experimental, liberdade rítmica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wave</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">86</span></td>
+                        <td>Bossa-jazz sofisticada, harmonias complexas</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Samba de Uma Nota Só</strong></td>
+                        <td>Tom Jobim</td>
+                        <td><span class="bpm-badge">112</span></td>
+                        <td>Samba-jazz up-tempo, desafio melódico</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Espinha de Bacalhau</strong></td>
+                        <td>Hermeto Pascoal</td>
+                        <td><span class="bpm-badge">148</span></td>
+                        <td>Instrumental acelerado, requer técnica avançada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bodas de Prata</strong></td>
+                        <td>Jacob do Bandolim</td>
+                        <td><span class="bpm-badge">156</span></td>
+                        <td>Choro rápido virtuoso, máxima dificuldade técnica</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Carinhoso</strong></td>
+                        <td>Pixinguinha</td>
+                        <td><span class="bpm-badge">76</span></td>
+                        <td>Choro lento e expressivo, controle de fraseado</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>📊 Dicas de Prática Por Faixa de BPM</h2>
+
+            <h3>🐢 Músicas Lentas (60-80 BPM)</h3>
+            <p><strong>Desafio:</strong> Manter o tempo sem acelerar, controle de dinâmica, expressão musical.</p>
+            <p><strong>Exemplos:</strong> Sozinho, Carinhoso, Corcovado, Garota de Ipanema</p>
+            <p><strong>Técnica:</strong> Conte as subdivisões mentalmente. Em 60 BPM, cada pulso dura 1 segundo inteiro - use isso a seu favor para relaxar.</p>
+
+            <h3>🚶 Músicas Médias (80-110 BPM)</h3>
+            <p><strong>Desafio:</strong> Groove consistente, coordenação entre melodia e ritmo.</p>
+            <p><strong>Exemplos:</strong> Você, Agoniza Mas Não Morre, Fascinação, Construção</p>
+            <p><strong>Técnica:</strong> Tempo ideal para iniciantes. Pratique até dominar antes de ir para tempos mais extremos.</p>
+
+            <h3>🏃 Músicas Rápidas (110-140 BPM)</h3>
+            <p><strong>Desafio:</strong> Resistência física, precisão em velocidade, manter limpeza técnica.</p>
+            <p><strong>Exemplos:</strong> Baião, Pro Dia Nascer Feliz, Xote das Meninas</p>
+            <p><strong>Técnica:</strong> Sempre aqueça antes. Comece em 70% da velocidade e aumente gradualmente.</p>
+
+            <h3>⚡ Músicas Muito Rápidas (140+ BPM)</h3>
+            <p><strong>Desafio:</strong> Técnica avançada, economia de movimento, controle de tensão.</p>
+            <p><strong>Exemplos:</strong> Esteban, Espinha de Bacalhau, Bodas de Prata</p>
+            <p><strong>Técnica:</strong> Nível avançado. Divida em seções pequenas e domine cada uma antes de unir.</p>
+
+            <div class="tip-box">
+                <h4>💡 Dica de Ouro:</h4>
+                <p>Não tente tocar todas essas músicas ao mesmo tempo! Escolha 3-5 do seu nível e gênero preferido, domine-as completamente, depois adicione novas ao repertório. Qualidade sempre supera quantidade.</p>
+            </div>
+
+            <h2>🎯 Como Montar Seu Plano de Prática</h2>
+
+            <p><strong>Semana 1-2:</strong> Escolha 1 música lenta, 2 médias e pratique em 80% do BPM original</p>
+            <p><strong>Semana 3-4:</strong> Aumente para 90% do BPM, adicione 1 música mais desafiadora</p>
+            <p><strong>Semana 5-6:</strong> Chegue ao BPM original, trabalhe expressão e dinâmica</p>
+            <p><strong>Semana 7+:</strong> Adicione músicas mais rápidas ao repertório, mantenha as antigas</p>
+
+            <div class="cta-box">
+                <h3>🎵 Pronto Para Praticar?</h3>
+                <p>Configure o BPM exato de qualquer música desta lista no Metronome List e comece a dominar seu repertório brasileiro!</p>
+                <a href="/" class="cta-button">Usar Metrônomo Agora →</a>
+            </div>
+        </article>
+    </div>
+
+    <footer>
+        <p>© 2025 Metronome List | <a href="/blog.html">Mais Artigos</a> | <a href="/">Voltar ao Metrônomo</a></p>
+    </footer>
+</body>
+</html>

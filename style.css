@@ -690,6 +690,42 @@ body {
     font-size: 0.9rem;
 }
 
+.beat-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.global-accent-toggle {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.global-accent-toggle.enabled {
+    background: #16a34a;
+    box-shadow: 0 0 12px #16a34a;
+}
+
+.global-accent-toggle.disabled {
+    background: #f59e0b;
+    box-shadow: 0 0 12px #f59e0b;
+}
+
+.global-accent-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 16px currentColor;
+}
+
+.global-accent-toggle:active {
+    transform: scale(1.0);
+}
+
 .metronome-item {
     display: grid;
     grid-template-columns: 60px 1fr 120px 100px 120px 80px 60px;
@@ -1061,6 +1097,466 @@ body {
     border-left: 4px solid #16a34a;
 }
 
+/* Blog Grid */
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.blog-card {
+    background: #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #475569;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.blog-card-header {
+    background: #1e293b;
+    padding: 25px;
+    border-bottom: 3px solid #16a34a;
+}
+
+.blog-category {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.blog-card-header h2 {
+    color: #fbbf24;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.blog-meta {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.blog-card-body {
+    padding: 25px;
+}
+
+.blog-card-body p {
+    color: #e2e8f0;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.btn-primary {
+    display: inline-block;
+    background: #16a34a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover {
+    background: #15803d;
+    transform: translateX(5px);
+}
+
+/* Boxes de Artigos */
+.intro {
+    background: #475569;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #fbbf24;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.error-box {
+    background: #7c2d12;
+    border-left: 4px solid #dc2626;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+}
+
+.error-box h4 {
+    color: #fca5a5;
+    margin-bottom: 10px;
+}
+
+.solution-box {
+    background: #14532d;
+    border-left: 4px solid #16a34a;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+}
+
+.solution-box h4 {
+    color: #86efac;
+    margin-bottom: 10px;
+}
+
+.tip-box {
+    background: #1e3a8a;
+    border-left: 4px solid #3b82f6;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+}
+
+.tip-box h4 {
+    color: #93c5fd;
+    margin-bottom: 10px;
+}
+
+.cta-box {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    margin: 40px 0;
+}
+
+.cta-box h3 {
+    color: white;
+    margin: 0 0 15px 0;
+}
+
+.cta-button {
+    display: inline-block;
+    background: #fbbf24;
+    color: #1e293b;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.cta-button:hover {
+    background: #f59e0b;
+    transform: scale(1.05);
+}
+
+.bpm-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #475569;
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: auto;
+}
+
+.bpm-table th {
+    background: #1e293b;
+    color: #fbbf24;
+    padding: 18px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.bpm-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #64748b;
+    color: #e2e8f0;
+    line-height: 1.6;
+    vertical-align: top;
+}
+
+.bpm-table tr:last-child td {
+    border-bottom: none;
+}
+
+.bpm-table tr:hover {
+    background: #64748b;
+}
+
+/* Espaçamento específico para colunas */
+.bpm-table td:nth-child(1), /* Música */
+.bpm-table th:nth-child(1) {
+    width: 25%;
+    font-weight: 600;
+}
+
+.bpm-table td:nth-child(2), /* Artista */
+.bpm-table th:nth-child(2) {
+    width: 20%;
+}
+
+.bpm-table td:nth-child(3), /* BPM */
+.bpm-table th:nth-child(3) {
+    width: 10%;
+    text-align: center;
+}
+
+.bpm-table td:nth-child(4), /* Características */
+.bpm-table th:nth-child(4) {
+    width: 45%;
+}
+
+/* Badge do BPM */
+.bpm-table td:nth-child(3) {
+    font-weight: bold;
+    color: #fbbf24;
+}
+
+/* Estilos para artigos */
+article {
+    background: transparent;
+}
+
+article h2 {
+    color: #fbbf24;
+    font-size: 1.8rem;
+    margin: 30px 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #16a34a;
+}
+
+article h3 {
+    color: #94a3b8;
+    font-size: 1.4rem;
+    margin: 25px 0 12px 0;
+}
+
+article h4 {
+    color: #e2e8f0;
+    font-size: 1.1rem;
+    margin: 15px 0 8px 0;
+}
+
+article p {
+    color: #e2e8f0;
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+article ul,
+article ol {
+    color: #e2e8f0;
+    margin: 15px 0 15px 30px;
+}
+
+article li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+article strong {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+article a {
+    color: #16a34a;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+article a:hover {
+    color: #22c55e;
+    text-decoration: underline;
+}
+
+/* Estilos para código inline */
+article code {
+    background: #1e293b;
+    color: #fbbf24;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+}
+
+/* Estilos para blockquote */
+article blockquote {
+    background: #1e293b;
+    border-left: 4px solid #3b82f6;
+    padding: 15px 20px;
+    margin: 20px 0;
+    font-style: italic;
+    color: #94a3b8;
+}
+
+/* Responsividade para artigos */
+@media (max-width: 768px) {
+    article h2 {
+        font-size: 1.5rem;
+    }
+    
+    article h3 {
+        font-size: 1.2rem;
+    }
+    
+    .error-box,
+    .solution-box,
+    .tip-box,
+    .cta-box {
+        padding: 15px;
+    }
+    
+    /* Melhorar tabelas em mobile */
+    .bpm-table {
+        font-size: 0.9rem;
+    }
+    
+    .bpm-table th,
+    .bpm-table td {
+        padding: 12px 10px;
+    }
+    
+    .bpm-table td:nth-child(1), /* Música */
+    .bpm-table th:nth-child(1) {
+        width: 30%;
+    }
+    
+    .bpm-table td:nth-child(2), /* Artista */
+    .bpm-table th:nth-child(2) {
+        width: 25%;
+    }
+    
+    .bpm-table td:nth-child(3), /* BPM */
+    .bpm-table th:nth-child(3) {
+        width: 15%;
+    }
+    
+    .bpm-table td:nth-child(4), /* Características */
+    .bpm-table th:nth-child(4) {
+        width: 30%;
+    }
+    
+    /* Tempo table responsivo */
+    .tempo-row {
+        grid-template-columns: 140px 100px 1fr;
+        gap: 12px;
+        padding: 12px 0;
+    }
+    
+    .tempo-name {
+        font-size: 0.95rem;
+    }
+    
+    .tempo-range {
+        font-size: 0.9rem;
+    }
+    
+    .tempo-desc {
+        font-size: 0.85rem;
+    }
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: #1e293b;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+.breadcrumb a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: #16a34a;
+}
+
+.breadcrumb span {
+    color: #64748b;
+    margin: 0 8px;
+}
+
+.breadcrumb .current {
+    color: #fbbf24;
+}
+
+/* Responsividade do Blog */
+@media (max-width: 768px) {
+    .blog-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .blog-card-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .content-header h1 {
+        font-size: 2rem;
+    }
+    
+    .content-header .subtitle {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-card-header {
+        padding: 20px;
+    }
+    
+    .blog-card-body {
+        padding: 20px;
+    }
+    
+    .breadcrumb {
+        font-size: 0.85rem;
+        padding: 10px 15px;
+    }
+    
+    /* Tabelas em mobile pequeno */
+    .bpm-table {
+        font-size: 0.85rem;
+    }
+    
+    .bpm-table th,
+    .bpm-table td {
+        padding: 10px 8px;
+    }
+    
+    .bpm-table th {
+        font-size: 0.9rem;
+    }
+    
+    /* Empilhar colunas em mobile muito pequeno */
+    .tempo-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 15px 0;
+    }
+    
+    .tempo-name,
+    .tempo-range {
+        display: inline-block;
+    }
+    
+    .tempo-range::before {
+        content: " • ";
+        color: #64748b;
+    }
+}
+
 .tip-card h4 {
     color: #fbbf24;
     margin-bottom: 10px;
@@ -1075,15 +1571,15 @@ body {
 .tempo-table {
     background: #475569;
     border-radius: 8px;
-    padding: 20px;
+    padding: 25px;
     margin: 20px 0;
 }
 
 .tempo-row {
     display: grid;
-    grid-template-columns: 150px 120px 1fr;
-    gap: 15px;
-    padding: 12px;
+    grid-template-columns: 180px 140px 1fr;
+    gap: 20px;
+    padding: 16px 0;
     border-bottom: 1px solid #64748b;
     align-items: center;
 }
@@ -1095,15 +1591,18 @@ body {
 .tempo-name {
     color: #fbbf24;
     font-weight: bold;
+    font-size: 1.05rem;
 }
 
 .tempo-range {
     color: #16a34a;
     font-weight: 600;
+    font-size: 1rem;
 }
 
 .tempo-desc {
     color: #e2e8f0;
+    line-height: 1.6;
 }
 
 /* Guias de Instrumento */
@@ -2030,4 +2529,8 @@ footer a:hover {
         color: black;
         page-break-inside: avoid;
     }
+
+
+
+    
 }

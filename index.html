@@ -3,16 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DE6MNBD05E"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-DE6MNBD05E');
-    </script>
     
     <!-- SEO Meta Tags -->
     <title>Metronome List - Metrônomo Online Profissional Grátis</title>
@@ -50,10 +40,10 @@
                 <h1>🎵 Metronome List</h1>
             </div>
             <ul class="nav-menu">
-                <li><a href="index.html" class="active">Metrônomo</a></li>
+                <li><a href="index.html" class="active">Metrônomo</a></li>              
                 <li><a href="como-usar.html">Como Usar</a></li>
-                <li><a href="guia-completo.html">Guia Completo</a></li>
                 <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="blog.html">Blog</a></li>
                 <li><a href="faq.html">FAQ</a></li>
             </ul>
             <button class="nav-toggle" onclick="toggleMenu()">☰</button>
@@ -141,11 +131,13 @@
                 </div>
             </div>
 
+            
+
             <button class="add-btn" onclick="addMetronome()" title="Adicionar novo metrônomo">+</button>
             
             <div class="save-buttons">
                 <button class="save-btn" onclick="saveSetlist()" title="Salvar setlist">💾</button>
-                <button class="share-btn" onclick="shareSetlist()" title="Compartilhar setlist">🌐</button>
+                <!--<button class="share-btn" onclick="shareSetlist()" title="Compartilhar setlist">🌐</button>-->
                 <button class="export-btn" onclick="exportSetlist()" title="Exportar JSON">📥</button>
                 <button class="import-btn" onclick="importSetlist()" title="Importar JSON">📤</button>
             </div>
@@ -157,7 +149,14 @@
             <div>TEMPO</div>
             <div>PLAY/PAUSE</div>
             <div>COMPASSO</div>
-            <div>BEAT</div>
+            <div class="beat-header-container">
+                <span>BEAT</span>
+                <button class="global-accent-toggle enabled" 
+                        id="globalAccentToggle"
+                        onclick="toggleGlobalAccent()"
+                        title="Desabilitar acentuação global">
+                </button>
+            </div>
             <div></div>
         </div>
 
@@ -211,9 +210,9 @@
                 <a href="como-usar.html" class="btn-link">Ver Tutorial →</a>
             </div>
             <div class="quick-link-card">
-                <h3>🎯 Guia Completo</h3>
-                <p>Técnicas avançadas e dicas profissionais</p>
-                <a href="guia-completo.html" class="btn-link">Ler Guia →</a>
+                <h3>🎯 Blog </h3>
+                <p>Técnicas avançadas, artigos e dicas profissionais</p>
+                <a href="blog.html" class="btn-link">Ler Guia →</a>
             </div>
             <div class="quick-link-card">
                 <h3>❓ FAQ</h3>
@@ -245,12 +244,12 @@
                     <h3>💚 PIX</h3>
                     <p class="pix-instruction">Escaneie o QR Code ou use a chave PIX:</p>
                     <div class="qr-code-wrapper">
-                        <img src="/assets/qrcodemercadopag.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
+                        <img src="/asset/qrcodemercadopag.pnj.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
                     </div>
                     <button class="copy-pix-btn" onclick="copyPixKey()">
-                        📋 Copiar Chave PIX 
+                        📋 Copiar Chave PIX
                     </button>
-                    <p class="pix-key" id="pixKey" style="display: none;">e6a591c6-f0a5-4ba8-b553-9b44b7dee73f</p>
+                    <p class="pix-key" id="pixKey" style="display: none;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9deee8fcb0fef5fcebf8b0edf4e5ddf8e5f8f0edf1f2b3fef2f0">[email&#160;protected]</a></p>
                 </div>
             </div>
             
@@ -323,7 +322,7 @@
         </p>
     </footer>
 
-    <script src="script.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
     <script>
         function toggleMenu() {
             const navMenu = document.querySelector('.nav-menu');
@@ -434,11 +433,7 @@
         }
 
         // Inicializar animações quando página carregar
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initScrollAnimations);
-        } else {
-            initScrollAnimations();
-        }
+        window.addEventListener('load', initScrollAnimations);
     </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ let nextId = 1;
 let globalChannel = 'C';
 let globalVolume = 0.7; // Volume fixo do sistema
 let selectedTimbre = 'click';
+let globalAccentEnabled = true; // Controle global de acentuação
 let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
@@ -82,89 +83,114 @@ async function storageList(prefix, shared = false) {
 // Inicializar
 async function init() {
     try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-        console.log('Erro ao criar contexto de áudio:', e);
-    }
-
-    document.addEventListener('click', function() {
-        if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-    }, { once: true });
-
-    // Remover controle de volume (agora é fixo)
-    // const volumeSlider = document.getElementById('volumeSlider');
-    // if (volumeSlider) {
-    //     volumeSlider.addEventListener('input', function() {
-    //         globalVolume = this.value / 100;
-    //     });
-    // }
-
-    document.addEventListener('keydown', function(e) {
-        if (document.activeElement.tagName === 'INPUT' || 
-            document.activeElement.tagName === 'SELECT' ||
-            document.activeElement.tagName === 'TEXTAREA') {
-            return;
-        }
-
-        const key = e.key;
+        console.log('🚀 Iniciando metrônomo...');
         
-        // Espaço para play/pause do metrônomo atual (último tocado ou primeiro)
-        if (key === ' ' || key === 'Spacebar') {
-            e.preventDefault(); // Prevenir scroll da página
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('✅ Contexto de áudio criado');
+        } catch (e) {
+            console.log('❌ Erro ao criar contexto de áudio:', e);
+        }
+
+        document.addEventListener('click', function() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }, { once: true });
+
+        // Remover controle de volume (agora é fixo)
+        // const volumeSlider = document.getElementById('volumeSlider');
+        // if (volumeSlider) {
+        //     volumeSlider.addEventListener('input', function() {
+        //         globalVolume = this.value / 100;
+        //     });
+        // }
+
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement.tagName === 'INPUT' || 
+                document.activeElement.tagName === 'SELECT' ||
+                document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key;
             
-            // Verificar se há metrônomo tocando
-            const playingMetronome = metronomes.find(m => m.isPlaying);
-            
-            if (playingMetronome) {
-                // Se há um tocando, pausar e lembrar qual era
-                lastSpacebarMetronome = playingMetronome.id;
-                toggleMetronome(playingMetronome.id);
-            } else if (lastSpacebarMetronome) {
-                // Se lembrar do último, tocar ele novamente
-                const lastMetronome = metronomes.find(m => m.id === lastSpacebarMetronome);
-                if (lastMetronome) {
-                    toggleMetronome(lastSpacebarMetronome);
-                } else {
-                    // Se o último não existe mais, tocar o primeiro
+            // Espaço para play/pause do metrônomo atual (último tocado ou primeiro)
+            if (key === ' ' || key === 'Spacebar') {
+                e.preventDefault(); // Prevenir scroll da página
+                
+                // Verificar se há metrônomo tocando
+                const playingMetronome = metronomes.find(m => m.isPlaying);
+                
+                if (playingMetronome) {
+                    // Se há um tocando, pausar e lembrar qual era
+                    lastSpacebarMetronome = playingMetronome.id;
+                    toggleMetronome(playingMetronome.id);
+                } else if (lastSpacebarMetronome) {
+                    // Se lembrar do último, tocar ele novamente
+                    const lastMetronome = metronomes.find(m => m.id === lastSpacebarMetronome);
+                    if (lastMetronome) {
+                        toggleMetronome(lastSpacebarMetronome);
+                    } else {
+                        // Se o último não existe mais, tocar o primeiro
+                        lastSpacebarMetronome = metronomes[0].id;
+                        toggleMetronome(metronomes[0].id);
+                    }
+                } else if (metronomes.length > 0) {
+                    // Se não lembra de nenhum, tocar o primeiro e lembrar
                     lastSpacebarMetronome = metronomes[0].id;
                     toggleMetronome(metronomes[0].id);
                 }
-            } else if (metronomes.length > 0) {
-                // Se não lembra de nenhum, tocar o primeiro e lembrar
-                lastSpacebarMetronome = metronomes[0].id;
-                toggleMetronome(metronomes[0].id);
+                return;
             }
-            return;
+            
+            // Teclas numéricas para metrônomos específicos
+            const num = parseInt(key);
+            if (num >= 1 && num <= 9) {
+                if (metronomes[num - 1]) {
+                    toggleMetronome(metronomes[num - 1].id);
+                }
+            } else if (key === '0' && metronomes[9]) {
+                toggleMetronome(metronomes[9].id);
+            }
+        });
+
+        await loadSavedSetlists();
+        await loadSharedSetlists();
+
+        console.log('📦 Carregando última configuração...');
+        const lastConfig = await loadLastConfig();
+        console.log('lastConfig:', lastConfig);
+        
+        if (lastConfig && Array.isArray(lastConfig) && lastConfig.length > 0) {
+            metronomes = lastConfig;
+            nextId = Math.max(...metronomes.map(m => m.id)) + 1;
+            console.log('✅ Configuração carregada:', metronomes.length, 'metrônomos');
+        } else {
+            console.log('➕ Criando metrônomos padrão...');
+            addMetronome();
+            addMetronome();
+            addMetronome();
+            console.log('✅ Metrônomos criados:', metronomes.length);
         }
         
-        // Teclas numéricas para metrônomos específicos
-        const num = parseInt(key);
-        if (num >= 1 && num <= 9) {
-            if (metronomes[num - 1]) {
-                toggleMetronome(metronomes[num - 1].id);
-            }
-        } else if (key === '0' && metronomes[9]) {
-            toggleMetronome(metronomes[9].id);
+        console.log('🎨 Renderizando interface...');
+        renderMetronomes();
+        renderSetlistManager();
+        console.log('✅ Inicialização completa!');
+    } catch (error) {
+        console.error('💥 ERRO FATAL na inicialização:', error);
+        console.error('Stack:', error.stack);
+        // Tentar inicializar de forma básica
+        try {
+            addMetronome();
+            addMetronome();
+            addMetronome();
+            renderMetronomes();
+        } catch (e2) {
+            console.error('💥 Falha total:', e2);
         }
-    });
-
-    await loadSavedSetlists();
-    await loadSharedSetlists();
-
-    const lastConfig = await loadLastConfig();
-    if (lastConfig && lastConfig.length > 0) {
-        metronomes = lastConfig;
-        nextId = Math.max(...metronomes.map(m => m.id)) + 1;
-    } else {
-        addMetronome();
-        addMetronome();
-        addMetronome();
     }
-    
-    renderMetronomes();
-    renderSetlistManager();
 }
 
 // Função Tap Tempo
@@ -197,8 +223,8 @@ function tapTempo() {
         // Converter para BPM (60000ms = 1 minuto)
         let bpm = Math.round(60000 / avgInterval);
         
-        // Limitar entre 60-200
-        bpm = Math.max(60, Math.min(200, bpm));
+        // Limitar entre 40-300
+        bpm = Math.max(40, Math.min(300, bpm));
         
         // Mostrar BPM calculado
         document.getElementById('tapBpmDisplay').textContent = bpm;
@@ -225,13 +251,16 @@ function tapTempo() {
 
 async function saveLastConfig() {
     try {
-        const config = metronomes.map(m => ({
-            id: m.id,
-            name: m.name,
-            bpm: m.bpm,
-            timeSignature: m.timeSignature,
-            beats: m.beats
-        }));
+        const config = {
+            metronomes: metronomes.map(m => ({
+                id: m.id,
+                name: m.name,
+                bpm: m.bpm,
+                timeSignature: m.timeSignature,
+                beats: m.beats
+            })),
+            globalAccentEnabled: globalAccentEnabled
+        };
         await storageSet('last-config', JSON.stringify(config), false);
     } catch (error) {
         console.log('Erro ao salvar:', error);
@@ -243,11 +272,31 @@ async function loadLastConfig() {
         const result = await storageGet('last-config', false);
         if (result && result.value) {
             const config = JSON.parse(result.value);
-            return config.map(m => ({
-                ...m,
-                isPlaying: false,
-                currentBeat: 0
-            }));
+            
+            // Suportar formato antigo (array) e novo (objeto)
+            if (Array.isArray(config)) {
+                return config.map(m => ({
+                    ...m,
+                    isPlaying: false,
+                    currentBeat: 0
+                }));
+            } else {
+                // Formato novo com globalAccentEnabled
+                globalAccentEnabled = config.globalAccentEnabled !== undefined ? config.globalAccentEnabled : true;
+                
+                // Atualizar UI do botão
+                const btn = document.getElementById('globalAccentToggle');
+                if (btn) {
+                    btn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
+                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                }
+                
+                return config.metronomes.map(m => ({
+                    ...m,
+                    isPlaying: false,
+                    currentBeat: 0
+                }));
+            }
         }
     } catch (error) {
         console.log('Sem config anterior');
@@ -273,7 +322,8 @@ async function saveSetlist() {
             globalSettings: {
                 channel: globalChannel,
                 volume: globalVolume,
-                timbre: selectedTimbre
+                timbre: selectedTimbre,
+                accentEnabled: globalAccentEnabled
             }
         };
 
@@ -290,7 +340,7 @@ async function saveSetlist() {
 
 async function shareSetlist() {
     if (!hasClaudeStorage) {
-        alert('⚠️ Compartilhamento só no Claude.ai\n\nUse "Exportar JSON" para compartilhar manualmente.');
+        alert('⚠️ "Exportar JSON" para compartilhar manualmente.');
         return;
     }
     
@@ -312,7 +362,8 @@ async function shareSetlist() {
             globalSettings: {
                 channel: globalChannel,
                 volume: globalVolume,
-                timbre: selectedTimbre
+                timbre: selectedTimbre,
+                accentEnabled: globalAccentEnabled
             }
         };
 
@@ -395,6 +446,15 @@ async function loadSetlist(key, isShared = false) {
                 globalChannel = setlistData.globalSettings.channel || 'C';
                 globalVolume = setlistData.globalSettings.volume || 0.7;
                 selectedTimbre = setlistData.globalSettings.timbre || 'click';
+                globalAccentEnabled = setlistData.globalSettings.accentEnabled !== undefined ? 
+                    setlistData.globalSettings.accentEnabled : true;
+                
+                // Atualizar botão de acentuação global
+                const accentBtn = document.getElementById('globalAccentToggle');
+                if (accentBtn) {
+                    accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
+                    accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                }
                 
                 // Não precisa mais atualizar volumeSlider
                 const timbreSelect = document.getElementById('timbreSelect');
@@ -442,7 +502,8 @@ function exportSetlist() {
         globalSettings: {
             channel: globalChannel,
             volume: globalVolume,
-            timbre: selectedTimbre
+            timbre: selectedTimbre,
+            accentEnabled: globalAccentEnabled
         }
     };
     
@@ -488,6 +549,15 @@ function importSetlist() {
                     globalChannel = setlistData.globalSettings.channel || 'C';
                     globalVolume = setlistData.globalSettings.volume || 0.7;
                     selectedTimbre = setlistData.globalSettings.timbre || 'click';
+                    globalAccentEnabled = setlistData.globalSettings.accentEnabled !== undefined ? 
+                        setlistData.globalSettings.accentEnabled : true;
+                    
+                    // Atualizar botão de acentuação global
+                    const accentBtn = document.getElementById('globalAccentToggle');
+                    if (accentBtn) {
+                        accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
+                        accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                    }
                     
                     const timbreSelect = document.getElementById('timbreSelect');
                     if (timbreSelect) timbreSelect.value = selectedTimbre;
@@ -536,7 +606,7 @@ function renderSetlistManager() {
     html += '<h3>🌐 Setlists Compartilhados</h3>';
     
     if (!hasClaudeStorage) {
-        html += '<p class="empty-message">⚠️ Compartilhamento só no Claude.ai<br>Use "Exportar/Importar JSON"</p>';
+        html += '<p class="empty-message">⚠️ "Exportar/Importar JSON"</p>';
     } else if (sharedSetlists.length === 0) {
         html += '<p class="empty-message">Nenhum compartilhado</p>';
     } else {
@@ -566,6 +636,23 @@ function setGlobalChannel(channel) {
         btn.className = 'channel-btn inactive';
     });
     event.target.className = 'channel-btn active';
+    saveLastConfig();
+}
+
+function toggleGlobalAccent() {
+    globalAccentEnabled = !globalAccentEnabled;
+    
+    const btn = document.getElementById('globalAccentToggle');
+    if (btn) {
+        if (globalAccentEnabled) {
+            btn.className = 'global-accent-toggle enabled';
+            btn.title = 'Desabilitar acentuação.';
+        } else {
+            btn.className = 'global-accent-toggle disabled';
+            btn.title = 'Habilitar acentuação.';
+        }
+    }
+    
     saveLastConfig();
 }
 
@@ -599,7 +686,7 @@ function updateMetronome(id, field, value) {
     if (!metronome) return;
 
     if (field === 'bpm') {
-        value = Math.max(60, Math.min(200, parseInt(value) || 120));
+        value = Math.max(40, Math.min(300, parseInt(value) || 120));
     }
     if (field === 'timeSignature') {
         const parts = value.split('/');
@@ -678,7 +765,8 @@ function changeTimbre(timbre) {
 function playSound(metronome) {
     if (!audioContext) return;
 
-    const isFirstBeat = metronome.currentBeat === 0;
+    // Usar globalAccentEnabled ao invés de verificar metrônomo individual
+    const isFirstBeat = globalAccentEnabled && metronome.currentBeat === 0;
 
     switch (selectedTimbre) {
         case 'click':
@@ -861,7 +949,8 @@ function updateBeatIndicator(id, currentBeat) {
     indicators.forEach((dot, index) => {
         dot.className = 'beat-dot';
         if (index === currentBeat) {
-            dot.className = 'beat-dot ' + (index === 0 ? 'accent' : 'active');
+            // Usar globalAccentEnabled para determinar se mostra accent ou active
+            dot.className = 'beat-dot ' + ((index === 0 && globalAccentEnabled) ? 'accent' : 'active');
         }
     });
 }
@@ -881,7 +970,8 @@ function renderMetronomes() {
         for (let i = 0; i < m.beats; i++) {
             let dotClass = 'beat-dot';
             if (m.isPlaying && i === m.currentBeat) {
-                dotClass += (i === 0) ? ' accent' : ' active';
+                // Usar globalAccentEnabled para determinar se mostra accent ou active
+                dotClass += ((i === 0 && globalAccentEnabled) ? ' accent' : ' active');
             }
             beatIndicators += '<div class="' + dotClass + '"></div>';
         }
@@ -893,7 +983,7 @@ function renderMetronomes() {
                        value="${m.name}" onchange="updateMetronome(${m.id}, 'name', this.value)">
             </div>
             <div class="bmp-container">
-                <input type="number" class="bpm-input" min="60" max="200" 
+                <input type="number" class="bpm-input" min="40" max="300" 
                        value="${m.bpm}" onchange="updateMetronome(${m.id}, 'bpm', this.value)">
                 <span class="bpm-label">BPM</span>
             </div>
