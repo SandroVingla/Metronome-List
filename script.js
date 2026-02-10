@@ -288,7 +288,7 @@ async function loadLastConfig() {
                 const btn = document.getElementById('globalAccentToggle');
                 if (btn) {
                     btn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
                 }
                 
                 return config.metronomes.map(m => ({
@@ -453,7 +453,7 @@ async function loadSetlist(key, isShared = false) {
                 const accentBtn = document.getElementById('globalAccentToggle');
                 if (accentBtn) {
                     accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                    accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                    accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
                 }
                 
                 // Não precisa mais atualizar volumeSlider
@@ -556,7 +556,7 @@ function importSetlist() {
                     const accentBtn = document.getElementById('globalAccentToggle');
                     if (accentBtn) {
                         accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                        accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+                        accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
                     }
                     
                     const timbreSelect = document.getElementById('timbreSelect');
@@ -646,10 +646,10 @@ function toggleGlobalAccent() {
     if (btn) {
         if (globalAccentEnabled) {
             btn.className = 'global-accent-toggle enabled';
-            btn.title = 'Desabilitar acentuação.';
+            btn.title = 'Desabilitar acentuação do Click';
         } else {
             btn.className = 'global-accent-toggle disabled';
-            btn.title = 'Habilitar acentuação.';
+            btn.title = 'Habilitar acentuação do Click';
         }
     }
     
