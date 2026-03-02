@@ -998,7 +998,11 @@ function renderMetronomes() {
                     <option value="2/4" ${m.timeSignature === '2/4' ? 'selected' : ''}>2/4</option>
                     <option value="3/4" ${m.timeSignature === '3/4' ? 'selected' : ''}>3/4</option>
                     <option value="4/4" ${m.timeSignature === '4/4' ? 'selected' : ''}>4/4</option>
+                    <option value="5/4" ${m.timeSignature === '5/4' ? 'selected' : ''}>5/4</option>
                     <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
+                    <option value="7/8" ${m.timeSignature === '7/8' ? 'selected' : ''}>7/8</option>
+                    <option value="9/8" ${m.timeSignature === '9/8' ? 'selected' : ''}>9/8</option>
+                    <option value="12/8" ${m.timeSignature === '12/8' ? 'selected' : ''}>12/8</option>
                 </select>
             </div>
             <div class="beat-indicators">
