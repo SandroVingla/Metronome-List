@@ -1,0 +1,44 @@
+name: Update Sitemap lastmod
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update lastmod dates
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          
+          # Atualiza lastmod de todos os arquivos HTML alterados no commit
+          git diff --name-only HEAD~1 HEAD | grep '\.html$' | while read file; do
+            PAGENAME=$(basename "$file")
+            echo "Atualizando $PAGENAME para $TODAY"
+            sed -i "s|<loc>https://metronome-list.netlify.app/${PAGENAME}</loc>|<loc>https://metronome-list.netlify.app/${PAGENAME}</loc>|g" sitemap.xml
+            # Atualiza lastmod da URL correspondente
+            python3 -c "
+          import re, sys
+
+          with open('sitemap.xml', 'r') as f:
+              content = f.read()
+
+          # Encontra o bloco da URL e atualiza o lastmod
+          pattern = r'(<loc>https://metronome-list\.netlify\.app/${PAGENAME}</loc>\s*<lastmod>)[^<]+(</lastmod>)'
+          content = re.sub(pattern, r'\g<1>${TODAY}\2', content)
+
+          with open('sitemap.xml', 'w') as f:
+              f.write(content)
+          "
+          done
+
+      - name: Commit updated sitemap
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add sitemap.xml
+          git diff --cached --quiet || git commit -m "chore: update sitemap lastmod"
+          git push
