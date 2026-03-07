@@ -253,6 +253,14 @@
                         <span class="tap-bpm" id="tapBpmDisplay">--</span>
                     </button>
                 </div>
+
+                <div class="mute-click-section">
+                    <button class="mute-click-btn" id="clickMuteBtn"
+                            onclick="toggleClickMute()"
+                            title="Mutar o click">
+                        🔊 Click
+                    </button>
+                </div>
             </div>
 
             
@@ -272,6 +280,7 @@
             <div>MÚSICA</div>
             <div>TEMPO</div>
             <div>PLAY/PAUSE</div>
+            <div style="padding-left: 44px;">PAD</div>
             <div>COMPASSO</div>
             <div class="beat-header-container">
                 <span>BEAT</span>
@@ -368,7 +377,7 @@
                     <h3>💚 PIX</h3>
                     <p class="pix-instruction">Escaneie o QR Code ou use a chave PIX:</p>
                     <div class="qr-code-wrapper">
-                        <img src="./assets/qrcodemercadopag.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
+                        <img src="/assets/qrcodemercadopag.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
                     </div>
                     <button class="copy-pix-btn" onclick="copyPixKey()">
                         📋 Copiar Chave PIX

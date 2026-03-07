@@ -3,6 +3,7 @@ let metronomes = [];
 let nextId = 1;
 let globalChannel = 'C';
 let globalVolume = 0.7; // Volume fixo do sistema
+let clickMuted = false; // Mute do click (pad continua tocando)
 let selectedTimbre = 'click';
 let globalAccentEnabled = true; // Controle global de acentuação
 let audioContext = null;
@@ -13,6 +14,331 @@ let sharedSetlists = [];
 // Variáveis para Tap Tempo
 let tapTimes = [];
 let tapTimeout = null;
+
+// ── PAD CONTÍNUO ──────────────────────────────────────────────
+// Usa arquivos MP3 da pasta /pads/ — 12 tons, um por nota.
+// Nomes: Pad_-_A.mp3, Pad_-_Ab.mp3, Pad_-_Bb.mp3, etc.
+
+const padState = {};
+
+// Mapa nota → nome do arquivo (usa notação b para bemóis)
+const PAD_FILE_MAP = {
+    'C':  'Pad - C.mp3',
+    'C#': 'Pad - Db.mp3',
+    'D':  'Pad - D.mp3',
+    'D#': 'Pad - Eb.mp3',
+    'E':  'Pad - E.mp3',
+    'F':  'Pad - F.mp3',
+    'F#': 'Pad - Gb.mp3',
+    'G':  'Pad - G.mp3',
+    'G#': 'Pad - Ab.mp3',
+    'A':  'Pad - A.mp3',
+    'A#': 'Pad - Bb.mp3',
+    'B':  'Pad - B.mp3',
+};
+
+const PAD_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+// Nomes de exibição no select (usa bemóis, mais comum na música)
+const PAD_NOTE_LABELS = {
+    'C':'C', 'C#':'C#/Db', 'D':'D', 'D#':'D#/Eb',
+    'E':'E', 'F':'F', 'F#':'F#/Gb', 'G':'G',
+    'G#':'G#/Ab', 'A':'A', 'A#':'A#/Bb', 'B':'B'
+};
+
+function getPadState(id) {
+    if (!padState[id]) {
+        padState[id] = {
+            note: 'A',
+            enabled: false,
+            volume: 0.7,
+            audioEl: null,
+            gainNode: null,
+            sourceConnected: false,
+        };
+    }
+    return padState[id];
+}
+
+function getPadAudioPath(note) {
+    return 'pads/' + (PAD_FILE_MAP[note] || PAD_FILE_MAP['A']);
+}
+
+// Pré-carrega o elemento de áudio para a nota (sem tocar ainda)
+function loadPadAudio(id) {
+    const ps = getPadState(id);
+    const path = getPadAudioPath(ps.note);
+
+    // Se já tem o mesmo arquivo carregado, não recarrega
+    if (ps.audioEl && ps.audioEl.dataset.note === ps.note) return;
+
+    // Para e descarta o anterior
+    if (ps.audioEl) {
+        ps.audioEl.pause();
+        ps.audioEl = null;
+        ps.gainNode = null;
+        ps.sourceConnected = false;
+    }
+
+    const el = new Audio(path);
+    el.loop = true;
+    el.dataset.note = ps.note;
+    ps.audioEl = el;
+}
+
+function startPad(id) {
+    const ps = getPadState(id);
+    if (!ps.enabled) return;
+
+    // Se tem arquivo customizado, usa ele; senão usa o MP3 padrão
+    if (ps.customAudioEl) {
+        startCustomPad(id);
+    } else {
+        loadPadAudio(id);
+        if (!ps.audioEl) return;
+
+        if (!ps.sourceConnected && audioContext) {
+            try {
+                const src = audioContext.createMediaElementSource(ps.audioEl);
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = ps.volume;
+                src.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                ps.gainNode = gainNode;
+                ps.sourceConnected = true;
+            } catch(e) { console.warn('Pad audio connect error:', e); }
+        }
+
+        ps.audioEl.currentTime = 0;
+        ps.audioEl.play().catch(e => console.warn('Pad play error:', e));
+    }
+    updatePadIndicator(id, true);
+}
+
+function stopPad(id) {
+    const ps = getPadState(id);
+    if (ps.customAudioEl) {
+        ps.customAudioEl.pause();
+        ps.customAudioEl.currentTime = 0;
+    }
+    if (ps.audioEl) {
+        ps.audioEl.pause();
+        ps.audioEl.currentTime = 0;
+    }
+    updatePadIndicator(id, false);
+}
+
+function startCustomPad(id) {
+    const ps = getPadState(id);
+    if (!ps.customAudioEl) return;
+
+    if (!ps.customSourceConnected && audioContext) {
+        try {
+            const src = audioContext.createMediaElementSource(ps.customAudioEl);
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = ps.volume;
+            src.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            ps.customGainNode = gainNode;
+            ps.customSourceConnected = true;
+        } catch(e) { console.warn('Custom pad connect error:', e); }
+    }
+
+    ps.customAudioEl.currentTime = 0;
+    ps.customAudioEl.play().catch(e => console.warn('Custom pad play error:', e));
+}
+
+function padHandleFile(id, file) {
+    if (!file || !file.type.startsWith('audio')) return;
+    const ps = getPadState(id);
+
+    // Descarta arquivo anterior
+    if (ps.customAudioEl) {
+        ps.customAudioEl.pause();
+        ps.customAudioEl = null;
+        ps.customGainNode = null;
+        ps.customSourceConnected = false;
+    }
+
+    const url = URL.createObjectURL(file);
+    const el = new Audio(url);
+    el.loop = true;
+    ps.customAudioEl = el;
+
+    // Atualiza UI
+    const drop = document.getElementById('pad-drop-' + id);
+    const info = document.getElementById('pad-file-info-' + id);
+    const nameEl = document.getElementById('pad-file-name-' + id);
+    if (drop) drop.style.display = 'none';
+    if (info) info.style.display = 'flex';
+    if (nameEl) nameEl.textContent = file.name;
+
+    // Se o metrônomo está tocando, inicia já
+    const metro = metronomes.find(m => m.id === id);
+    if (metro && metro.isPlaying && ps.enabled) {
+        // Para o pad padrão primeiro
+        if (ps.audioEl) { ps.audioEl.pause(); ps.audioEl.currentTime = 0; }
+        startCustomPad(id);
+    }
+}
+
+function padRemoveFile(id) {
+    const ps = getPadState(id);
+    if (ps.customAudioEl) {
+        ps.customAudioEl.pause();
+        ps.customAudioEl = null;
+        ps.customGainNode = null;
+        ps.customSourceConnected = false;
+    }
+
+    const drop = document.getElementById('pad-drop-' + id);
+    const info = document.getElementById('pad-file-info-' + id);
+    if (drop) drop.style.display = 'block';
+    if (info) info.style.display = 'none';
+
+    // Retoma pad padrão se estiver tocando
+    const metro = metronomes.find(m => m.id === id);
+    if (metro && metro.isPlaying && ps.enabled) startPad(id);
+}
+
+function updatePadIndicator(id, isPlaying) {
+    const sel = document.querySelector(`.pad-note-select[data-pad-id="${id}"]`);
+    if (!sel) return;
+    if (isPlaying) {
+        sel.style.borderColor = '#a78bfa';
+        sel.style.boxShadow = '0 0 6px rgba(167,139,250,0.5)';
+    } else {
+        sel.style.borderColor = '';
+        sel.style.boxShadow = '';
+    }
+}
+
+function togglePadPanel(id) {
+    document.querySelectorAll('.pad-panel').forEach(p => {
+        if (p.dataset.padId != id) p.classList.remove('pad-panel-open');
+    });
+    const panel = document.getElementById('pad-panel-' + id);
+    if (panel) panel.classList.toggle('pad-panel-open');
+}
+
+function setPadNote(id, note) {
+    const ps = getPadState(id);
+    const wasPlaying = ps.audioEl && !ps.audioEl.paused;
+
+    // Para o atual com fade rápido se estiver tocando
+    if (wasPlaying) stopPad(id);
+
+    ps.note = note;
+    ps.audioEl = null;      // força recarga do novo arquivo
+    ps.gainNode = null;
+    ps.sourceConnected = false;
+
+    loadPadAudio(id);
+
+    // Retoma se estava tocando
+    const metro = metronomes.find(m => m.id === id);
+    if (wasPlaying && metro && metro.isPlaying && ps.enabled) {
+        startPad(id);
+    }
+}
+
+function togglePadEnabled(id) {
+    const ps = getPadState(id);
+    setPadEnabled(id, !ps.enabled);
+}
+
+function setPadEnabled(id, enabled) {
+    const ps = getPadState(id);
+    ps.enabled = enabled;
+
+    const toggleBtn = document.getElementById('pad-toggle-' + id);
+    if (toggleBtn) {
+        toggleBtn.textContent = enabled ? '🟣 ON' : '⚫ OFF';
+        toggleBtn.className = 'pad-toggle-btn' + (enabled ? ' pad-toggle-on' : '');
+    }
+
+    const metro = metronomes.find(m => m.id === id);
+    if (metro && metro.isPlaying) {
+        if (enabled) startPad(id);
+        else stopPad(id);
+    }
+}
+
+function setPadVolume(id, val) {
+    const ps = getPadState(id);
+    ps.volume = val / 100;
+    document.getElementById('pad-vol-val-' + id).textContent = val + '%';
+    if (ps.gainNode && audioContext) {
+        ps.gainNode.gain.setTargetAtTime(ps.volume, audioContext.currentTime, 0.05);
+    }
+    if (ps.customGainNode && audioContext) {
+        ps.customGainNode.gain.setTargetAtTime(ps.volume, audioContext.currentTime, 0.05);
+    }
+}
+
+function buildPadNoteOptions() {
+    return PAD_NOTES.map(n =>
+        `<option value="${n}">${PAD_NOTE_LABELS[n]}</option>`
+    ).join('');
+}
+
+function buildPadHTML(id) {
+    const ps = getPadState(id);
+    const noteOpts = buildPadNoteOptions();
+
+    return `
+    <div class="pad-cell">
+        <div class="pad-select-row">
+            <select class="pad-note-select" data-pad-id="${id}"
+                    onchange="setPadNote(${id}, this.value)"
+                    title="Tom do pad">
+                ${noteOpts}
+            </select>
+            <button class="pad-toggle-btn${ps.enabled ? ' pad-toggle-on' : ''}"
+                    id="pad-toggle-${id}"
+                    onclick="togglePadEnabled(${id})"
+                    title="Ativar/desativar pad">${ps.enabled ? '🟣 ON' : '⚫ OFF'}</button>
+            <button class="pad-panel-btn"
+                    onclick="togglePadPanel(${id})"
+                    title="Configurações do pad">🔊</button>
+        </div>
+
+        <div class="pad-panel" id="pad-panel-${id}" data-pad-id="${id}">
+            <div class="pad-panel-inner">
+
+                <div class="pad-panel-toprow">
+                    <span class="pad-panel-title">🎹 Pad Contínuo <span class="pad-stereo-badge">⟷ STEREO</span></span>
+                    <button class="pad-panel-close" onclick="togglePadPanel(${id})">✕</button>
+                </div>
+
+                <div class="pad-section-label">Volume</div>
+                <div class="pad-vol-row">
+                    <input type="range" min="0" max="100" value="${Math.round(ps.volume * 100)}"
+                           oninput="setPadVolume(${id}, this.value)" style="flex:1">
+                    <span class="pad-vol-val" id="pad-vol-val-${id}">${Math.round(ps.volume * 100)}%</span>
+                </div>
+
+                <div class="pad-section-label" style="margin-top:10px">Arquivo Personalizado</div>
+                <div id="pad-drop-${id}" class="pad-drop-zone"
+                     onclick="document.getElementById('pad-file-input-${id}').click()"
+                     ondragover="event.preventDefault();this.classList.add('pad-drop-hover')"
+                     ondragleave="this.classList.remove('pad-drop-hover')"
+                     ondrop="event.preventDefault();this.classList.remove('pad-drop-hover');padHandleFile(${id}, event.dataTransfer.files[0])">
+                    <input type="file" id="pad-file-input-${id}" accept="audio/*" style="display:none"
+                           onchange="padHandleFile(${id}, this.files[0])">
+                    🎵 Carregar MP3/WAV próprio
+                </div>
+                <div id="pad-file-info-${id}" class="pad-file-info" style="display:none">
+                    <span class="pad-file-name" id="pad-file-name-${id}">—</span>
+                    <button onclick="padRemoveFile(${id})" class="pad-file-remove" title="Remover arquivo">✕</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    `;
+}
+// ── FIM PAD ───────────────────────────────────────────────────
 
 // Variável para lembrar último metrônomo usado com espaço
 let lastSpacebarMetronome = null;
@@ -288,7 +614,7 @@ async function loadLastConfig() {
                 const btn = document.getElementById('globalAccentToggle');
                 if (btn) {
                     btn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
+                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
                 }
                 
                 return config.metronomes.map(m => ({
@@ -453,7 +779,7 @@ async function loadSetlist(key, isShared = false) {
                 const accentBtn = document.getElementById('globalAccentToggle');
                 if (accentBtn) {
                     accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                    accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
+                    accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
                 }
                 
                 // Não precisa mais atualizar volumeSlider
@@ -556,7 +882,7 @@ function importSetlist() {
                     const accentBtn = document.getElementById('globalAccentToggle');
                     if (accentBtn) {
                         accentBtn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                        accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação do Click' : 'Habilitar acentuação do Click';
+                        accentBtn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
                     }
                     
                     const timbreSelect = document.getElementById('timbreSelect');
@@ -646,10 +972,10 @@ function toggleGlobalAccent() {
     if (btn) {
         if (globalAccentEnabled) {
             btn.className = 'global-accent-toggle enabled';
-            btn.title = 'Desabilitar acentuação do Click';
+            btn.title = 'Desabilitar acentuação.';
         } else {
             btn.className = 'global-accent-toggle disabled';
-            btn.title = 'Habilitar acentuação do Click';
+            btn.title = 'Habilitar acentuação.';
         }
     }
     
@@ -730,6 +1056,9 @@ function startMetronome(id) {
 
     const interval = 60000 / metronome.bpm;
 
+    // Iniciar pad contínuo se habilitado
+    startPad(id);
+
     playSound(metronome);
     updateBeatIndicator(id, 0);
 
@@ -754,7 +1083,25 @@ function stopMetronome(id) {
     metronome.isPlaying = false;
     metronome.currentBeat = 0;
     updateBeatIndicator(id, -1);
+
+    // Parar pad contínuo
+    stopPad(id);
+
     renderMetronomes();
+}
+
+function toggleClickMute() {
+    clickMuted = !clickMuted;
+    const btn = document.getElementById('clickMuteBtn');
+    if (clickMuted) {
+        btn.textContent = '🔇 Click';
+        btn.classList.add('click-muted');
+        btn.title = 'Click mutado — clique para ativar';
+    } else {
+        btn.textContent = '🔊 Click';
+        btn.classList.remove('click-muted');
+        btn.title = 'Mutar o click';
+    }
 }
 
 function changeTimbre(timbre) {
@@ -938,7 +1285,7 @@ function setupPanAndVolume(pannerNode, gainNode, isFirstBeat, duration, firstVol
     if (globalChannel === 'R') panValue = 1;
     pannerNode.pan.setValueAtTime(panValue, audioContext.currentTime);
 
-    const volume = (isFirstBeat ? firstVolume : secondVolume) * globalVolume;
+    const volume = clickMuted ? 0 : (isFirstBeat ? firstVolume : secondVolume) * globalVolume;
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
@@ -993,12 +1340,14 @@ function renderMetronomes() {
                     ${m.isPlaying ? '⏸' : '▶'}
                 </button>
             </div>
+            ${buildPadHTML(m.id)}
             <div>
                 <select class="time-select" onchange="updateMetronome(${m.id}, 'timeSignature', this.value)">
                     <option value="2/4" ${m.timeSignature === '2/4' ? 'selected' : ''}>2/4</option>
                     <option value="3/4" ${m.timeSignature === '3/4' ? 'selected' : ''}>3/4</option>
                     <option value="4/4" ${m.timeSignature === '4/4' ? 'selected' : ''}>4/4</option>
                     <option value="5/4" ${m.timeSignature === '5/4' ? 'selected' : ''}>5/4</option>
+                    <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
                     <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
                     <option value="7/8" ${m.timeSignature === '7/8' ? 'selected' : ''}>7/8</option>
                     <option value="9/8" ${m.timeSignature === '9/8' ? 'selected' : ''}>9/8</option>
@@ -1016,6 +1365,13 @@ function renderMetronomes() {
         `;
 
         list.appendChild(item);
+
+        // Restaurar valor selecionado do pad note select
+        const padSel = item.querySelector('.pad-note-select');
+        if (padSel) {
+            const ps = getPadState(m.id);
+            padSel.value = ps.note;
+        }
     });
 }
 
