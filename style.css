@@ -679,9 +679,9 @@ body {
 /* Metrônomos */
 .metronome-header {
     display: grid;
-    grid-template-columns: 60px 1fr 120px 100px 160px 120px 80px 60px;
-    gap: 15px;
-    padding: 15px 20px;
+    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px 50px;
+    gap: 12px;
+    padding: 12px 20px;
     background: rgba(0,0,0,0.2);
     border-radius: 8px;
     margin-bottom: 15px;
@@ -728,15 +728,15 @@ body {
 
 .metronome-item {
     display: grid;
-    grid-template-columns: 60px 1fr 120px 100px 160px 120px 80px 60px;
-    gap: 15px;
-    padding: 15px 20px;
+    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px 50px;
+    gap: 12px;
+    padding: 14px 20px;
     background: #64748b;
     border-radius: 12px;
     margin-bottom: 12px;
     align-items: center;
     transition: all 0.2s;
-    position: relative; /* needed for pad-panel absolute positioning */
+    position: relative;
 }
 
 .metronome-item.playing {
@@ -762,8 +762,9 @@ body {
     border: 1px solid #6b7280;
     border-radius: 8px;
     color: white;
-    padding: 8px 12px;
-    font-size: 1rem;
+    padding: 10px 14px;
+    font-size: 1.05rem;
+    font-weight: 500;
     width: 100%;
 }
 
