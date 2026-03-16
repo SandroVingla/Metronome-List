@@ -24,26 +24,26 @@ const padState = {};
 // Mapa nota → nome do arquivo (usa notação b para bemóis)
 const PAD_FILE_MAP = {
     'C':  'Pad - C.mp3',
-    'C#': 'Pad - Db.mp3',
+    'Db': 'Pad - Db.mp3',
     'D':  'Pad - D.mp3',
-    'D#': 'Pad - Eb.mp3',
+    'Eb': 'Pad - Eb.mp3',
     'E':  'Pad - E.mp3',
     'F':  'Pad - F.mp3',
-    'F#': 'Pad - Gb.mp3',
+    'Gb': 'Pad - Gb.mp3',
     'G':  'Pad - G.mp3',
-    'G#': 'Pad - Ab.mp3',
+    'Ab': 'Pad - Ab.mp3',
     'A':  'Pad - A.mp3',
-    'A#': 'Pad - Bb.mp3',
+    'Bb': 'Pad - Bb.mp3',
     'B':  'Pad - B.mp3',
 };
 
-const PAD_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const PAD_NOTES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 
 // Nomes de exibição no select (usa bemóis, mais comum na música)
 const PAD_NOTE_LABELS = {
-    'C':'C', 'C#':'C#/Db', 'D':'D', 'D#':'D#/Eb',
-    'E':'E', 'F':'F', 'F#':'F#/Gb', 'G':'G',
-    'G#':'G#/Ab', 'A':'A', 'A#':'A#/Bb', 'B':'B'
+    'C':'C', 'Db':'C#', 'D':'D', 'Eb':'D#',
+    'E':'E', 'F':'F', 'Gb':'F#', 'G':'G',
+    'Ab':'G#', 'A':'A', 'Bb':'A#', 'B':'B'
 };
 
 function getPadState(id) {
@@ -86,11 +86,13 @@ function loadPadAudio(id) {
     ps.audioEl = el;
 }
 
+const PAD_FADE_IN_S  = 1.5;
+const PAD_FADE_OUT_S = 1.5;
+
 function startPad(id) {
     const ps = getPadState(id);
     if (!ps.enabled) return;
 
-    // Se tem arquivo customizado, usa ele; senão usa o MP3 padrão
     if (ps.customAudioEl) {
         startCustomPad(id);
     } else {
@@ -101,12 +103,18 @@ function startPad(id) {
             try {
                 const src = audioContext.createMediaElementSource(ps.audioEl);
                 const gainNode = audioContext.createGain();
-                gainNode.gain.value = ps.volume;
+                gainNode.gain.value = 0;
                 src.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 ps.gainNode = gainNode;
                 ps.sourceConnected = true;
             } catch(e) { console.warn('Pad audio connect error:', e); }
+        }
+
+        if (ps.gainNode) {
+            ps.gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            ps.gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            ps.gainNode.gain.linearRampToValueAtTime(ps.volume, audioContext.currentTime + PAD_FADE_IN_S);
         }
 
         ps.audioEl.currentTime = 0;
@@ -115,16 +123,27 @@ function startPad(id) {
     updatePadIndicator(id, true);
 }
 
-function stopPad(id) {
+function stopPad(id, fadeOut = true) {
     const ps = getPadState(id);
-    if (ps.customAudioEl) {
-        ps.customAudioEl.pause();
-        ps.customAudioEl.currentTime = 0;
+
+    function doStop(audioEl, gainNode) {
+        if (!audioEl) return;
+        if (fadeOut && gainNode && audioContext) {
+            gainNode.gain.cancelScheduledValues(audioContext.currentTime);
+            gainNode.gain.setValueAtTime(gainNode.gain.value, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + PAD_FADE_OUT_S);
+            setTimeout(() => {
+                audioEl.pause();
+                audioEl.currentTime = 0;
+            }, PAD_FADE_OUT_S * 1000);
+        } else {
+            audioEl.pause();
+            audioEl.currentTime = 0;
+        }
     }
-    if (ps.audioEl) {
-        ps.audioEl.pause();
-        ps.audioEl.currentTime = 0;
-    }
+
+    doStop(ps.customAudioEl, ps.customGainNode);
+    doStop(ps.audioEl, ps.gainNode);
     updatePadIndicator(id, false);
 }
 
@@ -136,12 +155,18 @@ function startCustomPad(id) {
         try {
             const src = audioContext.createMediaElementSource(ps.customAudioEl);
             const gainNode = audioContext.createGain();
-            gainNode.gain.value = ps.volume;
+            gainNode.gain.value = 0;
             src.connect(gainNode);
             gainNode.connect(audioContext.destination);
             ps.customGainNode = gainNode;
             ps.customSourceConnected = true;
         } catch(e) { console.warn('Custom pad connect error:', e); }
+    }
+
+    if (ps.customGainNode) {
+        ps.customGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+        ps.customGainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        ps.customGainNode.gain.linearRampToValueAtTime(ps.volume, audioContext.currentTime + PAD_FADE_IN_S);
     }
 
     ps.customAudioEl.currentTime = 0;
@@ -819,12 +844,18 @@ function exportSetlist() {
     const setlistData = {
         name: prompt('Nome do setlist:') || 'Meu Setlist',
         date: new Date().toISOString(),
-        metronomes: metronomes.map(m => ({
-            name: m.name,
-            bpm: m.bpm,
-            timeSignature: m.timeSignature,
-            beats: m.beats
-        })),
+        metronomes: metronomes.map(m => {
+            const ps = padState[m.id];
+            return {
+                name: m.name,
+                bpm: m.bpm,
+                timeSignature: m.timeSignature,
+                beats: m.beats,
+                padNote: ps && ps.enabled ? ps.note : '',
+                padVolume: ps ? ps.volume : 0.7
+            };
+        }),
+
         globalSettings: {
             channel: globalChannel,
             volume: globalVolume,
@@ -870,6 +901,20 @@ function importSetlist() {
                     currentBeat: 0
                 }));
                 nextId = metronomes.length + 1;
+
+                // Restaura configurações de pad de cada faixa
+                setlistData.metronomes.forEach((m, index) => {
+                    const id = index + 1;
+                    const ps = getPadState(id);
+                    if (m.padNote && m.padNote !== '') {
+                        ps.note = m.padNote;
+                        ps.enabled = true;
+                        ps.volume = m.padVolume !== undefined ? m.padVolume : 0.7;
+                    } else {
+                        ps.enabled = false;
+                        ps.volume = m.padVolume !== undefined ? m.padVolume : 0.7;
+                    }
+                });
                 
                 if (setlistData.globalSettings) {
                     globalChannel = setlistData.globalSettings.channel || 'C';
