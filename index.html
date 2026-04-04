@@ -236,7 +236,7 @@
 
             <div class="audio-section">
                 <div class="timbre-section">
-                    <span style="color: #9ca3af;">🎵</span>
+                    <span style="color: #9ca3af;"></span>
                     <select id="timbreSelect" class="timbre-select" onchange="changeTimbre(this.value)">
                         <option value="click">Click Original</option>
                         <option value="soft">Soft Click</option>
@@ -259,6 +259,14 @@
                             onclick="toggleClickMute()"
                             title="Mutar o click">
                         🔊 Click
+                    </button>
+                </div>
+
+                <div class="double-click-section">
+                    <button class="double-click-btn" id="doubleClickBtn"
+                            onclick="toggleDoubleClick()"
+                            title="Double Click: dobra o BPM de todos os metrônomos">
+                        ×2
                     </button>
                 </div>
             </div>
@@ -355,7 +363,7 @@
         </div>
     </div>
 
-    <!-- Seção Apoiar o Projeto 
+    <!-- Seção Apoiar o Projeto -->
     <div class="support-section">
         <div class="support-container">
             <h2>💚 Apoie o Projeto</h2>
@@ -377,7 +385,7 @@
                     <h3>💚 PIX</h3>
                     <p class="pix-instruction">Escaneie o QR Code ou use a chave PIX:</p>
                     <div class="qr-code-wrapper">
-                        <img src="/assets/qrcodemercadopag.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
+                        <img src="/asset/qrcodemercadopag.pnj.png" alt="QR Code PIX" class="qr-code" id="pixQRCode">
                     </div>
                     <button class="copy-pix-btn" onclick="copyPixKey()">
                         📋 Copiar Chave PIX
@@ -404,7 +412,7 @@
                 </div>
             </div>
         </div>
-    </div>-->
+    </div>
 
     <!-- Seção Sobre Timbres -->
     <div class="timbres-section">

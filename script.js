@@ -6,6 +6,7 @@ let globalVolume = 0.7; // Volume fixo do sistema
 let clickMuted = false; // Mute do click (pad continua tocando)
 let selectedTimbre = 'click';
 let globalAccentEnabled = true; // Controle global de acentuação
+let doubleClickActive = false; // Double Click: BPM dobrado
 let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
@@ -1057,7 +1058,7 @@ function updateMetronome(id, field, value) {
     if (!metronome) return;
 
     if (field === 'bpm') {
-        value = Math.max(40, Math.min(300, parseInt(value) || 120));
+        value = Math.max(40, Math.min(doubleClickActive ? 600 : 300, parseInt(value) || 120));
     }
     if (field === 'timeSignature') {
         const parts = value.split('/');
@@ -1147,6 +1148,50 @@ function toggleClickMute() {
         btn.classList.remove('click-muted');
         btn.title = 'Mutar o click';
     }
+}
+
+function toggleDoubleClick() {
+    doubleClickActive = !doubleClickActive;
+    const btn = document.getElementById('doubleClickBtn');
+
+    metronomes.forEach(m => {
+        if (doubleClickActive) {
+            // Guarda o BPM original e dobra
+            m._originalBpm = m.bpm;
+            m.bpm = m._originalBpm * 2; // sem limite — originalBpm já é <= 300
+        } else {
+            // Restaura o BPM original
+            if (m._originalBpm !== undefined) {
+                m.bpm = m._originalBpm;
+                delete m._originalBpm;
+            }
+        }
+        // Reinicia o intervalo se estiver tocando
+        if (m.isPlaying) {
+            clearInterval(intervals[m.id]);
+            const interval = 60000 / m.bpm;
+            intervals[m.id] = setInterval(() => {
+                m.currentBeat = (m.currentBeat + 1) % m.beats;
+                playSound(m);
+                updateBeatIndicator(m.id, m.currentBeat);
+            }, interval);
+        }
+    });
+
+    if (doubleClickActive) {
+        btn.classList.add('double-click-active');
+        btn.title = 'Double Click ativo — clique para desativar';
+    } else {
+        btn.classList.remove('double-click-active');
+        btn.title = 'Double Click: dobra o BPM de todos os metrônomos';
+    }
+
+    renderMetronomes();
+
+    // Atualizar o atributo max dos inputs de BPM conforme o modo
+    document.querySelectorAll('.bpm-input').forEach(input => {
+        input.max = doubleClickActive ? 600 : 300;
+    });
 }
 
 function changeTimbre(timbre) {
@@ -1370,39 +1415,36 @@ function renderMetronomes() {
 
         item.innerHTML = `
             <div class="item-number">${index + 1}</div>
-            <div>
+            <div class="name-row">
                 <input type="text" class="music-input" placeholder="Nome da música..." 
                        value="${m.name}" onchange="updateMetronome(${m.id}, 'name', this.value)">
+                <div class="bmp-container">
+                    <input type="number" class="bpm-input" min="40" max="300" 
+                           value="${m.bpm}" onchange="updateMetronome(${m.id}, 'bpm', this.value)">
+                    <span class="bpm-label">BPM</span>
+                </div>
             </div>
-            <div class="bmp-container">
-                <input type="number" class="bpm-input" min="40" max="300" 
-                       value="${m.bpm}" onchange="updateMetronome(${m.id}, 'bpm', this.value)">
-                <span class="bpm-label">BPM</span>
-            </div>
-            <div>
+            <div class="controls-row">
                 <button class="play-btn ${m.isPlaying ? 'pause' : 'play'}" 
                         onclick="toggleMetronome(${m.id})">
                     ${m.isPlaying ? '⏸' : '▶'}
                 </button>
-            </div>
-            ${buildPadHTML(m.id)}
-            <div>
+                ${buildPadHTML(m.id)}
                 <select class="time-select" onchange="updateMetronome(${m.id}, 'timeSignature', this.value)">
                     <option value="2/4" ${m.timeSignature === '2/4' ? 'selected' : ''}>2/4</option>
                     <option value="3/4" ${m.timeSignature === '3/4' ? 'selected' : ''}>3/4</option>
                     <option value="4/4" ${m.timeSignature === '4/4' ? 'selected' : ''}>4/4</option>
                     <option value="5/4" ${m.timeSignature === '5/4' ? 'selected' : ''}>5/4</option>
                     <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
-                    <option value="6/8" ${m.timeSignature === '6/8' ? 'selected' : ''}>6/8</option>
                     <option value="7/8" ${m.timeSignature === '7/8' ? 'selected' : ''}>7/8</option>
                     <option value="9/8" ${m.timeSignature === '9/8' ? 'selected' : ''}>9/8</option>
                     <option value="12/8" ${m.timeSignature === '12/8' ? 'selected' : ''}>12/8</option>
                 </select>
+                <div class="beat-indicators">
+                    ${beatIndicators}
+                </div>
             </div>
-            <div class="beat-indicators">
-                ${beatIndicators}
-            </div>
-            <div>
+            <div class="remove-cell">
                 ${metronomes.length > 1 ? 
                     `<button class="remove-btn" onclick="removeMetronome(${m.id})">×</button>` : ''
                 }
