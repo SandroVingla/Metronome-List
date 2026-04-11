@@ -266,6 +266,9 @@ function setPadNote(id, note) {
     if (wasPlaying && metro && metro.isPlaying && ps.enabled) {
         startPad(id);
     }
+
+    // Persiste a mudança de tom
+    saveLastConfig();
 }
 
 function togglePadEnabled(id) {
@@ -288,6 +291,8 @@ function setPadEnabled(id, enabled) {
         if (enabled) startPad(id);
         else stopPad(id);
     }
+
+    saveLastConfig();
 }
 
 function setPadVolume(id, val) {
@@ -300,6 +305,8 @@ function setPadVolume(id, val) {
     if (ps.customGainNode && audioContext) {
         ps.customGainNode.gain.setTargetAtTime(ps.volume, audioContext.currentTime, 0.05);
     }
+
+    saveLastConfig();
 }
 
 function buildPadNoteOptions() {
@@ -604,13 +611,19 @@ function tapTempo() {
 async function saveLastConfig() {
     try {
         const config = {
-            metronomes: metronomes.map(m => ({
-                id: m.id,
-                name: m.name,
-                bpm: m.bpm,
-                timeSignature: m.timeSignature,
-                beats: m.beats
-            })),
+            metronomes: metronomes.map(m => {
+                const ps = padState[m.id];
+                return {
+                    id: m.id,
+                    name: m.name,
+                    bpm: m.bpm,
+                    timeSignature: m.timeSignature,
+                    beats: m.beats,
+                    padNote: ps ? ps.note : 'A',
+                    padEnabled: ps ? ps.enabled : false,
+                    padVolume: ps ? ps.volume : 0.7
+                };
+            }),
             globalAccentEnabled: globalAccentEnabled
         };
         await storageSet('last-config', JSON.stringify(config), false);
@@ -643,11 +656,19 @@ async function loadLastConfig() {
                     btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
                 }
                 
-                return config.metronomes.map(m => ({
+                const loadedMetronomes = config.metronomes.map(m => ({
                     ...m,
                     isPlaying: false,
                     currentBeat: 0
                 }));
+                // Restaurar padState
+                config.metronomes.forEach(m => {
+                    const ps = getPadState(m.id);
+                    ps.note    = m.padNote    !== undefined ? m.padNote    : 'A';
+                    ps.enabled = m.padEnabled !== undefined ? m.padEnabled : false;
+                    ps.volume  = m.padVolume  !== undefined ? m.padVolume  : 0.7;
+                });
+                return loadedMetronomes;
             }
         }
     } catch (error) {
@@ -664,13 +685,19 @@ async function saveSetlist() {
         const setlistData = {
             name: name,
             date: new Date().toISOString(),
-            metronomes: metronomes.map(m => ({
-                id: m.id,
-                name: m.name,
-                bpm: m.bpm,
-                timeSignature: m.timeSignature,
-                beats: m.beats
-            })),
+            metronomes: metronomes.map(m => {
+                const ps = padState[m.id];
+                return {
+                    id: m.id,
+                    name: m.name,
+                    bpm: m.bpm,
+                    timeSignature: m.timeSignature,
+                    beats: m.beats,
+                    padNote: ps ? ps.note : 'A',
+                    padEnabled: ps ? ps.enabled : false,
+                    padVolume: ps ? ps.volume : 0.7
+                };
+            }),
             globalSettings: {
                 channel: globalChannel,
                 volume: globalVolume,
@@ -820,6 +847,15 @@ async function loadSetlist(key, isShared = false) {
                 if (activeBtn) activeBtn.className = 'channel-btn active';
             }
             
+            // Restaurar padState de cada metrônomo
+            setlistData.metronomes.forEach(m => {
+                const id = m.id;
+                const ps = getPadState(id);
+                ps.note    = m.padNote    !== undefined ? m.padNote    : 'A';
+                ps.enabled = m.padEnabled !== undefined ? m.padEnabled : false;
+                ps.volume  = m.padVolume  !== undefined ? m.padVolume  : 0.7;
+            });
+
             renderMetronomes();
             alert('Setlist carregado!');
         }
