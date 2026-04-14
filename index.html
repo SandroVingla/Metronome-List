@@ -313,6 +313,88 @@
         </div>
     </div>
 
+    <!-- Carrossel de Artigos do Blog -->
+    <div class="blog-carousel-section">
+        <div class="blog-carousel-container">
+            <h2 class="blog-carousel-title">📖 Do Blog</h2>
+            <p class="blog-carousel-subtitle">Dicas e tutoriais para músicos</p>
+
+            <div class="carousel-wrapper">
+                <button class="carousel-btn carousel-btn-prev" onclick="carouselPrev()" aria-label="Anterior">&#8249;</button>
+
+                <div class="carousel-track-outer">
+                    <div class="carousel-track" id="carouselTrack">
+
+                        <a href="blog/guia-completo.html" class="carousel-card">
+                            <span class="carousel-tag">🎯 Dicas de Prática</span>
+                            <h3>Guia Completo do Metrônomo</h3>
+                            <p>Tudo o que você precisa saber sobre metrônomos e prática musical — da história aos recursos avançados.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/erros-comuns-metronomo.html" class="carousel-card">
+                            <span class="carousel-tag">🎯 Dicas de Prática</span>
+                            <h3>5 Erros Comuns ao Usar Metrônomo</h3>
+                            <p>Descubra os erros mais frequentes que prejudicam o desenvolvimento musical e como evitá-los.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/bpm-musicas-brasileiras.html" class="carousel-card">
+                            <span class="carousel-tag">🎼 Referência Musical</span>
+                            <h3>BPM de 50 Músicas Brasileiras</h3>
+                            <p>Lista completa com o andamento de 50 músicas brasileiras famosas para você praticar.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/praticar-samba-metronomo.html" class="carousel-card">
+                            <span class="carousel-tag">🥁 Tutorial Avançado</span>
+                            <h3>Como Praticar Samba no Metrônomo</h3>
+                            <p>Domine o swing e a levada do samba com exercícios progressivos e técnicas profissionais.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/metronomo-vs-bateria-programada.html" class="carousel-card">
+                            <span class="carousel-tag">🎹 Produção Musical</span>
+                            <h3>Metrônomo vs Bateria Programada</h3>
+                            <p>Entenda as diferenças e descubra quando cada ferramenta é mais eficaz para sua música.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/rotina-pratica-30-dias.html" class="carousel-card">
+                            <span class="carousel-tag">📈 Plano de Estudos</span>
+                            <h3>Timing Perfeito em 30 Dias</h3>
+                            <p>Programa estruturado de 30 dias para desenvolver timing profissional com progressão gradual.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/direcao-musical.html" class="carousel-card">
+                            <span class="carousel-tag">🎼 Liderança Musical</span>
+                            <h3>Direção Musical: O Papel do Diretor</h3>
+                            <p>Como organizar e liderar bandas e grupos com precisão — e como o metrônomo é sua principal ferramenta.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/musicalizacao-infantil.html" class="carousel-card">
+                            <span class="carousel-tag">🎓 Educação Musical</span>
+                            <h3>Musicalização Infantil</h3>
+                            <p>Como a música transforma o desenvolvimento das crianças — atividades práticas por faixa etária.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <button class="carousel-btn carousel-btn-next" onclick="carouselNext()" aria-label="Próximo">&#8250;</button>
+            </div>
+
+            <div class="carousel-dots" id="carouselDots"></div>
+
+            <div style="text-align:center; margin-top: 24px;">
+                <a href="blog.html" class="carousel-all-btn">Ver todos os artigos →</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Seção "Por Que Usar" - Movida para cá -->
     <div class="why-use-section">
         <div class="edu-container">
@@ -341,6 +423,9 @@
             </div>
         </div>
     </div>
+
+
+    
 
     <!-- Links Rápidos -->
     <div class="quick-links">
@@ -576,5 +661,67 @@
         // Inicializar animações quando página carregar
         window.addEventListener('load', initScrollAnimations);
     </script>
+
+    <script>
+    // ── Carrossel de Artigos ──────────────────────────
+    (function() {
+        const track      = document.getElementById('carouselTrack');
+        const dotsEl     = document.getElementById('carouselDots');
+        const cards      = track ? Array.from(track.querySelectorAll('.carousel-card')) : [];
+        let current      = 0;
+        let autoTimer    = null;
+
+        function visibleCount() {
+            if (window.innerWidth >= 900) return 3;
+            if (window.innerWidth >= 580) return 2;
+            return 1;
+        }
+
+        function totalSlides() {
+            return Math.ceil(cards.length / visibleCount());
+        }
+
+        function buildDots() {
+            if (!dotsEl) return;
+            dotsEl.innerHTML = '';
+            for (let i = 0; i < totalSlides(); i++) {
+                const d = document.createElement('button');
+                d.className = 'carousel-dot' + (i === current ? ' active' : '');
+                d.setAttribute('aria-label', 'Slide ' + (i + 1));
+                d.addEventListener('click', () => goTo(i));
+                dotsEl.appendChild(d);
+            }
+        }
+
+        function goTo(idx) {
+            const total = totalSlides();
+            current = (idx + total) % total;
+            const cardWidth = cards[0] ? cards[0].offsetWidth + 20 : 0; // 20 = gap
+            track.style.transform = 'translateX(-' + (current * visibleCount() * cardWidth) + 'px)';
+            document.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === current);
+            });
+        }
+
+        window.carouselNext = function() { resetAuto(); goTo(current + 1); };
+        window.carouselPrev = function() { resetAuto(); goTo(current - 1); };
+
+        function resetAuto() {
+            clearInterval(autoTimer);
+            autoTimer = setInterval(() => goTo(current + 1), 5000);
+        }
+
+        function init() {
+            if (!track) return;
+            buildDots();
+            goTo(0);
+            resetAuto();
+        }
+
+        window.addEventListener('resize', () => { buildDots(); goTo(0); });
+        document.addEventListener('DOMContentLoaded', init);
+    })();
+    </script>
+
 </body>
 </html>
