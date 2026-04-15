@@ -888,8 +888,9 @@ function exportSetlist() {
                 bpm: m.bpm,
                 timeSignature: m.timeSignature,
                 beats: m.beats,
-                padNote: ps && ps.enabled ? ps.note : '',
-                padVolume: ps ? ps.volume : 0.7
+                padNote:    ps ? ps.note    : 'A',
+                padEnabled: ps ? ps.enabled : false,
+                padVolume:  ps ? ps.volume  : 0.7
             };
         }),
 
@@ -943,14 +944,9 @@ function importSetlist() {
                 setlistData.metronomes.forEach((m, index) => {
                     const id = index + 1;
                     const ps = getPadState(id);
-                    if (m.padNote && m.padNote !== '') {
-                        ps.note = m.padNote;
-                        ps.enabled = true;
-                        ps.volume = m.padVolume !== undefined ? m.padVolume : 0.7;
-                    } else {
-                        ps.enabled = false;
-                        ps.volume = m.padVolume !== undefined ? m.padVolume : 0.7;
-                    }
+                    ps.note    = m.padNote    !== undefined ? m.padNote    : 'A';
+                    ps.enabled = m.padEnabled !== undefined ? m.padEnabled : false;
+                    ps.volume  = m.padVolume  !== undefined ? m.padVolume  : 0.7;
                 });
                 
                 if (setlistData.globalSettings) {
