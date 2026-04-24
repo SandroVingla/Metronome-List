@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afinador Online Grátis - Cromático com Microfone | Metronome List Studio</title>
+<meta name="description" content="Afinador cromático online grátis com microfone, referência A4 ajustável e visual clássico. Afine guitarra, violão, baixo, voz e outros instrumentos no Metronome List Studio.">
+<meta name="keywords" content="afinador online, afinador cromático, afinador de violão, afinador de guitarra, afinador com microfone, a4 440hz">
+<link rel="canonical" href="https://metronome-list.netlify.app/tuner.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
+
+<link rel="stylesheet" href="style.css">
+      
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background: #475569;
+    color: #fff;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .tuner-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .tuner-hero {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .tuner-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .tuner-hero p {
+    color: #dbe4ef;
+    font-size: 1.1rem;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .tuner-shell {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 20px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+    margin-bottom: 28px;
+  }
+
+  .tuner-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .tuner-meta-card,
+  .tuner-section {
+    background: #334155;
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+
+  .tuner-meta-card strong {
+    display: block;
+    color: #fbbf24;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .tuner-meta-card span {
+    color: #e2e8f0;
+    font-size: 0.98rem;
+  }
+
+  .tuner-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  #tuner-svg {
+    width: 100%;
+    max-width: 780px;
+    filter: drop-shadow(0 8px 32px rgba(0,0,0,0.8));
+    cursor: default;
+  }
+
+  .note-hit   { cursor: pointer; }
+  .btn-hit    { cursor: pointer; }
+  .slider-hit { cursor: pointer; }
+
+  @keyframes ledOn { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+  .controls {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    justify-content: center; align-items: center;
+  }
+  .ctrl-btn {
+    padding: 8px 22px; border: none; border-radius: 5px;
+    cursor: pointer; font-size: 13px;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    letter-spacing: .5px; transition: opacity .15s, transform .08s;
+  }
+  .ctrl-btn:hover  { opacity:.85; }
+  .ctrl-btn:active { transform:scale(.97); }
+  .ctrl-btn.blue { background:#2596be; color:#fff; }
+  .ctrl-btn.dark { background:#3a3a3a; color:#ddd; border:1px solid #555; }
+  .ctrl-btn.red  { background:#cc3333; color:#fff; }
+  #status {
+    font-size:13px; color:#cbd5e1;
+    font-family:'Arial Narrow',Arial,sans-serif;
+    min-width:300px; text-align:center;
+  }
+
+  #server-tip {
+    display:none; max-width:780px;
+    width: 100%;
+    background:#1e293b; border:1px solid #475569;
+    border-radius:8px; padding:16px 20px;
+    font-family:'Arial Narrow',Arial,sans-serif;
+    color:#cbd5e1; font-size:13px; line-height:1.8;
+  }
+  #server-tip strong { color:#f0c040; }
+  #server-tip code   { color:#7ec8e3; background:#111; padding:1px 5px; border-radius:3px; }
+
+  .hz-btn {
+    padding: 6px 14px; border: 1.5px solid #8a7040;
+    border-radius: 4px; cursor: pointer; font-size: 12px;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    background: #b8a870; color: #1a1008;
+    text-align: center; line-height: 1.4;
+    transition: background .12s, border-color .12s;
+    font-weight: bold;
+  }
+  .hz-btn span { font-size: 9px; font-weight: normal; color: #5a4820; display:block; }
+  .hz-btn:hover  { background: #c8b880; }
+  .hz-btn.hz-active {
+    background: #2a1e08; color: #e8d890;
+    border-color: #1a1008;
+  }
+  .hz-btn.hz-active span { color: #a09050; }
+
+  .tuner-section {
+    margin-bottom: 22px;
+  }
+
+  .tuner-section h2 {
+    color: #fbbf24;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .tuner-section p,
+  .tuner-section li {
+    color: #e2e8f0;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .tuner-section ul {
+    margin: 12px 0 0 20px;
+  }
+
+  .tuner-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .tuner-link-card {
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .tuner-link-card h3 {
+    color: #fbbf24;
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+  }
+
+  .tuner-link-card p {
+    color: #dbe4ef;
+    margin-bottom: 10px;
+  }
+
+  .tuner-link-card a {
+    color: #22c55e;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .tuner-link-card a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .tuner-page {
+      padding: 32px 16px 48px;
+    }
+
+    .tuner-hero h1 {
+      font-size: 2rem;
+    }
+
+    .tuner-shell {
+      padding: 20px 14px;
+    }
+
+    #status {
+      min-width: auto;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<nav class="main-nav">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <h1>🎵 Metronome List Studio</h1>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html">Metrônomo</a></li>
+      <li><a href="como-usar.html">Como Usar</a></li>
+      <li><a href="sobre.html">Sobre</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="faq.html">FAQ</a></li>
+      <li><a href="tuner.html" class="active">Afinador</a></li>
+    </ul>
+    <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<main class="tuner-page">
+  <section class="content-header tuner-hero">
+    <h1>🎯 Afinador Cromático Online</h1>
+    <p>O Metronome List Studio agora reúne duas ferramentas no mesmo lugar: metrônomo profissional e afinador cromático com microfone, referência ajustável e leitura em cents.</p>
+  </section>
+
+  <section class="tuner-meta">
+    <div class="tuner-meta-card">
+      <strong>Compatível com</strong>
+      <span>Violão, guitarra, baixo, voz e instrumentos melódicos</span>
+    </div>
+    <div class="tuner-meta-card">
+      <strong>Precisão visual</strong>
+      <span>Ponteiro analógico com leitura em cents e indicação de nota</span>
+    </div>
+    <div class="tuner-meta-card">
+      <strong>Referência A4</strong>
+      <span>Presets de 415 Hz a 444 Hz para contextos diferentes</span>
+    </div>
+    <div class="tuner-meta-card">
+      <strong>Uso rápido</strong>
+      <span>Ligue, permita o microfone e comece a afinar imediatamente</span>
+    </div>
+  </section>
+
+  <section class="tuner-shell">
+    <div class="tuner-stage">
+
+<svg id="tuner-svg" viewBox="0 0 780 340" xmlns="http://www.w3.org/2000/svg">
+<defs>
+
+  <linearGradient id="chassisL" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#2a2a2a"/>
+    <stop offset="100%" stop-color="#111"/>
+  </linearGradient>
+
+  <linearGradient id="panelRG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#d8d3c4"/>
+    <stop offset="100%" stop-color="#c8c3b0"/>
+  </linearGradient>
+
+  <radialGradient id="displayBg" cx="50%" cy="70%" r="65%">
+    <stop offset="0%"   stop-color="#d86200" stop-opacity="1"/>
+    <stop offset="60%"  stop-color="#b84e00" stop-opacity="1"/>
+    <stop offset="100%" stop-color="#6a2c00" stop-opacity="1"/>
+  </radialGradient>
+
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="60%"  stop-color="#000" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#000" stop-opacity="0.45"/>
+  </radialGradient>
+
+  <radialGradient id="btnBg" cx="38%" cy="32%" r="65%">
+    <stop offset="0%"   stop-color="#70d0ef"/>
+    <stop offset="50%"  stop-color="#2596be"/>
+    <stop offset="100%" stop-color="#0f5a7a"/>
+  </radialGradient>
+
+  <radialGradient id="btnHL" cx="38%" cy="25%" r="55%">
+    <stop offset="0%"   stop-color="#fff" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+
+  <radialGradient id="sliderBg" cx="38%" cy="32%" r="65%">
+    <stop offset="0%"   stop-color="#60c8e0"/>
+    <stop offset="55%"  stop-color="#2090b8"/>
+    <stop offset="100%" stop-color="#0c4a68"/>
+  </radialGradient>
+
+  <linearGradient id="sliderTrackG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#a0988a"/>
+    <stop offset="100%" stop-color="#b8b0a0"/>
+  </linearGradient>
+
+  <linearGradient id="centBadge" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#2a8a1a"/>
+    <stop offset="100%" stop-color="#1a5a0a"/>
+  </linearGradient>
+
+  <linearGradient id="topStripG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#c2bdb0"/>
+    <stop offset="100%" stop-color="#b8b3a4"/>
+  </linearGradient>
+
+  <radialGradient id="ledActiveG" cx="50%" cy="40%" r="60%">
+    <stop offset="0%"   stop-color="#ff3a1a"/>
+    <stop offset="100%" stop-color="#aa0a00"/>
+  </radialGradient>
+
+  <radialGradient id="arrowActiveG" cx="50%" cy="40%" r="70%">
+    <stop offset="0%"   stop-color="#ffcc00"/>
+    <stop offset="100%" stop-color="#cc7700"/>
+  </radialGradient>
+
+  <!-- BATT aceso — verde suave como bateria boa -->
+  <radialGradient id="battActiveG" cx="50%" cy="40%" r="70%">
+    <stop offset="0%"   stop-color="#60ee40"/>
+    <stop offset="100%" stop-color="#1a8a00"/>
+  </radialGradient>
+
+  <clipPath id="displayClip">
+    <rect x="18" y="18" width="326" height="268" rx="6"/>
+  </clipPath>
+
+  <filter id="insetShadow" x="-5%" y="-5%" width="110%" height="110%">
+    <feFlood flood-color="#000" flood-opacity=".5" result="color"/>
+    <feComposite in="color" in2="SourceGraphic" operator="in" result="shadow"/>
+    <feGaussianBlur in="shadow" stdDeviation="3"/>
+    <feOffset dx="0" dy="2"/>
+    <feComposite in2="SourceGraphic" operator="over"/>
+  </filter>
+
+</defs>
+
+<!-- ══ CHASSIS ══ -->
+<rect x="4" y="4" width="772" height="332" rx="10" fill="#111" />
+<rect x="8" y="8" width="764" height="324" rx="8" fill="url(#chassisL)" />
+<circle cx="22" cy="22" r="5" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="1"/>
+<line x1="19" y1="22" x2="25" y2="22" stroke="#0a0a0a" stroke-width="1.2"/>
+<line x1="22" y1="19" x2="22" y2="25" stroke="#0a0a0a" stroke-width="1.2"/>
+<circle cx="758" cy="22" r="5" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="1"/>
+<line x1="755" y1="22" x2="761" y2="22" stroke="#0a0a0a" stroke-width="1.2"/>
+<line x1="758" y1="19" x2="758" y2="25" stroke="#0a0a0a" stroke-width="1.2"/>
+<circle cx="22" cy="318" r="5" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="1"/>
+<line x1="19" y1="318" x2="25" y2="318" stroke="#0a0a0a" stroke-width="1.2"/>
+<line x1="22" y1="315" x2="22" y2="321" stroke="#0a0a0a" stroke-width="1.2"/>
+<circle cx="758" cy="318" r="5" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="1"/>
+<line x1="755" y1="318" x2="761" y2="318" stroke="#0a0a0a" stroke-width="1.2"/>
+<line x1="758" y1="315" x2="758" y2="321" stroke="#0a0a0a" stroke-width="1.2"/>
+
+<!-- ══ DIVISOR CENTRAL ══ -->
+<rect x="354" y="8" width="6" height="324" fill="#0a0a0a"/>
+<rect x="355" y="8" width="2" height="324" fill="#2a2a2a"/>
+
+<!-- ══ PAINEL ESQUERDO — DISPLAY ══ -->
+<rect x="18" y="18" width="326" height="268" rx="6" fill="#0d0d0d"/>
+<rect x="22" y="22" width="318" height="260" rx="5" fill="#0a0a0a"/>
+<rect x="26" y="26" width="310" height="252" rx="4" fill="url(#displayBg)" clip-path="url(#displayClip)"/>
+<rect x="26" y="26" width="310" height="252" rx="4" fill="url(#vignette)" clip-path="url(#displayClip)"/>
+
+<!-- Hz labels — 430 esquerda, 440 topo, 450 mais para dentro para não sobrepor o 50 -->
+<text x="48"    y="190.0" font-size="9" fill="#2d1000" font-family="Arial Narrow,Arial" font-weight="bold" text-anchor="middle">430</text>
+<text x="181.0" y="90.0"  font-size="9" fill="#2d1000" font-family="Arial Narrow,Arial" font-weight="bold" text-anchor="middle">440</text>
+<text x="296.0" y="178.0" font-size="9" fill="#2d1000" font-family="Arial Narrow,Arial" font-weight="bold" text-anchor="middle">450</text>
+<text x="296.0" y="189.0" font-size="7.5" fill="#2d1000" font-family="Arial Narrow,Arial" text-anchor="middle">Hz</text>
+
+<!-- Badge CENT -->
+<rect x="220" y="62" width="46" height="18" rx="2" fill="url(#centBadge)" stroke="#0a3a0a" stroke-width="0.8"/>
+<text x="243" y="74" font-size="10" fill="#a0ee60" font-family="Arial Narrow,Arial" font-weight="bold" text-anchor="middle">CENT</text>
+
+<!-- Ticks principais simétricos (-30 a 30) -->
+<g opacity=".9">
+  <line x1="85.2" y1="139.8" x2="94.5" y2="155.2" stroke="#3a1800" stroke-width="2"/>
+  <line x1="115.3" y1="125.1" x2="121.7" y2="141.9" stroke="#3a1800" stroke-width="2"/>
+  <line x1="147.6" y1="116.0" x2="150.9" y2="133.7" stroke="#3a1800" stroke-width="2"/>
+  <line x1="181.0" y1="113.0" x2="181.0" y2="131.0" stroke="#5a2800" stroke-width="2.8"/>
+  <line x1="214.4" y1="116.0" x2="211.1" y2="133.7" stroke="#3a1800" stroke-width="2"/>
+  <line x1="246.7" y1="125.1" x2="240.3" y2="141.9" stroke="#3a1800" stroke-width="2"/>
+  <line x1="276.8" y1="139.8" x2="267.5" y2="155.2" stroke="#3a1800" stroke-width="2"/>
+</g>
+
+<!-- Ticks menores (R_MIN_O=181, R_MIN_I=173) -->
+<g stroke="#3a1800" stroke-width="1.1" opacity=".65">
+  <line x1="101.7" y1="135.3" x2="105.2" y2="142.5"/>
+  <line x1="132.3" y1="123.7" x2="134.5" y2="131.4"/>
+  <line x1="164.6" y1="117.7" x2="165.3" y2="125.7"/>
+  <line x1="197.4" y1="117.7" x2="196.7" y2="125.7"/>
+  <line x1="229.7" y1="123.7" x2="227.5" y2="131.4"/>
+  <line x1="260.3" y1="135.3" x2="256.8" y2="142.5"/>
+</g>
+
+<!-- Números cents simétricos (-30 a 30) -->
+<text x="100.7" y="165.4" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">-30</text>
+<text x="126.0" y="153.1" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">-20</text>
+<text x="153.0" y="145.5" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">-10</text>
+<text x="181.0" y="143.0" font-size="9" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle" font-weight="bold">0</text>
+<text x="209.0" y="145.5" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">10</text>
+<text x="236.0" y="153.1" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">20</text>
+<text x="261.3" y="165.4" font-size="8" fill="#5a2800" font-family="Arial Narrow,Arial" text-anchor="middle" dominant-baseline="middle">30</text>
+
+<!-- Tuning guide — arco r=148 -->
+<path d="M 64.4,206.9 Q 181.0,154.0 297.6,206.9" fill="none" stroke="#3a1800" stroke-width="1.2"/>
+<text x="181.0" y="172.0" font-size="7.5" fill="#3a1800" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing="2">TUNING GUIDE</text>
+
+<!-- Pivot -->
+<circle cx="181" cy="298" r="9"   fill="#1a0a00"/>
+<circle cx="181" cy="298" r="5"   fill="#2a1200"/>
+<circle cx="181" cy="298" r="2.5" fill="#cc6000"/>
+
+<!-- PONTEIRO — pivot(181,298), tip r=190 -->
+<g id="needle">
+  <line x1="181.0" y1="288.0" x2="181.0" y2="108.0" stroke="#0a0500" stroke-width="2.2" stroke-linecap="round" opacity=".35"/>
+  <line x1="181.0" y1="288.0" x2="181.0" y2="108.0" stroke="#f5f0e2" stroke-width="1.8" stroke-linecap="round"/>
+  <polygon points="181.0,94.0 174.7,105.1 187.3,105.1" fill="#f5f0e2"/>
+</g>
+
+<rect x="26" y="26" width="310" height="252" rx="4" fill="none" stroke="#8a4000" stroke-width="1" opacity=".4"/>
+
+<!-- Faixa inferior painel esquerdo -->
+<rect x="18" y="288" width="326" height="44" rx="0" fill="#111"/>
+<rect x="18" y="288" width="326" height="2" fill="#1e1e1e"/>
+<polygon id="arrow-left"  points="48,310 62,302 62,318" fill="#3a3a3a"/>
+<rect x="155" y="302" width="52" height="16" rx="2" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+<polygon id="arrow-right" points="316,310 302,302 302,318" fill="#3a3a3a"/>
+
+<!-- Jacks -->
+<circle cx="90" cy="310" r="9"   fill="#0d0d0d" stroke="#3a3a3a" stroke-width="1.5"/>
+<circle cx="90" cy="310" r="4.5" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+<circle cx="90" cy="310" r="2"   fill="#333"/>
+<text x="90" y="328" font-size="7.5" fill="#5a5a5a" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing="1">IN</text>
+<circle cx="274" cy="310" r="9"   fill="#0d0d0d" stroke="#3a3a3a" stroke-width="1.5"/>
+<circle cx="274" cy="310" r="4.5" fill="#1a1a1a" stroke="#444" stroke-width="1"/>
+<circle cx="274" cy="310" r="2"   fill="#333"/>
+<text x="274" y="328" font-size="7.5" fill="#5a5a5a" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing="1">OUT</text>
+
+<!-- ══ PAINEL DIREITO ══ -->
+<rect x="360" y="8" width="412" height="324" rx="4" fill="url(#panelRG)"/>
+
+<!-- Faixa superior: BATT + REF Hz -->
+<rect x="360" y="8"  width="412" height="60" rx="0" fill="url(#topStripG)"/>
+<rect x="360" y="68" width="412" height="1.2" fill="#9a9588"/>
+
+<!-- BATT label + dot -->
+<text x="648" y="44" font-size="9" font-weight="bold" fill="#1a1206" font-family="Arial Narrow,Arial" letter-spacing="1">BATT.</text>
+<circle id="batt-led" cx="700" cy="44" r="6" fill="#2a1c06" stroke="#5a4020" stroke-width="1"/>
+
+<!-- Botão REF Hz -->
+<g id="hz-config-btn" onclick="toggleHzMenu()" style="cursor:pointer;">
+  <rect x="716" y="20" width="46" height="34" rx="3" fill="#a89868" stroke="#7a6840" stroke-width="1"/>
+  <text x="739" y="32" font-size="7" font-weight="bold" fill="#2a1e08" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing=".3">REF</text>
+  <text id="hz-display" x="739" y="46" font-size="9" font-weight="bold" fill="#1a0e04" font-family="Arial Narrow,Arial" text-anchor="middle">440</text>
+</g>
+
+<!-- Faixa notas + LEDs -->
+<rect x="360" y="69" width="412" height="2" fill="#a09080"/>
+<rect x="360" y="139" width="412" height="1.5" fill="#9a9080"/>
+
+<!-- Chromatic label -->
+<text x="375" y="154" font-size="8" fill="#4a3a18" font-family="Arial Narrow,Arial">CHROMATIC</text>
+<line x1="374" y1="153" x2="374" y2="132" stroke="#4a3a18" stroke-width="1.2"/>
+<line x1="374" y1="132" x2="386" y2="132" stroke="#4a3a18" stroke-width="1.2"/>
+
+<!-- C -->
+<g onclick="pickNote('C')" style="cursor:pointer;">
+  <rect id="led-C" x="394" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="410" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">C</text>
+</g>
+<!-- D -->
+<g onclick="pickNote('D')" style="cursor:pointer;">
+  <rect id="led-D" x="434" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="450" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">D</text>
+</g>
+<!-- E -->
+<g onclick="pickNote('E')" style="cursor:pointer;">
+  <rect id="led-E" x="474" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="490" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">E</text>
+</g>
+<!-- F -->
+<g onclick="pickNote('F')" style="cursor:pointer;">
+  <rect id="led-F" x="514" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="530" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">F</text>
+</g>
+<!-- G -->
+<g onclick="pickNote('G')" style="cursor:pointer;">
+  <rect id="led-G" x="554" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="570" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">G</text>
+</g>
+<!-- A -->
+<g onclick="pickNote('A')" style="cursor:pointer;">
+  <rect id="led-A" x="594" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="610" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">A</text>
+</g>
+<!-- B -->
+<g onclick="pickNote('B')" style="cursor:pointer;">
+  <rect id="led-B" x="634" y="72" width="32" height="20" rx="2" fill="#3a0a00" stroke="#5a2a10" stroke-width="0.8"/>
+  <text x="650" y="131" font-size="26" font-weight="bold" fill="#100c04" font-family="Arial Narrow,Arial" text-anchor="middle">B</text>
+</g>
+<!-- Sharp — bolinha alinhada verticalmente com os LEDs (centro y=82) -->
+<circle id="led-sharp" cx="700" cy="82" r="10" fill="#2a1c06" stroke="#5a4020" stroke-width="1"/>
+<text x="695" y="131" font-size="26" fill="#100c04" font-family="Arial Narrow,Arial">♯</text>
+
+<!-- Área principal: botões + slider + branding -->
+
+<!-- Botão PITCH -->
+<text x="406" y="172" font-size="9" font-weight="bold" fill="#1a1206" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing=".5">PITCH</text>
+<circle cx="406" cy="202" r="22" fill="#0a3a52"/>
+<circle cx="406" cy="202" r="20" fill="url(#btnBg)" class="btn-hit" onclick="cyclePitch()"/>
+<circle cx="406" cy="202" r="20" fill="url(#btnHL)" pointer-events="none"/>
+<circle cx="406" cy="202" r="20" fill="none" stroke="#1a6080" stroke-width="1.5" pointer-events="none"/>
+
+<!-- Botão DOWN -->
+<text x="474" y="172" font-size="9" font-weight="bold" fill="#1a1206" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing=".5">DOWN</text>
+<circle cx="474" cy="202" r="22" fill="#0a3a52"/>
+<circle cx="474" cy="202" r="20" fill="url(#btnBg)" class="btn-hit" onclick="pitchDown()"/>
+<circle cx="474" cy="202" r="20" fill="url(#btnHL)" pointer-events="none"/>
+<circle cx="474" cy="202" r="20" fill="none" stroke="#1a6080" stroke-width="1.5" pointer-events="none"/>
+
+<!-- Botão UP -->
+<text x="542" y="172" font-size="9" font-weight="bold" fill="#1a1206" font-family="Arial Narrow,Arial" text-anchor="middle" letter-spacing=".5">UP</text>
+<circle cx="542" cy="202" r="22" fill="#0a3a52"/>
+<circle cx="542" cy="202" r="20" fill="url(#btnBg)" class="btn-hit" onclick="pitchUp()"/>
+<circle cx="542" cy="202" r="20" fill="url(#btnHL)" pointer-events="none"/>
+<circle cx="542" cy="202" r="20" fill="none" stroke="#1a6080" stroke-width="1.5" pointer-events="none"/>
+
+<!-- Slider -->
+<text x="380" y="252" font-size="8" fill="#3a2c10" font-family="Arial Narrow,Arial">OFF</text>
+<polyline points="400,249 400,246 408,246 408,242 416,242 416,246 424,246 424,249" fill="none" stroke="#3a2c10" stroke-width="1.2"/>
+<text x="430" y="252" font-size="8" fill="#3a2c10" font-family="Arial Narrow,Arial" letter-spacing="1">L &nbsp; H &nbsp; CHROMATIC</text>
+
+<rect x="375" y="260" width="130" height="26" rx="13" fill="url(#sliderTrackG)" stroke="#888070" stroke-width="1.5"/>
+<rect x="376" y="261" width="128" height="12" rx="6" fill="#9a9080" opacity=".4"/>
+
+<g id="slider-thumb">
+  <rect x="377" y="262" width="48" height="22" rx="11" fill="#0a3a52"/>
+  <rect x="378" y="263" width="46" height="20" rx="10" fill="url(#sliderBg)"/>
+  <circle cx="402" cy="273" r="5.5" fill="#cc7000" stroke="#884800" stroke-width="1"/>
+  <circle cx="402" cy="272" r="2"   fill="#ff9a20" opacity=".8"/>
+  <line x1="415" y1="267" x2="415" y2="279" stroke="#1a8aaa" stroke-width="1.2" opacity=".5"/>
+  <line x1="420" y1="267" x2="420" y2="279" stroke="#1a8aaa" stroke-width="1.2" opacity=".5"/>
+</g>
+
+<rect x="375" y="258" width="130" height="30" rx="13" fill="transparent" class="slider-hit" onclick="toggleSw(event)" id="sw-track"/>
+
+<text x="376" y="302" font-size="7.5" fill="#4a3a18" font-family="Arial Narrow,Arial">OFF</text>
+<text x="416" y="302" font-size="7.5" fill="#4a3a18" font-family="Arial Narrow,Arial">L</text>
+<text x="444" y="302" font-size="7.5" fill="#4a3a18" font-family="Arial Narrow,Arial">H/CROM.</text>
+
+<!-- Branding -->
+<text x="760" y="198" font-size="10"   fill="#3a2c10" font-family="Arial Narrow,Arial" text-anchor="end" letter-spacing="1.5">CHROMATIC TUNER</text>
+<text x="762" y="240" font-size="44"   font-weight="900" fill="#0e0a04" font-family="Arial Black,Arial" text-anchor="end" letter-spacing="-1">ML-T1</text>
+<text x="762" y="262" font-size="10.5" font-weight="bold" fill="#1a1208" font-family="Arial Narrow,Arial" text-anchor="end" letter-spacing="3">METRONOME LIST</text>
+<text x="762" y="278" font-size="8.5"  fill="#5a4a20" font-family="Arial Narrow,Arial" text-anchor="end" letter-spacing=".3">Digital Processing</text>
+
+<!--<line x1="595" y1="155" x2="595" y2="320" stroke="#b0a888" stroke-width="0.8" opacity=".6"/> -->
+
+</svg>
+
+<!-- MENU Hz -->
+<div id="hz-menu" style="display:none; max-width:780px; width:100%; background:#c8c0a0; border:2px solid #8a7840; border-radius:0 0 8px 8px; padding:14px 20px; margin-top:-4px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+    <span style="font-size:11px; font-weight:bold; color:#2a1e08; letter-spacing:1px; font-family:'Arial Narrow',Arial,sans-serif;">FREQUÊNCIA DE REFERÊNCIA (A4)</span>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="hzbtn-415" class="hz-btn" onclick="setHz(415)">415 Hz<br><span>Barroco</span></button>
+      <button id="hzbtn-430" class="hz-btn" onclick="setHz(430)">430 Hz<br><span>Histórico</span></button>
+      <button id="hzbtn-432" class="hz-btn" onclick="setHz(432)">432 Hz<br><span>Natural</span></button>
+      <button id="hzbtn-435" class="hz-btn" onclick="setHz(435)">435 Hz<br><span>Antigo</span></button>
+      <button id="hzbtn-440" class="hz-btn" onclick="setHz(440)">440 Hz<br><span>Padrão ISO</span></button>
+      <button id="hzbtn-444" class="hz-btn" onclick="setHz(444)">444 Hz<br><span>Moderno</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn blue" onclick="simulateTune()">🎸 Simular afinação</button>
+  <button class="ctrl-btn dark" id="mic-btn" onclick="startMic()">🎤 Microfone</button>
+  <span id="status"></span>
+</div>
+
+<div id="server-tip">
+  <strong>⚠ O microfone requer servidor HTTP (não funciona via file://)</strong><br><br>
+  <strong style="color:#90ee90">Opção 1 — Python:</strong><br>
+  <code>cd pasta/do/arquivo</code> &nbsp;→&nbsp; <code>python3 -m http.server 8080</code><br>
+  Abra: <code>http://localhost:8080/tuner.html</code><br><br>
+  <strong style="color:#90ee90">Opção 2 — VS Code:</strong> extensão <code>Live Server</code> → botão direito → Open with Live Server<br><br>
+  <strong style="color:#90ee90">Opção 3 — Netlify:</strong> use a versão publicada em <code>https://metronome-list.netlify.app/tuner.html</code>
+</div>
+    </div>
+  </section>
+
+  <section class="tuner-section">
+    <h2>A inspiração por trás deste afinador</h2>
+    <p>Este afinador nasceu de uma lembrança muito especial da minha história com a música. Durante a adolescência e a juventude, eu sempre admirei o visual e a presença do Boss TU-12H Chromatic Tuner. Era um daqueles equipamentos que marcavam a imaginação de quem gostava de música e sonhava em montar seu próprio setup.</p>
+    <p>Naquela época, eu não tive como ter um desses, porque o valor era alto demais para a minha realidade. Isso ficou guardado na memória por muito tempo. Então, quando pensei em criar um afinador para o Metronome List Studio, quis transformar essa referência em algo real, acessível e com significado pessoal.</p>
+    <p>Por isso, este projeto não foi criado apenas como uma ferramenta digital. Ele também é uma homenagem a um afinador que marcou minha vida musical e simboliza uma fase de descoberta, aprendizado e desejo de continuar crescendo como músico.</p>
+    <ul>
+      <li>O visual foi inspirado em um afinador clássico que fez parte da minha referência musical.</li>
+      <li>A proposta foi recriar essa sensação de forma acessível dentro da web.</li>
+      <li>Cada detalhe desta página carrega um pouco dessa memória e dessa inspiração.</li>
+    </ul>
+  </section>
+
+  <section class="tuner-section">
+    <h2>Como funciona um afinador cromático?</h2>
+    <p>O afinador cromático escuta a frequência da nota que você está tocando e compara esse som com a afinação de referência, normalmente o A4 em 440 Hz. A partir disso, ele mostra se a nota está abaixo, acima ou exatamente no ponto certo.</p>
+    <p>Aqui no Metronome List Studio, o ponteiro indica a diferença em cents. Se ele estiver para a esquerda, a nota está mais grave do que deveria. Se estiver para a direita, ela está mais aguda. Quando o ponteiro se aproxima do centro e a nota aparece estável, significa que a afinação está correta.</p>
+    <ul>
+      <li>Use o modo cromático para detectar automaticamente qualquer nota.</li>
+      <li>Toque uma corda por vez em ambiente silencioso para melhor leitura.</li>
+      <li>Ajuste a referência A4 se você tocar com padrões diferentes de 440 Hz.</li>
+      <li>Espere a nota sustentar por um instante antes de corrigir a tarraxa.</li>
+    </ul>
+  </section>
+
+  <section class="tuner-section">
+    <h2>Frequência de referência: por que isso importa?</h2>
+    <p>A frequência de referência define qual será o valor usado para a nota A4, que normalmente é 440 Hz. A partir desse ponto, todas as outras notas são calculadas. Quando você muda essa referência, todo o instrumento continua afinado internamente, mas sobe ou desce levemente em relação ao padrão mais comum.</p>
+    <p>Hoje em dia muita gente gosta de experimentar afinações diferentes. Alguns músicos preferem 432 Hz por uma sensação mais suave, outros usam 444 Hz para uma resposta um pouco mais brilhante, e há contextos históricos ou específicos em que 415 Hz, 430 Hz ou 435 Hz também aparecem. Por isso, deixar a referência ajustável torna o afinador mais flexível para estudo, performance e curiosidade musical.</p>
+    <ul>
+      <li><strong>440 Hz:</strong> padrão moderno mais usado no mercado, em bandas, igrejas, estúdios e ensino musical.</li>
+      <li><strong>432 Hz:</strong> muito procurado por músicos que gostam de explorar uma afinação alternativa.</li>
+      <li><strong>444 Hz:</strong> opção usada por quem quer uma referência um pouco mais alta e brilhante.</li>
+      <li><strong>415, 430 e 435 Hz:</strong> valores que também aparecem em contextos históricos, experimentais ou de preferência pessoal.</li>
+    </ul>
+    <p>No ML-T1 você pode alternar essas referências facilmente e testar qual faz mais sentido para o seu repertório, instrumento ou proposta sonora.</p>
+  </section>
+
+  <section class="cta-section">
+    <h2>Quer praticar com tempo e afinação no mesmo fluxo?</h2>
+    <p>Use o afinador para preparar o instrumento e depois volte para o metrônomo para estudar com precisão.</p>
+    <a href="index.html" class="cta-button">Abrir o Metrônomo →</a>
+  </section>
+
+  <div class="tuner-links">
+    <div class="tuner-link-card">
+      <h3>📖 Como usar</h3>
+      <p>Veja o passo a passo do metrônomo e dos recursos do Studio.</p>
+      <a href="como-usar.html">Abrir tutorial →</a>
+    </div>
+    <div class="tuner-link-card">
+      <h3>📚 Blog</h3>
+      <p>Aproveite os artigos para prática musical, BPM e rotina de estudo.</p>
+      <a href="blog.html">Ir para o blog →</a>
+    </div>
+    <div class="tuner-link-card">
+      <h3>❓ FAQ</h3>
+      <p>Consulte dúvidas comuns sobre uso, compatibilidade e áudio.</p>
+      <a href="faq.html">Ver FAQ →</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 Metronome List. Todos os direitos reservados.</p>
+  <p>
+    <a href="privacy.html">Política de Privacidade</a> |
+    <a href="sobre.html">Sobre</a> |
+    <a href="https://github.com/SandroVingla/Metronome-List" target="_blank">GitHub</a>
+  </p>
+</footer>
+
+<script>
+  function toggleMenu() {
+    const navMenu = document.querySelector('.nav-menu');
+    navMenu.classList.toggle('active');
+  }
+
+  let pitchRef=440, powered=false, micActive=false;
+  let audioCtx, analyser, micStream, animFrame;
+  const notes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  const PIVOT_X=181, PIVOT_Y=298;
+  const MAX_ANGLE=52;
+  const REST_CENTS=-20;
+
+  function centsToAngle(cents){ return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, cents*(MAX_ANGLE/50))); }
+
+  let needleAngle=centsToAngle(REST_CENTS);
+  let needleTarget=centsToAngle(REST_CENTS);
+  let needleRaf=null;
+
+  const ARROW_THRESHOLD=30;
+  const ARROW_ON='url(#arrowActiveG)', ARROW_OFF='#3a3a3a';
+
+  function updateArrows(cents){
+    const l=document.getElementById('arrow-left');
+    const r=document.getElementById('arrow-right');
+    if(l) l.setAttribute('fill', cents < -ARROW_THRESHOLD ? ARROW_ON : ARROW_OFF);
+    if(r) r.setAttribute('fill', cents >  ARROW_THRESHOLD ? ARROW_ON : ARROW_OFF);
+  }
+
+  function setNeedle(cents){
+    updateArrows(cents);
+    needleTarget=centsToAngle(cents);
+    if(!needleRaf) animateNeedle();
+  }
+
+  function animateNeedle(){
+    const diff=needleTarget-needleAngle;
+    if(Math.abs(diff)<0.1){
+      needleAngle=needleTarget;
+      applyNeedle(needleAngle);
+      needleRaf=null;
+      return;
+    }
+    needleAngle+=diff*0.22;
+    applyNeedle(needleAngle);
+    needleRaf=requestAnimationFrame(animateNeedle);
+  }
+
+  function applyNeedle(a){
+    const el=document.getElementById('needle');
+    if(el) el.setAttribute('transform',`rotate(${a},${PIVOT_X},${PIVOT_Y})`);
+  }
+
+  /* ── NOTA ── */
+  function pickNote(n){ updateNoteLeds(n); }
+
+  /* ── LEDs DE NOTA ── */
+  const NOTE_LEDS=['C','D','E','F','G','A','B'];
+  const LED_ON='url(#ledActiveG)', LED_OFF='#3a0a00';
+  const SHARP_ON='url(#ledActiveG)', SHARP_OFF='#2a1c06';
+
+  function updateNoteLeds(name){
+    const base=name.replace('#','');
+    const isSharp=name.includes('#');
+    NOTE_LEDS.forEach(n=>{
+      const el=document.getElementById('led-'+n);
+      if(el) el.setAttribute('fill', n===base ? LED_ON : LED_OFF);
+    });
+    const sharp=document.getElementById('led-sharp');
+    if(sharp) sharp.setAttribute('fill', isSharp ? SHARP_ON : SHARP_OFF);
+  }
+
+  function clearNoteLeds(){
+    NOTE_LEDS.forEach(n=>{
+      const el=document.getElementById('led-'+n);
+      if(el) el.setAttribute('fill', LED_OFF);
+    });
+    const sharp=document.getElementById('led-sharp');
+    if(sharp) sharp.setAttribute('fill', SHARP_OFF);
+  }
+
+  /* ── BATT ── */
+  function updateBatt(on){
+    const el=document.getElementById('batt-led');
+    if(el) el.setAttribute('fill', on ? 'url(#battActiveG)' : '#2a1c06');
+  }
+
+  /* ── MENU Hz ── */
+  const PITCH_PRESETS=[415,430,432,435,440,444];
+  let hzMenuOpen=false;
+
+  function toggleHzMenu(){
+    hzMenuOpen=!hzMenuOpen;
+    document.getElementById('hz-menu').style.display=hzMenuOpen?'block':'none';
+  }
+
+  function setHz(hz){
+    pitchRef=hz;
+    const disp=document.getElementById('hz-display');
+    if(disp) disp.textContent=hz;
+    PITCH_PRESETS.forEach(h=>{
+      const btn=document.getElementById('hzbtn-'+h);
+      if(btn) btn.className=h===hz?'hz-btn hz-active':'hz-btn';
+    });
+    setSt('Referência: '+hz+' Hz');
+  }
+
+  /* ── BOTÕES PITCH/DOWN/UP ── */
+  function cyclePitch(){ const idx=PITCH_PRESETS.indexOf(pitchRef); setHz(PITCH_PRESETS[(idx+1)%PITCH_PRESETS.length]); }
+  function pitchUp()   { const idx=PITCH_PRESETS.indexOf(pitchRef); if(idx<PITCH_PRESETS.length-1) setHz(PITCH_PRESETS[idx+1]); }
+  function pitchDown() { const idx=PITCH_PRESETS.indexOf(pitchRef); if(idx>0) setHz(PITCH_PRESETS[idx-1]); }
+
+  function setSt(m){ const e=document.getElementById('status'); if(e) e.textContent=m; }
+
+  /* ── SLIDER ── */
+  function toggleSw(ev){
+    const track=document.getElementById('sw-track');
+    const thumb=document.getElementById('slider-thumb');
+    const r=track.getBoundingClientRect();
+    const p=(ev.clientX-r.left)/r.width;
+    if(p<0.33){
+      thumb.setAttribute('transform','translate(0,0)');
+      powered=false;
+      updateBatt(false);
+      setNeedle(REST_CENTS);
+      setSt('Desligado');
+      if(micActive) stopMic();
+    } else if(p<0.66){
+      thumb.setAttribute('transform','translate(40,0)');
+      powered=true;
+      updateBatt(true);
+      setSt('Modo L (guitarra)');
+    } else {
+      thumb.setAttribute('transform','translate(80,0)');
+      powered=true;
+      updateBatt(true);
+      setSt('Modo Cromático');
+    }
+  }
+
+  /* ── SIMULAÇÃO ── */
+  function simulateTune(){
+    if(!powered){ setSt('Ligue o afinador primeiro!'); return; }
+    const steps=[-42,-26,-13,-5,2,-1,0]; let i=0;
+    const iv=setInterval(()=>{
+      if(i>=steps.length){ clearInterval(iv); setSt('Afinado! ✓'); return; }
+      setNeedle(steps[i++]);
+    },280);
+    setSt('Afinando...');
+  }
+
+  /* ══ YIN ══ */
+  function yinPitch(buf,sr){
+    const W=buf.length, half=Math.floor(W/2);
+    const d=new Float32Array(half);
+    for(let tau=1;tau<half;tau++){
+      for(let i=0;i<half;i++){const delta=buf[i]-buf[i+tau];d[tau]+=delta*delta;}
+    }
+    const cm=new Float32Array(half); cm[0]=1;
+    let sum=0;
+    for(let tau=1;tau<half;tau++){sum+=d[tau];cm[tau]=sum===0?0:d[tau]*tau/sum;}
+    const tMin=Math.floor(sr/1400), tMax=Math.floor(sr/50);
+    let tau=tMin;
+    while(tau<tMax){
+      if(cm[tau]<0.10){
+        while(tau+1<tMax&&cm[tau+1]<cm[tau])tau++;
+        const p=cm[tau-1]??cm[tau],c=cm[tau],nx=cm[tau+1]??cm[tau];
+        const ref=tau+(nx-p)/(2*(2*c-p-nx))||0;
+        return sr/ref;
+      }
+      tau++;
+    }
+    let mv=Infinity,bt=tMin;
+    for(let t=tMin;t<tMax;t++){if(cm[t]<mv){mv=cm[t];bt=t;}}
+    return mv>0.35?null:sr/bt;
+  }
+
+  function rms(buf){ let s=0; for(let i=0;i<buf.length;i++) s+=buf[i]*buf[i]; return Math.sqrt(s/buf.length); }
+
+  function freqToNote(freq){
+    const midi=12*Math.log2(freq/pitchRef)+69;
+    const rounded=Math.round(midi);
+    const cents=(midi-rounded)*100;
+    const name=notes[((rounded%12)+12)%12];
+    return{name,cents};
+  }
+
+  /* ── LOOP ── */
+  let lastDetected=0;
+  const SILENCE_MS=400;
+
+  function micLoop(){
+    if(!micActive) return;
+    const buf=new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(buf);
+    const now=performance.now();
+    if(rms(buf)<0.008){
+      if(now-lastDetected>SILENCE_MS){
+        setNeedle(REST_CENTS); updateArrows(REST_CENTS); clearNoteLeds();
+        setSt('Aguardando sinal...');
+      }
+    } else {
+      const freq=yinPitch(buf,audioCtx.sampleRate);
+      if(freq&&freq>50&&freq<1500){
+        lastDetected=now;
+        const{name,cents}=freqToNote(freq);
+        setNeedle(cents); pickNote(name);
+        setSt(name+' — '+freq.toFixed(1)+' Hz  '+(cents>=0?'+':'')+cents.toFixed(0)+' cents');
+      } else {
+        if(now-lastDetected>SILENCE_MS){
+          setNeedle(REST_CENTS); updateArrows(REST_CENTS); clearNoteLeds();
+          setSt('Aguardando sinal...');
+        }
+      }
+    }
+    animFrame=requestAnimationFrame(micLoop);
+  }
+
+  /* ── MICROFONE ── */
+  async function startMic(){
+    if(micActive){ stopMic(); return; }
+    if(!powered){ setSt('Ligue o afinador primeiro!'); return; }
+    try{
+      micStream=await navigator.mediaDevices.getUserMedia({
+        audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}
+      });
+      audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:44100});
+      analyser=audioCtx.createAnalyser();
+      analyser.fftSize=4096;
+      analyser.smoothingTimeConstant=0;
+      audioCtx.createMediaStreamSource(micStream).connect(analyser);
+      micActive=true; lastDetected=performance.now();
+      const btn=document.getElementById('mic-btn');
+      btn.textContent='🔴 Parar microfone'; btn.className='ctrl-btn red';
+      setSt('Microfone ativo — toque uma nota!');
+      micLoop();
+    }catch(e){
+      console.error(e);
+      if(location.protocol==='file:'){
+        setSt('⚠ Arquivo local não suporta microfone — veja instruções abaixo.');
+        document.getElementById('server-tip').style.display='block';
+      } else if(e.name==='NotAllowedError'){
+        setSt('⚠ Permissão negada — permita o microfone nas configurações do browser.');
+      } else {
+        setSt('⚠ '+e.name+': '+e.message);
+      }
+    }
+  }
+
+  function stopMic(){
+    micActive=false;
+    if(animFrame) cancelAnimationFrame(animFrame);
+    if(micStream) micStream.getTracks().forEach(t=>t.stop());
+    if(audioCtx)  audioCtx.close();
+    const btn=document.getElementById('mic-btn');
+    btn.textContent='🎤 Microfone'; btn.className='ctrl-btn dark';
+    setSt('Microfone desativado.'); setNeedle(REST_CENTS);
+  }
+
+  /* Init */
+  setHz(440);
+  clearNoteLeds();
+  applyNeedle(centsToAngle(REST_CENTS));
+  updateArrows(REST_CENTS);
+  updateBatt(false);
+</script>
+</body>
+</html>
