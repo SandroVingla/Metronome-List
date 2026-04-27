@@ -594,7 +594,6 @@
 </div>
 
 <div class="controls">
-  <button class="ctrl-btn blue" onclick="simulateTune()">🎸 Simular afinação</button>
   <button class="ctrl-btn dark" id="mic-btn" onclick="startMic()">🎤 Microfone</button>
   <span id="status"></span>
 </div>
@@ -697,8 +696,14 @@
 
   function centsToAngle(cents){ return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, cents*(MAX_ANGLE/50))); }
 
-  let needleAngle=centsToAngle(REST_CENTS);
-  let needleTarget=centsToAngle(REST_CENTS);
+  let position=centsToAngle(REST_CENTS);
+  let velocity=0;
+  let target=centsToAngle(REST_CENTS);
+  let filteredCents=REST_CENTS;
+  const stiffness=0.12;
+  const damping=0.85;
+  const inputSmoothing=0.22;
+  const hysteresisCents=0.6;
   let needleRaf=null;
 
   const ARROW_THRESHOLD=30;
@@ -712,21 +717,33 @@
   }
 
   function setNeedle(cents){
-    updateArrows(cents);
-    needleTarget=centsToAngle(cents);
+    const stableCents=Math.abs(cents)<2?0:cents;
+    updateArrows(stableCents);
+    const inputDelta=stableCents-filteredCents;
+    if(Math.abs(inputDelta)>=hysteresisCents){
+      filteredCents+=inputDelta*inputSmoothing;
+    }
+    if(stableCents===0&&Math.abs(filteredCents)<hysteresisCents){
+      filteredCents=0;
+    }
+    target=centsToAngle(filteredCents);
     if(!needleRaf) animateNeedle();
   }
 
   function animateNeedle(){
-    const diff=needleTarget-needleAngle;
-    if(Math.abs(diff)<0.1){
-      needleAngle=needleTarget;
-      applyNeedle(needleAngle);
+    const distance=target-position;
+    velocity+=distance*stiffness;
+    velocity*=Math.abs(distance)<1.2?0.78:damping;
+    position+=velocity;
+
+    if(Math.abs(target-position)<0.08&&Math.abs(velocity)<0.004){
+      position=target;
+      velocity=0;
+      applyNeedle(position);
       needleRaf=null;
       return;
     }
-    needleAngle+=diff*0.22;
-    applyNeedle(needleAngle);
+    applyNeedle(position);
     needleRaf=requestAnimationFrame(animateNeedle);
   }
 
@@ -814,23 +831,14 @@
       powered=true;
       updateBatt(true);
       setSt('Modo L (guitarra)');
+      if(!micActive) startMic();
     } else {
       thumb.setAttribute('transform','translate(80,0)');
       powered=true;
       updateBatt(true);
       setSt('Modo Cromático');
+      if(!micActive) startMic();
     }
-  }
-
-  /* ── SIMULAÇÃO ── */
-  function simulateTune(){
-    if(!powered){ setSt('Ligue o afinador primeiro!'); return; }
-    const steps=[-42,-26,-13,-5,2,-1,0]; let i=0;
-    const iv=setInterval(()=>{
-      if(i>=steps.length){ clearInterval(iv); setSt('Afinado! ✓'); return; }
-      setNeedle(steps[i++]);
-    },280);
-    setSt('Afinando...');
   }
 
   /* ══ YIN ══ */
