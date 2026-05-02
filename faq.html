@@ -11,9 +11,13 @@
 <body>
     <nav class="main-nav">
         <div class="nav-container">
-            <div class="nav-logo">
-                <h1>🎵 Metronome List Studio</h1>
-            </div>
+            <a href="index.html" class="nav-logo" aria-label="Metronome List Studio - página inicial">
+                <span class="nav-logo-mark" aria-hidden="true">M</span>
+                <span class="nav-logo-text">
+                    <span class="nav-logo-name">Metronome <span>List</span></span>
+                    <span class="nav-logo-subtitle">Studio</span>
+                </span>
+            </a>
             <ul class="nav-menu">
                 <li><a href="index.html" >Metrônomo</a></li>              
                 <li><a href="como-usar.html">Como Usar</a></li>
@@ -37,7 +41,7 @@
             
             <div class="faq-item">
                 <h3>O som está muito baixo ou muito alto. Como ajusto?</h3>
-                <p>Use o slider de volume (🔊) nos controles globais no topo da página. Arraste para a esquerda para diminuir ou para a direita para aumentar. O volume afeta todos os metrônomos igualmente.</p>
+                <p>O volume geral do metrônomo é controlado pelo volume do seu computador, celular ou interface/placa de áudio externa. O slider de volume (🔊) na página atua apenas sobre o volume dos pads.</p>
             </div>
 
             <div class="faq-item">
@@ -47,7 +51,7 @@
 
             <div class="faq-item">
                 <h3>Os timbres são sons gravados ou sintetizados?</h3>
-                <p>Todos os timbres são sintetizados em tempo real usando Web Audio API. Não são samples gravados. Isso garante precisão absoluta de timing e qualidade consistente, além de permitir funcionamento offline.</p>
+                <p>Todos os timbres são sintetizados em tempo real usando Web Audio API. Não são samples gravados. Isso ajuda a manter boa consistência sonora e resposta rápida durante o uso.</p>
             </div>
         </div>
 
@@ -100,7 +104,7 @@
 
             <div class="faq-item">
                 <h3>A precisão é adequada para uso profissional?</h3>
-                <p>Sim. Usamos Web Audio API que oferece timing com precisão menor que 1 milissegundo. Isso é mais preciso que muitos metrônomos mecânicos e adequado para qualquer aplicação profissional.</p>
+                <p>Sim. Usamos Web Audio API para oferecer boa estabilidade rítmica e resposta rápida, adequada para estudo, ensaios e diversas aplicações musicais.</p>
             </div>
 
             <div class="faq-item">
@@ -114,7 +118,7 @@
             
             <div class="faq-item">
                 <h3>O metrônomo funciona offline?</h3>
-                <p>Sim! Após carregar a página uma vez, a aplicação funciona completamente offline utilizando Web Audio API nativa do navegador. Não requer conexão com internet para operar.</p>
+                <p>O áudio e os controles principais rodam no navegador após o carregamento da página. Alguns recursos e atualizações do site ainda podem depender de conexão com a internet.</p>
             </div>
 
             <div class="faq-item">
@@ -129,7 +133,7 @@
 
             <div class="faq-item">
                 <h3>Minhas configurações são salvas?</h3>
-                <p>Atualmente as configurações são mantidas apenas durante a sessão. Estamos desenvolvendo funcionalidade de salvamento em nuvem para uma futura atualização. Por enquanto, anote as configurações importantes de suas músicas.</p>
+                <p>As configurações e setlists podem ser salvos localmente no seu navegador neste dispositivo. Se você limpar os dados do navegador, essas informações podem ser removidas.</p>
             </div>
 
             <div class="faq-item">
@@ -137,10 +141,6 @@
                 <p>A latência é mínima (tipicamente menos de 10ms) graças ao uso de Web Audio API. Isso é imperceptível para o ouvido humano e não afeta a prática ou gravação.</p>
             </div>
 
-            <div class="faq-item">
-                <h3>O código é open source?</h3>
-                <p>Sim! Todo o código está disponível no GitHub. Você pode estudá-lo, contribuir com melhorias ou fazer fork para seu próprio projeto. Visite nosso repositório em github.com/SandroVingla/Metronome-List</p>
-            </div>
         </div>
 
         <div class="content-section">
@@ -148,7 +148,7 @@
             
             <div class="faq-item">
                 <h3>Vocês coletam meus dados?</h3>
-                <p>Não coletamos dados pessoais dos usuários. O metrônomo funciona inteiramente no seu navegador. Não há rastreamento invasivo ou coleta de informações de prática.</p>
+                <p>Não exigimos cadastro e não coletamos seus dados de prática ou o conteúdo dos seus setlists. Parte do funcionamento do site pode usar cookies, dados técnicos e serviços de terceiros para análise e publicidade, como explicado na Política de Privacidade.</p>
             </div>
 
             <div class="faq-item">
@@ -167,12 +167,12 @@
             
             <div class="faq-item">
                 <h3>Encontrei um bug. Como reporto?</h3>
-                <p>Por favor, reporte bugs através do nosso GitHub Issues em github.com/SandroVingla/Metronome-List/issues. Inclua detalhes como navegador usado, sistema operacional e passos para reproduzir o problema.</p>
+                <p>Por favor, reporte bugs pelo email <a href="mailto:metronomeliststudio@gmail.com">metronomeliststudio@gmail.com</a>. Inclua detalhes como navegador usado, sistema operacional e passos para reproduzir o problema.</p>
             </div>
 
             <div class="faq-item">
                 <h3>Tenho uma sugestão de recurso. Como envio?</h3>
-                <p>Adoramos sugestões! Você pode enviá-las através do GitHub Issues marcando como "feature request" ou entrando em contato conosco diretamente. Avaliamos todas as sugestões para futuras atualizações.</p>
+                <p>Adoramos sugestões. Você pode enviá-las pelo email <a href="mailto:metronomeliststudio@gmail.com">metronomeliststudio@gmail.com</a> ou pelas redes sociais. Avaliamos todas as ideias para futuras atualizações.</p>
             </div>
 
             <div class="faq-item">
@@ -182,7 +182,7 @@
 
             <div class="faq-item">
                 <h3>Posso contribuir com o projeto?</h3>
-                <p>Sim! Aceitamos contribuições via GitHub. Você pode melhorar o código, adicionar recursos, corrigir bugs ou melhorar a documentação. Toda ajuda é bem-vinda!</p>
+                <p>Sim. Toda ajuda é bem-vinda, especialmente sugestões, relatos de uso e divulgação do projeto para outros músicos.</p>
             </div>
         </div>
 
@@ -192,8 +192,8 @@
             <ul>
                 <li>Consultar o <a href="blog.html">Blog</a> no artigo 'Guia completo' para informações detalhadas</li>
                 <li>Ver o tutorial <a href="como-usar.html">Como Usar</a> passo a passo</li>
-                <li>Reportar sua dúvida no <a href="https://github.com/SandroVingla/Metronome-List/issues" target="_blank">GitHub Issues</a></li>
-                <li>Entrar em contato diretamente conosco</li>
+                <li>Enviar sua dúvida para <a href="mailto:metronomeliststudio@gmail.com">metronomeliststudio@gmail.com</a></li>
+                <li>Entrar em contato pelas redes sociais do projeto</li>
             </ul>
         </div>
 
@@ -208,9 +208,9 @@
         <p>© 2025 Metronome List. Todos os direitos reservados.</p>
         <p>
             <a href="privacy.html">Política de Privacidade</a> |
-            <a href="sobre.html">Sobre</a> |
-            <a href="https://github.com/SandroVingla/Metronome-List" target="_blank">GitHub</a>
+            <a href="sobre.html">Sobre</a>
         </p>
+        <p class="social-links"><strong>Siga nas redes:</strong> <span class="social-icons"><a class="social-icon social-icon--tiktok" href="https://tiktok.com/@metronomeliststud3" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3c.34 1.86 1.47 3.54 3 4.46A6.9 6.9 0 0 0 21 8.5V12a10.7 10.7 0 0 1-4-.79V16.3a5.8 5.8 0 1 1-5.8-5.8c.33 0 .65.03.96.08v3.28a2.6 2.6 0 1 0 1.84 2.49V3z"/></svg></a><a class="social-icon social-icon--kwai" href="https://kwaivideo.com/u/@metronomeliststudio/s3xx8CDN" target="_blank" rel="noopener noreferrer" aria-label="Kwai" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4A3.5 3.5 0 0 1 11 7.5V9h2V7.5A3.5 3.5 0 1 1 16.5 11H15v2h1.5A3.5 3.5 0 1 1 13 16.5V15h-2v1.5A3.5 3.5 0 1 1 7.5 13H9v-2H7.5A3.5 3.5 0 1 1 7.5 4Zm0 2A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 6Zm9 0A1.5 1.5 0 1 0 18 7.5 1.5 1.5 0 0 0 16.5 6Zm-9 8A1.5 1.5 0 1 0 9 15.5 1.5 1.5 0 0 0 7.5 14Zm9 0a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5ZM12 10.5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"/></svg></a><a class="social-icon social-icon--youtube" href="https://www.youtube.com/@metronomeliststudio" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.97 2.97 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5a2.97 2.97 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 2.97 2.97 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a2.97 2.97 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5Z"/></svg></a><a class="social-icon social-icon--instagram" href="https://www.instagram.com/metronome_list_studio?igsh=dzk0b3BzYndyMDBj" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2A3 3 0 0 0 4 7v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5ZM17.75 6.5a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg></a></span></p>
     </footer>
 
     <script>

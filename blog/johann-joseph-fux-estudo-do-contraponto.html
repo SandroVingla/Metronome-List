@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conheça o livro O Estudo do Contraponto, de Johann Joseph Fux, e entenda por que essa obra continua fundamental para quem estuda composição, arranjo e escrita musical.">
+    <title>Johann Joseph Fux e O Estudo do Contraponto: por que esse livro ainda importa | Metronome List</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 { font-size: 2.5rem; margin-bottom: 1rem; line-height: 1.2; }
+        .article-meta { font-size: 1rem; opacity: 0.9; margin-top: 1rem; }
+
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a { color: #0f766e; text-decoration: none; font-weight: 500; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        article {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            font-size: 1.2rem;
+            color: #555;
+            padding: 1.5rem;
+            background: #ecfeff;
+            border-left: 4px solid #0f766e;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #0f766e;
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        h3 {
+            color: #1d4ed8;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        ul, ol { margin-left: 2rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.7rem; }
+
+        .tip-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .tip-box h4 { color: #0d47a1; margin-bottom: 0.5rem; }
+
+        .warning-box {
+            background: #fff7ed;
+            border-left: 4px solid #f97316;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h4 { color: #9a3412; margin-bottom: 0.5rem; }
+
+        .species-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 2rem 0;
+        }
+
+        .species-card {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 1.2rem;
+        }
+
+        .species-card h4 {
+            color: #1d4ed8;
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .species-card p {
+            font-size: 0.95rem;
+            margin: 0;
+            color: #4b5563;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .cta-box h3 { color: white; margin: 0 0 1rem 0; }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #0f766e;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover { transform: scale(1.05); }
+
+        footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        footer a { color: #0f766e; text-decoration: none; }
+        .social-links { margin-top: 1rem; }
+        .social-icons { display: inline-flex; align-items: center; gap: 10px; }
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #334155;
+            text-decoration: none;
+        }
+        .social-icon svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            article { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Johann Joseph Fux e O Estudo do Contraponto</h1>
+        <p class="article-meta">📅 Abril de 2026 • ⏱️ 10 min de leitura • 🎼 Teoria Musical</p>
+    </div>
+</header>
+
+<nav>
+    <ul class="nav-links container">
+        <li><a href="../index.html">← Voltar ao Metrônomo</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../tuner.html">Afinador</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+<article>
+
+<p class="intro">
+    Poucos livros de teoria musical atravessaram tanto tempo com tanta influência quanto
+    <strong>O Estudo do Contraponto</strong>, de <strong>Johann Joseph Fux</strong>. Mesmo
+    sendo uma obra ligada ao pensamento musical de séculos passados, ela continua aparecendo
+    no caminho de estudantes de composição, regência, arranjo, coral e análise. O motivo é
+    simples: o livro ensina a ouvir e organizar vozes com disciplina, clareza e intenção.
+</p>
+
+<h2>Quem foi Johann Joseph Fux?</h2>
+
+<p>
+    Johann Joseph Fux foi um compositor, teórico e pedagogo austríaco do período barroco.
+    Seu nome ficou especialmente associado ao tratado <em>Gradus ad Parnassum</em>, obra que
+    se tornou uma referência histórica no ensino do contraponto. Em muitas edições em português,
+    essa tradição chega ao leitor com o título <strong>O Estudo do Contraponto</strong>.
+</p>
+
+<p>
+    Mais do que ensinar “regras antigas”, Fux organizou um método de estudo que ajudava o aluno
+    a construir independência entre as vozes sem perder coerência melódica e harmônica. Esse
+    equilíbrio entre liberdade e controle é uma das razões pelas quais o livro ainda é tão citado.
+</p>
+
+<h2>O que o livro ensina de fato?</h2>
+
+<p>
+    O coração da obra está no estudo do <strong>contraponto de espécies</strong>. Em vez de
+    começar pela complexidade total, Fux propõe um caminho progressivo: o estudante aprende a
+    combinar duas vozes com critérios claros e vai aumentando a dificuldade passo a passo.
+</p>
+
+<div class="species-grid">
+    <div class="species-card">
+        <h4>Primeira espécie</h4>
+        <p>Uma nota contra uma nota. O foco está em consonância, direção melódica e equilíbrio.</p>
+    </div>
+    <div class="species-card">
+        <h4>Segunda espécie</h4>
+        <p>Duas notas contra uma. A escrita começa a ganhar mais movimento e tensão controlada.</p>
+    </div>
+    <div class="species-card">
+        <h4>Terceira espécie</h4>
+        <p>Quatro notas contra uma. O aluno trabalha fluidez, desenho melódico e continuidade.</p>
+    </div>
+    <div class="species-card">
+        <h4>Quarta espécie</h4>
+        <p>Suspensões e síncopas. Aqui o estudo da tensão e resolução fica muito mais evidente.</p>
+    </div>
+    <div class="species-card">
+        <h4>Quinta espécie</h4>
+        <p>A chamada espécie florida, que combina os recursos anteriores de forma mais livre.</p>
+    </div>
+</div>
+
+<p>
+    Essa progressão parece rígida à primeira vista, mas ela é justamente o que torna o método
+    tão eficiente. O estudante não precisa resolver tudo ao mesmo tempo. Ele treina audição,
+    direção de frase, condução entre vozes e senso estrutural em camadas.
+</p>
+
+<h2>Por que esse livro ainda importa?</h2>
+
+<p>
+    Porque contraponto não é apenas um assunto “de música antiga”. Estudar contraponto é aprender
+    a fazer linhas musicais coexistirem sem se atropelar. Isso vale para coral, arranjo vocal,
+    quartetos, trilha sonora, composição para piano, orquestração e até para quem escreve linhas
+    de guitarra, baixo e teclados com mais intenção.
+</p>
+
+<p>
+    Quem passa por esse tipo de estudo normalmente começa a perceber melhor:
+</p>
+
+<ul>
+    <li>como uma melodia responde à outra sem virar duplicação sem graça;</li>
+    <li>como a tensão pode nascer do movimento entre vozes, e não apenas de acordes prontos;</li>
+    <li>como evitar saltos excessivos, paralelismos problemáticos e linhas sem direção;</li>
+    <li>como fazer a escrita soar mais cantável, lógica e memorável.</li>
+</ul>
+
+<div class="tip-box">
+    <h4>Leitura útil para compositores e arranjadores</h4>
+    <p>
+        Mesmo que você não pretenda escrever no estilo renascentista ou barroco, estudar Fux pode
+        fortalecer fundamentos que depois aparecem em arranjos modernos, trilhas, corais, música
+        instrumental e condução de vozes em contextos populares.
+    </p>
+</div>
+
+<h2>O método de Fux é difícil?</h2>
+
+<p>
+    Ele pode ser exigente, sim. O livro cobra paciência, repetição e atenção a detalhes que muita
+    gente hoje quer pular. Só que justamente aí mora o valor dele. Fux obriga o estudante a ouvir
+    com mais profundidade e a justificar cada movimento da escrita.
+</p>
+
+<p>
+    A dificuldade costuma aparecer menos por “complexidade matemática” e mais pela disciplina
+    musical envolvida. Escrever pouco, mas escrever bem, é uma parte importante do treinamento.
+</p>
+
+<div class="warning-box">
+    <h4>Erro comum ao estudar contraponto</h4>
+    <p>
+        Muita gente tenta usar o livro como se ele fosse um catálogo de regras para decorar. Isso
+        empobrece o estudo. O melhor caminho é tratar cada exercício como prática de escuta: por
+        que essa linha funciona, por que aquela resolução convence e por que outra soa dura ou sem
+        direção?
+    </p>
+</div>
+
+<h2>Como estudar O Estudo do Contraponto hoje</h2>
+
+<p>
+    Uma boa forma de aproveitar a obra hoje é combinar leitura, escrita à mão ou no software de
+    partitura, audição e revisão lenta. Não adianta apenas entender intelectualmente. É preciso
+    escrever, cantar as vozes, tocar no instrumento e ouvir o resultado com calma.
+</p>
+
+<h3>Um caminho prático de estudo</h3>
+
+<ol>
+    <li>Estude uma espécie de cada vez, sem pressa para “chegar na parte avançada”.</li>
+    <li>Escreva poucos exercícios, mas revise cada um com atenção real.</li>
+    <li>Cante ou toque separadamente cada voz antes de ouvir tudo junto.</li>
+    <li>Observe onde a linha flui com naturalidade e onde parece travada.</li>
+    <li>Compare soluções diferentes para o mesmo cantus firmus.</li>
+</ol>
+
+<p>
+    Se você for professor, esse material também funciona muito bem em aulas por etapas. Em vez de
+    despejar correções abstratas, é possível mostrar como pequenas mudanças de intervalo alteram a
+    clareza da frase inteira.
+</p>
+
+<h2>Fux serve só para música erudita?</h2>
+
+<p>
+    Não. O contexto histórico da obra é claramente ligado à tradição erudita, mas os princípios
+    de independência de linhas, direção melódica e condução de vozes vão muito além desse universo.
+    Um músico popular pode não aplicar o método literalmente, mas ainda assim se beneficiar muito
+    dele ao escrever arranjos, backs vocais, introduções instrumentais e contracantos.
+</p>
+
+<p>
+    Em outras palavras, estudar Fux não significa virar refém de um estilo. Significa ganhar
+    ferramentas para organizar melhor o pensamento musical.
+</p>
+
+<h2>Vale a pena ler hoje?</h2>
+
+<p>
+    Vale, especialmente para quem sente que já aprendeu escalas, acordes e campos harmônicos, mas
+    quer dar um passo além na escrita. <strong>O Estudo do Contraponto</strong> continua valioso
+    porque treina algo que nunca sai de moda: a capacidade de fazer a música andar com intenção.
+</p>
+
+<p>
+    É um livro que pede humildade, atenção e constância. Em troca, entrega uma escuta mais fina e
+    uma escrita mais consciente. Para muita gente, esse é justamente o tipo de base que faltava
+    para sair do automático e começar a compor ou arranjar com mais maturidade.
+</p>
+
+<div class="cta-box">
+    <h3>Quer estudar escrita musical com mais regularidade?</h3>
+    <p>
+        Use o metrônomo para praticar leitura, divisão rítmica e estabilidade enquanto revisa
+        exercícios de contraponto e percepção.
+    </p>
+    <a href="../index.html" class="cta-button">Abrir o Metrônomo →</a>
+</div>
+
+</article>
+</div>
+
+<footer>
+    <p>© 2026 Metronome List. Todos os direitos reservados.</p>
+    <p>
+        <a href="../privacy.html">Política de Privacidade</a> |
+        <a href="../sobre.html">Sobre</a> |
+        <a href="../blog.html">Blog</a>
+    </p>
+    <p class="social-links"><strong>Siga nas redes:</strong> <span class="social-icons"><a class="social-icon social-icon--tiktok" href="https://tiktok.com/@metronomeliststud3" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3c.34 1.86 1.47 3.54 3 4.46A6.9 6.9 0 0 0 21 8.5V12a10.7 10.7 0 0 1-4-.79V16.3a5.8 5.8 0 1 1-5.8-5.8c.33 0 .65.03.96.08v3.28a2.6 2.6 0 1 0 1.84 2.49V3z"/></svg></a><a class="social-icon social-icon--kwai" href="https://kwaivideo.com/u/@metronomeliststudio/s3xx8CDN" target="_blank" rel="noopener noreferrer" aria-label="Kwai" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4A3.5 3.5 0 0 1 11 7.5V9h2V7.5A3.5 3.5 0 1 1 16.5 11H15v2h1.5A3.5 3.5 0 1 1 13 16.5V15h-2v1.5A3.5 3.5 0 1 1 7.5 13H9v-2H7.5A3.5 3.5 0 1 1 7.5 4Zm0 2A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 6Zm9 0A1.5 1.5 0 1 0 18 7.5 1.5 1.5 0 0 0 16.5 6Zm-9 8A1.5 1.5 0 1 0 9 15.5 1.5 1.5 0 0 0 7.5 14Zm9 0a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5ZM12 10.5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"/></svg></a><a class="social-icon social-icon--youtube" href="https://www.youtube.com/@metronomeliststudio" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.97 2.97 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5a2.97 2.97 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 2.97 2.97 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a2.97 2.97 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5Z"/></svg></a><a class="social-icon social-icon--instagram" href="https://www.instagram.com/metronome_list_studio?igsh=dzk0b3BzYndyMDBj" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2A3 3 0 0 0 4 7v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5ZM17.75 6.5a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg></a></span></p>
+    </footer>
+
+</body>
+</html>

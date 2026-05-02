@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Entenda o que é harmonia musical, como funcionam acordes, campo harmônico, progressões e como estudar harmonia de forma prática no teclado, violão, guitarra e canto.">
+    <title>Harmonia Musical: Guia Completo para Entender Acordes, Campo Harmônico e Progressões | Metronome List</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 { font-size: 2.5rem; margin-bottom: 1rem; line-height: 1.2; }
+        .article-meta { font-size: 1rem; opacity: 0.9; margin-top: 1rem; }
+
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a { color: #667eea; text-decoration: none; font-weight: 500; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        article {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            font-size: 1.2rem;
+            color: #555;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-left: 4px solid #6c63ff;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        h2 { color: #667eea; font-size: 1.8rem; margin: 2.5rem 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid #f0f0f0; }
+        h3 { color: #764ba2; font-size: 1.4rem; margin: 2rem 0 1rem 0; }
+        p { margin-bottom: 1.5rem; font-size: 1.05rem; }
+        ul, ol { margin-left: 2rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.7rem; }
+
+        .tip-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .tip-box h4 { color: #0d47a1; margin-bottom: 0.5rem; }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h4 { color: #856404; margin-bottom: 0.5rem; }
+
+        .highlight-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .highlight-box h4 { color: #155724; margin-bottom: 0.5rem; }
+
+        .cta-box {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .cta-box h3 { color: white; margin: 0 0 1rem 0; }
+
+        .cta-button {
+            display: inline-block;
+            background: #ffffff;
+            color: #2b5876;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover { transform: scale(1.05); }
+
+        footer { background: white; padding: 2rem; text-align: center; margin-top: 3rem; color: #666; }
+        footer a { color: #667eea; text-decoration: none; }
+        .social-links { margin-top: 1rem; }
+        .social-icons { display: inline-flex; align-items: center; gap: 10px; }
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #334155;
+            text-decoration: none;
+        }
+        .social-icon svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            article { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>🎼 Harmonia Musical: Guia Completo para Entender Acordes, Campo Harmônico e Progressões</h1>
+        <p class="article-meta">📅 Maio de 2026 • ⏱️ 12 min de leitura • 🎓 Teoria Musical</p>
+    </div>
+</header>
+
+<nav>
+    <ul class="nav-links container">
+        <li><a href="../index.html">← Voltar ao Metrônomo</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+<article>
+
+<p class="intro">
+    Harmonia musical é o que dá cor, profundidade e direção emocional para uma música. 
+    Quando você ouve uma canção e sente tensão, descanso, expectativa ou resolução, muito 
+    disso está acontecendo por causa da harmonia. Entender esse assunto não é útil apenas 
+    para quem compõe: também ajuda instrumentistas, cantores, arranjadores e professores a 
+    tocar com mais consciência e musicalidade.
+</p>
+
+<h2>O Que é Harmonia Musical?</h2>
+
+<p>
+    Harmonia musical é a área da música que estuda a combinação simultânea de notas, 
+    especialmente na formação de acordes e na relação entre eles dentro de uma tonalidade. 
+    Em termos práticos, a harmonia explica por que certos acordes soam estáveis, por que 
+    outros pedem continuação e como as progressões criam movimento.
+</p>
+
+<p>
+    Se a melodia é a linha que você canta e o ritmo é a organização do tempo, a harmonia é 
+    a base sonora que sustenta essa linha. Ela pode ser simples, como em músicas construídas 
+    com três ou quatro acordes, ou sofisticada, como no jazz, na bossa nova, na música coral 
+    e em arranjos orquestrais.
+</p>
+
+<h2>Como os Acordes São Formados</h2>
+
+<p>
+    O primeiro passo para entender harmonia é compreender os acordes. Um acorde é formado por 
+    três ou mais notas tocadas ao mesmo tempo. A estrutura mais básica é a tríade, composta por:
+</p>
+
+<ul>
+    <li>Tônica: a nota principal do acorde</li>
+    <li>Terça: define se o acorde é maior ou menor</li>
+    <li>Quinta: reforça a estabilidade sonora</li>
+</ul>
+
+<p>
+    Por exemplo, o acorde de Dó maior é formado por Dó, Mi e Sol. Já o acorde de Lá menor é 
+    formado por Lá, Dó e Mi. A diferença principal entre maior e menor está no intervalo da 
+    terça. Essa pequena mudança altera completamente o clima do acorde.
+</p>
+
+<div class="tip-box">
+    <h4>💡 Dica de Estudo</h4>
+    <p>
+        Ao estudar acordes, tente cantar cada nota separadamente e depois ouvir o acorde completo. 
+        Isso melhora muito sua percepção harmônica e ajuda a memorizar a sonoridade de cada estrutura.
+    </p>
+</div>
+
+<h2>A Função do Campo Harmônico</h2>
+
+<p>
+    Campo harmônico é o conjunto de acordes construídos a partir das notas de uma escala. 
+    Em Dó maior, por exemplo, usamos as notas da escala de Dó maior para empilhar tríades 
+    em cada grau. O resultado é uma sequência de acordes com funções diferentes dentro da tonalidade.
+</p>
+
+<p>
+    No campo harmônico maior, a organização básica fica assim:
+</p>
+
+<ul>
+    <li>I grau: maior</li>
+    <li>II grau: menor</li>
+    <li>III grau: menor</li>
+    <li>IV grau: maior</li>
+    <li>V grau: maior</li>
+    <li>VI grau: menor</li>
+    <li>VII grau: diminuto</li>
+</ul>
+
+<p>
+    Isso significa que, em Dó maior, teremos: C, Dm, Em, F, G, Am e Bdim. Esse conjunto já 
+    permite criar centenas de músicas. Mesmo canções simples, que parecem usar “os mesmos acordes”, 
+    podem soar diferentes por causa da ordem, do ritmo harmônico e da melodia sobre eles.
+</p>
+
+<h2>Funções Harmônicas: Tônica, Subdominante e Dominante</h2>
+
+<p>
+    Uma das ideias mais importantes da harmonia tonal é a função harmônica. Nem todo acorde faz 
+    a mesma coisa dentro da música. Em geral, os acordes podem cumprir três grandes papéis:
+</p>
+
+<ul>
+    <li>Tônica: sensação de repouso e estabilidade</li>
+    <li>Subdominante: preparação e movimento</li>
+    <li>Dominante: tensão e impulso para resolver</li>
+</ul>
+
+<p>
+    Em Dó maior, o acorde de C representa a tônica. O acorde de F costuma atuar como subdominante, 
+    enquanto G funciona como dominante. Quando você toca C, F, G e volta para C, sente claramente 
+    a ideia de saída, tensão e retorno. Esse é um dos mecanismos mais poderosos da música ocidental.
+</p>
+
+<div class="highlight-box">
+    <h4>✅ Por Que Isso É Importante?</h4>
+    <p>
+        Quando você entende função harmônica, deixa de decorar acordes isolados e passa a enxergar 
+        lógica musical. Isso facilita transposição, improvisação, arranjo e composição.
+    </p>
+</div>
+
+<h2>Progressões Harmônicas Mais Usadas</h2>
+
+<p>
+    Progressão harmônica é a sequência de acordes dentro de uma música. Algumas progressões são tão 
+    comuns que aparecem em milhares de canções. Estudar essas fórmulas é uma maneira excelente de 
+    internalizar harmonia.
+</p>
+
+<h3>I - V - vi - IV</h3>
+<p>
+    Essa progressão aparece em muito pop, rock e worship. Em Dó maior, seria: C - G - Am - F. 
+    Ela funciona porque alterna estabilidade, impulso, emoção e abertura.
+</p>
+
+<h3>ii - V - I</h3>
+<p>
+    Muito usada no jazz, na bossa nova e em repertórios mais sofisticados. Em Dó maior: Dm - G - C. 
+    É uma das cadências mais importantes da música tonal.
+</p>
+
+<h3>I - IV - V</h3>
+<p>
+    Base clássica de inúmeros estilos, especialmente blues, rock inicial, música popular e repertório 
+    congregacional. Simples, eficiente e extremamente musical.
+</p>
+
+<p>
+    Quanto mais você identificar essas progressões em músicas reais, mais natural a harmonia se torna. 
+    Com o tempo, seu ouvido começa a antecipar a próxima função antes mesmo do acorde aparecer.
+</p>
+
+<h2>Harmonia na Prática para Violão, Teclado, Guitarra e Canto</h2>
+
+<p>
+    Para quem toca violão ou guitarra, a harmonia aparece de forma muito visual. Formas de acordes 
+    se repetem em diferentes tons, e isso ajuda a enxergar padrões. No teclado, a vantagem está em 
+    ver claramente as notas que formam cada acorde, o que acelera o entendimento teórico.
+</p>
+
+<p>
+    Para cantores, estudar harmonia é valioso porque melhora afinação, percepção de intervalos e 
+    consciência do papel da voz dentro do arranjo. Um cantor que entende onde o acorde “pede” 
+    resolução canta com mais segurança e interpreta melhor.
+</p>
+
+<div class="warning-box">
+    <h4>⚠️ Erro Comum</h4>
+    <p>
+        Muita gente tenta estudar harmonia apenas decorando nomes difíceis de acordes. Isso costuma 
+        gerar confusão. O ideal é começar pela função, pelo campo harmônico e por progressões simples, 
+        ouvindo e aplicando na prática.
+    </p>
+</div>
+
+<h2>Como Estudar Harmonia Musical de Forma Eficiente</h2>
+
+<p>
+    O melhor estudo de harmonia mistura teoria, escuta e aplicação. Não basta ler; é preciso ouvir, 
+    tocar e repetir. Um bom caminho de estudo pode seguir esta ordem:
+</p>
+
+<ol>
+    <li>Aprender escalas maiores e menores</li>
+    <li>Montar tríades e tétrades</li>
+    <li>Entender campo harmônico</li>
+    <li>Estudar funções harmônicas</li>
+    <li>Reconhecer progressões em músicas conhecidas</li>
+    <li>Praticar transposição para outros tons</li>
+</ol>
+
+<p>
+    Outra estratégia útil é tocar a mesma progressão em vários andamentos. É aí que ferramentas de 
+    tempo entram como apoio. O metrônomo não ensina harmonia diretamente, mas ajuda a manter o estudo 
+    organizado, sobretudo quando você pratica troca de acordes, levadas, arpejos e progressões com 
+    pulsação estável.
+</p>
+
+<h2>Harmonia, Ritmo e Arranjo Andam Juntos</h2>
+
+<p>
+    Harmonia não existe isolada. Um acorde pode soar totalmente diferente dependendo do ritmo em que 
+    é tocado, da inversão escolhida e do contexto do arranjo. Um C maior em bloco não transmite a 
+    mesma sensação que um C maior arpejado, sincopado ou distribuído entre vários instrumentos.
+</p>
+
+<p>
+    Por isso, estudar harmonia junto com ritmo é tão importante. Quando você pratica progressões com 
+    metrônomo, entende não só “qual acorde vem depois”, mas também “quando ele entra”, “quanto tempo 
+    dura” e “qual peso ele tem dentro da frase musical”.
+</p>
+
+<div class="cta-box">
+    <h3>🎵 Estude Trocas de Acordes com Mais Clareza</h3>
+    <p>Use o metrônomo para praticar progressões harmônicas com pulsação estável e desenvolver segurança rítmica.</p>
+    <a href="/" class="cta-button">Usar o Metronome List →</a>
+</div>
+
+<h2>Conclusão</h2>
+
+<p>
+    Harmonia musical é um dos pilares da compreensão profunda da música. Ela explica a construção dos 
+    acordes, o funcionamento do campo harmônico, a lógica das progressões e o modo como a música cria 
+    tensão, repouso e direção emocional.
+</p>
+
+<p>
+    Quanto mais você estudar harmonia, mais liberdade terá para tocar, cantar, compor, improvisar e 
+    organizar arranjos. E a boa notícia é que esse estudo não precisa ser abstrato: ele pode começar 
+    hoje mesmo, com acordes simples, músicas conhecidas e prática constante. Quando teoria e ouvido 
+    caminham juntos, a música passa a fazer ainda mais sentido.
+</p>
+
+</article>
+</div>
+
+<footer>
+    <p>© 2026 Metronome List. Todos os direitos reservados.</p>
+    <p style="margin-top: 0.5rem;">
+        <a href="/privacy.html">Política de Privacidade</a> |
+        <a href="/sobre.html">Sobre</a> |
+        <a href="/blog.html">Blog</a>
+    </p>
+    <p class="social-links"><strong>Siga nas redes:</strong> <span class="social-icons"><a class="social-icon social-icon--tiktok" href="https://tiktok.com/@metronomeliststud3" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3c.34 1.86 1.47 3.54 3 4.46A6.9 6.9 0 0 0 21 8.5V12a10.7 10.7 0 0 1-4-.79V16.3a5.8 5.8 0 1 1-5.8-5.8c.33 0 .65.03.96.08v3.28a2.6 2.6 0 1 0 1.84 2.49V3z"/></svg></a><a class="social-icon social-icon--kwai" href="https://kwaivideo.com/u/@metronomeliststudio/s3xx8CDN" target="_blank" rel="noopener noreferrer" aria-label="Kwai" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4A3.5 3.5 0 0 1 11 7.5V9h2V7.5A3.5 3.5 0 1 1 16.5 11H15v2h1.5A3.5 3.5 0 1 1 13 16.5V15h-2v1.5A3.5 3.5 0 1 1 7.5 13H9v-2H7.5A3.5 3.5 0 1 1 7.5 4Zm0 2A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 6Zm9 0A1.5 1.5 0 1 0 18 7.5 1.5 1.5 0 0 0 16.5 6Zm-9 8A1.5 1.5 0 1 0 9 15.5 1.5 1.5 0 0 0 7.5 14Zm9 0a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5ZM12 10.5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"/></svg></a><a class="social-icon social-icon--youtube" href="https://www.youtube.com/@metronomeliststudio" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.97 2.97 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5a2.97 2.97 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 2.97 2.97 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a2.97 2.97 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5Z"/></svg></a><a class="social-icon social-icon--instagram" href="https://www.instagram.com/metronome_list_studio?igsh=dzk0b3BzYndyMDBj" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2A3 3 0 0 0 4 7v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5ZM17.75 6.5a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg></a></span></p>
+</footer>
+
+</body>
+</html>

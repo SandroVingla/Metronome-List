@@ -3,14 +3,14 @@
   <!-- Página Principal -->
   <url>
     <loc>https://metronome-list.netlify.app/</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
     <loc>https://metronome-list.netlify.app/index.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -18,50 +18,149 @@
   <!-- Páginas Importantes -->
   <url>
     <loc>https://metronome-list.netlify.app/guia-completo.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://metronome-list.netlify.app/rotina-pratica-30-dias.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <loc>https://metronome-list.netlify.app/blog/rotina-pratica-30-dias.html</loc>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://metronome-list.netlify.app/como-usar.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://metronome-list.netlify.app/blog.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/tuner.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Artigos do Blog -->
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/guia-completo.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/erros-comuns-metronomo.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/bpm-musicas-brasileiras.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/praticar-samba-metronomo.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/metronomo-vs-bateria-programada.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/direcao-musical.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/musicalizacao-infantil.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/musica-eletronica-orquestra.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/musicoterapia.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/afinacao-frequencias-referencia.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/tempo-vs-ritmo.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/johann-joseph-fux-estudo-do-contraponto.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/harmonia-musical.html</loc>
+    <lastmod>2026-05-02</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Páginas Secundárias -->
   <url>
     <loc>https://metronome-list.netlify.app/faq.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://metronome-list.netlify.app/sobre.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://metronome-list.netlify.app/privacy.html</loc>
-    <lastmod>2025-01-29</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>

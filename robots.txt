@@ -19,6 +19,10 @@ Allow: /
 # Não indexar arquivos de configuração ou temporários (se houver)
 Disallow: /node_modules/
 Disallow: /.git/
+Disallow: /.DS_Store
+Disallow: /backupBlog/
+Disallow: /files.zip
+Disallow: /indexnovo.html
 Disallow: /*.json$
 
 # Sitemap
