@@ -132,8 +132,8 @@
     display: none;
   }
 
-  .tuner-shell:fullscreen,
-  .tuner-shell:-webkit-full-screen {
+  /* Fullscreen — standard (Chrome, Firefox) */
+  .tuner-shell:fullscreen {
     width: 100%;
     max-width: none;
     height: 100%;
@@ -148,9 +148,26 @@
     background: radial-gradient(circle at top, #1e293b 0%, #020617 72%);
     overflow: auto;
   }
+  /* Fullscreen — webkit (Safari) — bloco separado para não contaminar outros browsers */
+  .tuner-shell:-webkit-full-screen {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px;
+    border-radius: 0;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, #1e293b 0%, #020617 72%);
+    overflow: auto;
+  }
 
-  .tuner-shell:fullscreen .tuner-stage,
-  .tuner-shell:-webkit-full-screen .tuner-stage {
+  .tuner-shell:fullscreen .tuner-stage {
     width: 100%;
     max-width: 1280px;
     min-height: 100%;
@@ -158,17 +175,28 @@
     justify-content: center;
     position: relative;
   }
+  .tuner-shell:-webkit-full-screen .tuner-stage {
+    width: 100%;
+    max-width: 1280px;
+    min-height: 100%;
+    gap: 24px;
+    -webkit-box-pack: center;
+    justify-content: center;
+    position: relative;
+  }
 
   .tuner-shell:fullscreen .tuner-stage-toolbar,
+  .tuner-shell:fullscreen .controls {
+    width: 100%;
+    max-width: 1120px;
+  }
   .tuner-shell:-webkit-full-screen .tuner-stage-toolbar,
-  .tuner-shell:fullscreen .controls,
   .tuner-shell:-webkit-full-screen .controls {
     width: 100%;
     max-width: 1120px;
   }
 
-  .tuner-shell:fullscreen .tuner-stage-toolbar,
-  .tuner-shell:-webkit-full-screen .tuner-stage-toolbar {
+  .tuner-shell:fullscreen .tuner-stage-toolbar {
     position: absolute;
     top: 0;
     left: 50%;
@@ -176,15 +204,30 @@
     z-index: 2;
     padding-top: 8px;
   }
+  .tuner-shell:-webkit-full-screen .tuner-stage-toolbar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    z-index: 2;
+    padding-top: 8px;
+  }
 
-  .tuner-shell:fullscreen #tuner-svg,
-  .tuner-shell:-webkit-full-screen #tuner-svg {
+  .tuner-shell:fullscreen #tuner-svg {
     width: min(1400px, calc(100vw - 48px));
     max-width: none;
     max-height: min(78vh, calc(100dvh - 180px));
   }
+  .tuner-shell:-webkit-full-screen #tuner-svg {
+    width: min(1400px, calc(100vw - 48px));
+    max-width: none;
+    max-height: calc(100vh - 180px);
+  }
 
-  .tuner-shell:fullscreen #hz-menu,
+  .tuner-shell:fullscreen #hz-menu {
+    max-width: min(1400px, calc(100vw - 48px)) !important;
+  }
   .tuner-shell:-webkit-full-screen #hz-menu {
     max-width: min(1400px, calc(100vw - 48px)) !important;
   }
@@ -192,6 +235,8 @@
   #tuner-svg {
     width: 100%;
     max-width: 780px;
+    height: auto; /* obrigatório para Firefox e Safari respeitarem o aspect-ratio do viewBox */
+    display: block; /* remove espaço inline fantasma em alguns browsers */
     filter: drop-shadow(0 8px 32px rgba(0,0,0,0.8));
     cursor: default;
   }
@@ -205,6 +250,8 @@
   .controls {
     display: flex; gap: 12px; flex-wrap: wrap;
     justify-content: center; align-items: center;
+    width: 100%; max-width: 780px;
+    box-sizing: border-box;
   }
   .ctrl-btn {
     padding: 8px 22px; border: none; border-radius: 5px;
@@ -220,12 +267,15 @@
   #status {
     font-size:13px; color:#cbd5e1;
     font-family:'Arial Narrow',Arial,sans-serif;
-    min-width:300px; text-align:center;
+    min-width:0; /* permite encolher em flex containers no Firefox/Safari */
+    max-width:400px;
+    text-align:center;
   }
 
   #server-tip {
     display:none; max-width:780px;
     width: 100%;
+    box-sizing: border-box; /* garante que padding não extrapole no Firefox */
     background:#1e293b; border:1px solid #475569;
     border-radius:8px; padding:16px 20px;
     font-family:'Arial Narrow',Arial,sans-serif;
@@ -325,28 +375,48 @@
       justify-content: center;
     }
 
-    .tuner-shell:fullscreen,
-    .tuner-shell:-webkit-full-screen {
+    /* Mobile fullscreen — standard */
+    .tuner-shell:fullscreen {
       padding: 16px 10px 24px;
       align-items: flex-start;
       overflow-y: auto;
     }
+    /* Mobile fullscreen — webkit */
+    .tuner-shell:-webkit-full-screen {
+      padding: 16px 10px 24px;
+      -webkit-box-align: start;
+      align-items: flex-start;
+      overflow-y: auto;
+    }
 
-    .tuner-shell:fullscreen .tuner-stage,
-    .tuner-shell:-webkit-full-screen .tuner-stage {
+    .tuner-shell:fullscreen .tuner-stage {
       min-height: auto;
       justify-content: flex-start;
     }
+    .tuner-shell:-webkit-full-screen .tuner-stage {
+      min-height: auto;
+      -webkit-box-pack: start;
+      justify-content: flex-start;
+    }
 
-    .tuner-shell:fullscreen .tuner-stage-toolbar,
-    .tuner-shell:-webkit-full-screen .tuner-stage-toolbar {
+    .tuner-shell:fullscreen .tuner-stage-toolbar {
       position: static;
       left: auto;
       transform: none;
       padding-top: 0;
     }
+    .tuner-shell:-webkit-full-screen .tuner-stage-toolbar {
+      position: static;
+      left: auto;
+      -webkit-transform: none;
+      transform: none;
+      padding-top: 0;
+    }
 
-    .tuner-shell:fullscreen #tuner-svg,
+    .tuner-shell:fullscreen #tuner-svg {
+      width: 100%;
+      max-height: none;
+    }
     .tuner-shell:-webkit-full-screen #tuner-svg {
       width: 100%;
       max-height: none;
