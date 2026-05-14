@@ -56,9 +56,19 @@ function getPadState(id) {
             audioEl: null,
             gainNode: null,
             sourceConnected: false,
+            stopTimeoutId: null,
+            customStopTimeoutId: null,
         };
     }
     return padState[id];
+}
+
+function clearPadStopTimeout(ps, isCustom = false) {
+    const timeoutKey = isCustom ? 'customStopTimeoutId' : 'stopTimeoutId';
+    if (ps[timeoutKey]) {
+        clearTimeout(ps[timeoutKey]);
+        ps[timeoutKey] = null;
+    }
 }
 
 function getPadAudioPath(note) {
@@ -75,6 +85,7 @@ function loadPadAudio(id) {
 
     // Para e descarta o anterior
     if (ps.audioEl) {
+        clearPadStopTimeout(ps);
         ps.audioEl.pause();
         ps.audioEl = null;
         ps.gainNode = null;
@@ -99,6 +110,7 @@ function startPad(id) {
     } else {
         loadPadAudio(id);
         if (!ps.audioEl) return;
+        clearPadStopTimeout(ps);
 
         if (!ps.sourceConnected && audioContext) {
             try {
@@ -127,30 +139,42 @@ function startPad(id) {
 function stopPad(id, fadeOut = true) {
     const ps = getPadState(id);
 
-    function doStop(audioEl, gainNode) {
+    function doStop(audioEl, gainNode, isCustom = false) {
         if (!audioEl) return;
+        clearPadStopTimeout(ps, isCustom);
         if (fadeOut && gainNode && audioContext) {
             gainNode.gain.cancelScheduledValues(audioContext.currentTime);
             gainNode.gain.setValueAtTime(gainNode.gain.value, audioContext.currentTime);
             gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + PAD_FADE_OUT_S);
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 audioEl.pause();
                 audioEl.currentTime = 0;
+                if (isCustom) {
+                    ps.customStopTimeoutId = null;
+                } else {
+                    ps.stopTimeoutId = null;
+                }
             }, PAD_FADE_OUT_S * 1000);
+            if (isCustom) {
+                ps.customStopTimeoutId = timeoutId;
+            } else {
+                ps.stopTimeoutId = timeoutId;
+            }
         } else {
             audioEl.pause();
             audioEl.currentTime = 0;
         }
     }
 
-    doStop(ps.customAudioEl, ps.customGainNode);
-    doStop(ps.audioEl, ps.gainNode);
+    doStop(ps.customAudioEl, ps.customGainNode, true);
+    doStop(ps.audioEl, ps.gainNode, false);
     updatePadIndicator(id, false);
 }
 
 function startCustomPad(id) {
     const ps = getPadState(id);
     if (!ps.customAudioEl) return;
+    clearPadStopTimeout(ps, true);
 
     if (!ps.customSourceConnected && audioContext) {
         try {
@@ -180,6 +204,7 @@ function padHandleFile(id, file) {
 
     // Descarta arquivo anterior
     if (ps.customAudioEl) {
+        clearPadStopTimeout(ps, true);
         ps.customAudioEl.pause();
         ps.customAudioEl = null;
         ps.customGainNode = null;
@@ -211,6 +236,7 @@ function padHandleFile(id, file) {
 function padRemoveFile(id) {
     const ps = getPadState(id);
     if (ps.customAudioEl) {
+        clearPadStopTimeout(ps, true);
         ps.customAudioEl.pause();
         ps.customAudioEl = null;
         ps.customGainNode = null;
@@ -228,14 +254,14 @@ function padRemoveFile(id) {
 }
 
 function updatePadIndicator(id, isPlaying) {
-    const sel = document.querySelector(`.pad-note-select[data-pad-id="${id}"]`);
-    if (!sel) return;
+    const trigger = document.getElementById('pad-trigger-' + id);
+    if (!trigger) return;
     if (isPlaying) {
-        sel.style.borderColor = '#a78bfa';
-        sel.style.boxShadow = '0 0 6px rgba(167,139,250,0.5)';
+        trigger.style.borderColor = '#a78bfa';
+        trigger.style.boxShadow = '0 0 0 1px rgba(167,139,250,0.35), 0 0 18px rgba(167,139,250,0.18)';
     } else {
-        sel.style.borderColor = '';
-        sel.style.boxShadow = '';
+        trigger.style.borderColor = '';
+        trigger.style.boxShadow = '';
     }
 }
 
@@ -249,7 +275,9 @@ function togglePadPanel(id) {
 
 function setPadNote(id, note) {
     const ps = getPadState(id);
-    const wasPlaying = ps.audioEl && !ps.audioEl.paused;
+    const wasDefaultPlaying = !!ps.audioEl && !ps.audioEl.paused;
+    const wasCustomPlaying = !!ps.customAudioEl && !ps.customAudioEl.paused;
+    const wasPlaying = wasDefaultPlaying || wasCustomPlaying;
 
     // Para o atual com fade rápido se estiver tocando
     if (wasPlaying) stopPad(id);
@@ -264,8 +292,14 @@ function setPadNote(id, note) {
     // Retoma se estava tocando
     const metro = metronomes.find(m => m.id === id);
     if (wasPlaying && metro && metro.isPlaying && ps.enabled) {
-        startPad(id);
+        if (wasCustomPlaying && ps.customAudioEl) {
+            startCustomPad(id);
+        } else {
+            startPad(id);
+        }
     }
+
+    updatePadNoteUI(id);
 
     // Persiste a mudança de tom
     saveLastConfig();
@@ -280,11 +314,7 @@ function setPadEnabled(id, enabled) {
     const ps = getPadState(id);
     ps.enabled = enabled;
 
-    const toggleBtn = document.getElementById('pad-toggle-' + id);
-    if (toggleBtn) {
-        toggleBtn.textContent = enabled ? '🟣 ON' : '⚫ OFF';
-        toggleBtn.className = 'pad-toggle-btn' + (enabled ? ' pad-toggle-on' : '');
-    }
+    syncPadEnabledUI(id);
 
     const metro = metronomes.find(m => m.id === id);
     if (metro && metro.isPlaying) {
@@ -293,6 +323,15 @@ function setPadEnabled(id, enabled) {
     }
 
     saveLastConfig();
+}
+
+function syncPadEnabledUI(id) {
+    const ps = getPadState(id);
+    const toggleBtn = document.getElementById('pad-toggle-' + id);
+    if (toggleBtn) {
+        toggleBtn.textContent = ps.enabled ? 'ON' : 'OFF';
+        toggleBtn.className = 'pad-toggle-btn' + (ps.enabled ? ' pad-toggle-on' : '');
+    }
 }
 
 function setPadVolume(id, val) {
@@ -315,25 +354,47 @@ function buildPadNoteOptions() {
     ).join('');
 }
 
+function buildPadNoteGrid(id, selectedNote) {
+    return PAD_NOTES.map(note => `
+        <button class="pad-note-btn${selectedNote === note ? ' pad-note-btn-active' : ''}"
+                type="button"
+                data-pad-id="${id}"
+                data-note="${note}"
+                onclick="setPadNote(${id}, '${note}')">
+            ${PAD_NOTE_LABELS[note]}
+        </button>
+    `).join('');
+}
+
+function updatePadNoteUI(id) {
+    const ps = getPadState(id);
+    const triggerLabel = document.getElementById('pad-current-note-' + id);
+    if (triggerLabel) {
+        triggerLabel.textContent = PAD_NOTE_LABELS[ps.note] || ps.note;
+    }
+
+    document.querySelectorAll(`.pad-note-btn[data-pad-id="${id}"]`).forEach(btn => {
+        btn.classList.toggle('pad-note-btn-active', btn.dataset.note === ps.note);
+    });
+}
+
 function buildPadHTML(id) {
     const ps = getPadState(id);
-    const noteOpts = buildPadNoteOptions();
+    const noteGrid = buildPadNoteGrid(id, ps.note);
 
     return `
     <div class="pad-cell">
         <div class="pad-select-row">
-            <select class="pad-note-select" data-pad-id="${id}"
-                    onchange="setPadNote(${id}, this.value)"
-                    title="Tom do pad">
-                ${noteOpts}
-            </select>
+            <button class="pad-trigger-btn"
+                    id="pad-trigger-${id}"
+                    onclick="togglePadPanel(${id})"
+                    title="Selecionar tom do pad">
+                <span class="pad-trigger-note" id="pad-current-note-${id}">${PAD_NOTE_LABELS[ps.note]}</span>
+            </button>
             <button class="pad-toggle-btn${ps.enabled ? ' pad-toggle-on' : ''}"
                     id="pad-toggle-${id}"
                     onclick="togglePadEnabled(${id})"
-                    title="Ativar/desativar pad">${ps.enabled ? '🟣 ON' : '⚫ OFF'}</button>
-            <button class="pad-panel-btn"
-                    onclick="togglePadPanel(${id})"
-                    title="Configurações do pad">🔊</button>
+                    title="Ativar/desativar pad">${ps.enabled ? 'ON' : 'OFF'}</button>
         </div>
 
         <div class="pad-panel" id="pad-panel-${id}" data-pad-id="${id}">
@@ -342,6 +403,11 @@ function buildPadHTML(id) {
                 <div class="pad-panel-toprow">
                     <span class="pad-panel-title">🎹 Pad Contínuo <span class="pad-stereo-badge">⟷ STEREO</span></span>
                     <button class="pad-panel-close" onclick="togglePadPanel(${id})">✕</button>
+                </div>
+
+                <div class="pad-section-label">Tom</div>
+                <div class="pad-note-grid">
+                    ${noteGrid}
                 </div>
 
                 <div class="pad-section-label">Volume</div>
@@ -359,7 +425,11 @@ function buildPadHTML(id) {
                      ondrop="event.preventDefault();this.classList.remove('pad-drop-hover');padHandleFile(${id}, event.dataTransfer.files[0])">
                     <input type="file" id="pad-file-input-${id}" accept="audio/*" style="display:none"
                            onchange="padHandleFile(${id}, this.files[0])">
-                    🎵 Carregar MP3/WAV próprio
+                    <span class="pad-drop-icon">🎵</span>
+                    <span class="pad-drop-copy">
+                        <span class="pad-drop-title">Usar arquivo proprio</span>
+                        <span class="pad-drop-subtitle">MP3 ou WAV para este pad</span>
+                    </span>
                 </div>
                 <div id="pad-file-info-${id}" class="pad-file-info" style="display:none">
                     <span class="pad-file-name" id="pad-file-name-${id}">—</span>
@@ -1100,8 +1170,7 @@ function updateMetronome(id, field, value) {
     metronome[field] = value;
 
     if (metronome.isPlaying && (field === 'bpm' || field === 'timeSignature')) {
-        stopMetronome(id);
-        startMetronome(id);
+        restartMetronomeInterval(id);
     }
 
     renderMetronomes();
@@ -1140,6 +1209,24 @@ function startMetronome(id) {
     playSound(metronome);
     updateBeatIndicator(id, 0);
 
+    intervals[id] = setInterval(() => {
+        metronome.currentBeat = (metronome.currentBeat + 1) % metronome.beats;
+        playSound(metronome);
+        updateBeatIndicator(id, metronome.currentBeat);
+    }, interval);
+
+    renderMetronomes();
+}
+
+function restartMetronomeInterval(id) {
+    const metronome = metronomes.find(m => m.id === id);
+    if (!metronome || !metronome.isPlaying) return;
+
+    if (intervals[id]) {
+        clearInterval(intervals[id]);
+    }
+
+    const interval = 60000 / metronome.bpm;
     intervals[id] = setInterval(() => {
         metronome.currentBeat = (metronome.currentBeat + 1) % metronome.beats;
         playSound(metronome);
@@ -1200,13 +1287,7 @@ function toggleDoubleClick() {
         }
         // Reinicia o intervalo se estiver tocando
         if (m.isPlaying) {
-            clearInterval(intervals[m.id]);
-            const interval = 60000 / m.bpm;
-            intervals[m.id] = setInterval(() => {
-                m.currentBeat = (m.currentBeat + 1) % m.beats;
-                playSound(m);
-                updateBeatIndicator(m.id, m.currentBeat);
-            }, interval);
+            restartMetronomeInterval(m.id);
         }
     });
 
@@ -1484,13 +1565,9 @@ function renderMetronomes() {
         `;
 
         list.appendChild(item);
-
-        // Restaurar valor selecionado do pad note select
-        const padSel = item.querySelector('.pad-note-select');
-        if (padSel) {
-            const ps = getPadState(m.id);
-            padSel.value = ps.note;
-        }
+        updatePadNoteUI(m.id);
+        syncPadEnabledUI(m.id);
+        updatePadIndicator(m.id, m.isPlaying && getPadState(m.id).enabled);
     });
 }
 
