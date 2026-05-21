@@ -116,6 +116,10 @@ function startPad(id) {
     const ps = getPadState(id);
     if (!ps.enabled) return;
 
+    // Cancela qualquer stop/fade pendente antes de iniciar
+    clearPadStopTimeout(ps, false);
+    clearPadStopTimeout(ps, true);
+
     if (ps.customAudioEl) {
         startCustomPad(id);
     } else {
@@ -1500,7 +1504,22 @@ function updateMetronome(id, field, value) {
         restartMetronomeInterval(id);
     }
 
-    renderMetronomes();
+    // Atualiza somente o que mudou no DOM, sem recriar tudo
+    if (field === 'timeSignature' || field === 'beats') {
+        // Precisa recriar só os beat indicators
+        const item = document.querySelector('[data-id="' + id + '"]');
+        if (item) {
+            const container = item.querySelector('.beat-indicators');
+            if (container) {
+                let html = '';
+                for (let i = 0; i < metronome.beats; i++) {
+                    html += '<div class="beat-dot"></div>';
+                }
+                container.innerHTML = html;
+            }
+        }
+    }
+
     saveLastConfig();
 }
 
@@ -1521,6 +1540,8 @@ function startMetronome(id) {
 
     metronomes.forEach(m => {
         if (m.id !== id && m.isPlaying) {
+            // Para o pad imediatamente antes de parar o metrônomo
+            stopPad(m.id, false);
             stopMetronome(m.id);
             updateMetronomeItemUI(m.id);
         }
@@ -1577,8 +1598,8 @@ function stopMetronome(id) {
     metronome.currentBeat = 0;
     updateBeatIndicator(id, -1);
 
-    // Parar pad contínuo
-    stopPad(id);
+    // Parar pad imediatamente (sem fade) para evitar conflito ao trocar metrônomo
+    stopPad(id, false);
 
     updateMetronomeItemUI(id);
 }
