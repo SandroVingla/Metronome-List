@@ -1513,6 +1513,7 @@ function startMetronome(id) {
     metronomes.forEach(m => {
         if (m.id !== id && m.isPlaying) {
             stopMetronome(m.id);
+            updateMetronomeItemUI(m.id);
         }
     });
 
