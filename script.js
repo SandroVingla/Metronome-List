@@ -1533,7 +1533,7 @@ function startMetronome(id) {
         updateBeatIndicator(id, metronome.currentBeat);
     }, interval);
 
-    renderMetronomes();
+    updateMetronomeItemUI(id);
 }
 
 function restartMetronomeInterval(id) {
@@ -1551,7 +1551,7 @@ function restartMetronomeInterval(id) {
         updateBeatIndicator(id, metronome.currentBeat);
     }, interval);
 
-    renderMetronomes();
+    updateMetronomeItemUI(id);
 }
 
 function stopMetronome(id) {
@@ -1570,7 +1570,7 @@ function stopMetronome(id) {
     // Parar pad contínuo
     stopPad(id);
 
-    renderMetronomes();
+    updateMetronomeItemUI(id);
 }
 
 function toggleClickMute() {
@@ -1821,6 +1821,23 @@ function updateBeatIndicator(id, currentBeat) {
             dot.className = 'beat-dot ' + ((index === 0 && globalAccentEnabled) ? 'accent' : 'active');
         }
     });
+}
+
+function updateMetronomeItemUI(id) {
+    const metronome = metronomes.find(m => m.id === id);
+    if (!metronome) return;
+    const item = document.querySelector('[data-id="' + id + '"]');
+    if (!item) return;
+    const btn = item.querySelector('.play-btn');
+    if (btn) {
+        btn.className = 'play-btn ' + (metronome.isPlaying ? 'pause' : 'play');
+        btn.textContent = metronome.isPlaying ? '⏸' : '▶';
+    }
+    if (metronome.isPlaying) {
+        item.classList.add('playing');
+    } else {
+        item.classList.remove('playing');
+    }
 }
 
 function renderMetronomes() {
