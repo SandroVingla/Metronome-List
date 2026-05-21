@@ -1126,16 +1126,19 @@ async function loadSavedSetlists() {
             });
         }
 
-        const result = await storageList('setlist-', false);
-        if (result && result.keys) {
-            for (const key of result.keys) {
-                const data = await storageGet(key, false);
-                if (data && data.value) {
-                    savedSetlists.push({
-                        key: key,
-                        source: 'local',
-                        data: JSON.parse(data.value)
-                    });
+        // Só carrega local se não estiver logado na nuvem
+        if (!isCloudAvailable()) {
+            const result = await storageList('setlist-', false);
+            if (result && result.keys) {
+                for (const key of result.keys) {
+                    const data = await storageGet(key, false);
+                    if (data && data.value) {
+                        savedSetlists.push({
+                            key: key,
+                            source: 'local',
+                            data: JSON.parse(data.value)
+                        });
+                    }
                 }
             }
         }
@@ -1191,9 +1194,15 @@ async function loadSetlist(key, isShared = false) {
 
         if (setlistData) {
             
+            // Para tudo e limpa intervals antes de trocar os dados
             metronomes.forEach(m => {
-                if (m.isPlaying) stopMetronome(m.id);
+                if (intervals[m.id]) {
+                    clearInterval(intervals[m.id]);
+                    delete intervals[m.id];
+                }
+                stopPad(m.id);
             });
+            metronomes.forEach(m => { m.isPlaying = false; });
             
             metronomes = setlistData.metronomes.map(m => ({
                 ...m,
