@@ -1530,29 +1530,39 @@ function toggleMetronome(id) {
     if (metronome.isPlaying) {
         stopMetronome(id);
     } else {
+        // Força limpeza do estado antes de iniciar
+        metronome.isPlaying = false;
         startMetronome(id);
     }
 }
 
 function startMetronome(id) {
     const metronome = metronomes.find(m => m.id === id);
-    if (!metronome || metronome.isPlaying) return;
+    if (!metronome) return;
 
+    // Para outros metrônomos que estejam tocando
     metronomes.forEach(m => {
         if (m.id !== id && m.isPlaying) {
-            // Para o pad imediatamente antes de parar o metrônomo
             stopPad(m.id, false);
             stopMetronome(m.id);
             updateMetronomeItemUI(m.id);
         }
     });
 
+    // Garante que não há interval duplicado rodando para este id
+    if (intervals[id]) {
+        clearInterval(intervals[id]);
+        delete intervals[id];
+    }
+
+    // Para o pad anterior sem fade antes de reiniciar
+    stopPad(id, false);
+
     metronome.isPlaying = true;
     metronome.currentBeat = 0;
 
     const interval = 60000 / metronome.bpm;
 
-    // Iniciar pad contínuo se habilitado
     startPad(id);
 
     playSound(metronome);
