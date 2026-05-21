@@ -164,7 +164,43 @@
                 <li><a href="faq.html">FAQ</a></li>
                 <li><a href="tuner.html">Afinador</a></li>
             </ul>
-            <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+            <div class="nav-actions">
+                <div class="account-menu">
+                    <button class="nav-account-btn" id="accountMenuButton" onclick="toggleAccountMenu()" type="button" aria-expanded="false">
+                        <span class="nav-account-avatar" id="accountAvatar">ML</span>
+                        <span class="nav-account-copy">
+                            <strong id="accountButtonLabel">Minha Conta</strong>
+                            <small id="accountButtonStatus">Login com Google</small>
+                        </span>
+                    </button>
+
+                    <div class="account-dropdown" id="accountDropdown">
+                        <div class="account-dropdown-header">
+                            <span class="account-sync-badge" id="accountSyncBadge">Local</span>
+                            <strong id="accountPanelTitle">Cadastro e login com Google</strong>
+                            <p id="accountPanelSubtitle">Entre para salvar seus setlists na nuvem e acessar em qualquer dispositivo.</p>
+                        </div>
+
+                        <div class="account-user" id="accountUserInfo" hidden>
+                            <span class="account-user-avatar" id="accountUserAvatar">ML</span>
+                            <div>
+                                <strong id="accountUserName">Visitante</strong>
+                                <small id="accountUserEmail">Seus setlists ficam apenas neste navegador.</small>
+                            </div>
+                        </div>
+
+                        <div class="account-dropdown-actions">
+                            <button class="account-primary-btn" id="accountLoginButton" onclick="signInWithGoogle()" type="button">Entrar com Google</button>
+                            <button class="account-secondary-btn" id="accountSyncButton" onclick="refreshCloudSetlists()" type="button">Atualizar setlists</button>
+                            <button class="account-secondary-btn" id="accountLogoutButton" onclick="signOutUser()" type="button" hidden>Sair</button>
+                        </div>
+
+                        <p class="account-dropdown-note" id="accountDropdownNote">Sem login, os setlists continuam salvos só no navegador atual.</p>
+                    </div>
+                </div>
+
+                <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+            </div>
         </div>
     </nav>
 
@@ -326,7 +362,10 @@
         <div class="setlist-manager">
             <div class="setlist-header">
                 <h2>📋 Gerenciador de Setlists</h2>
-                <button class="toggle-setlists" onclick="toggleSetlistManager()">▼</button>
+                <div class="setlist-header-actions">
+                    <span class="setlist-sync-status" id="setlistSyncStatus">Setlists locais neste navegador</span>
+                    <button class="toggle-setlists" onclick="toggleSetlistManager()">▼</button>
+                </div>
             </div>
             <div id="setlistManager" class="setlist-content"></div>
         </div>
@@ -621,13 +660,36 @@
         <p class="social-links"><strong>Siga nas redes:</strong> <span class="social-icons"><a class="social-icon social-icon--tiktok" href="https://tiktok.com/@metronomeliststud3" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3c.34 1.86 1.47 3.54 3 4.46A6.9 6.9 0 0 0 21 8.5V12a10.7 10.7 0 0 1-4-.79V16.3a5.8 5.8 0 1 1-5.8-5.8c.33 0 .65.03.96.08v3.28a2.6 2.6 0 1 0 1.84 2.49V3z"/></svg></a><a class="social-icon social-icon--kwai" href="https://kwaivideo.com/u/@metronomeliststudio/s3xx8CDN" target="_blank" rel="noopener noreferrer" aria-label="Kwai" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4A3.5 3.5 0 0 1 11 7.5V9h2V7.5A3.5 3.5 0 1 1 16.5 11H15v2h1.5A3.5 3.5 0 1 1 13 16.5V15h-2v1.5A3.5 3.5 0 1 1 7.5 13H9v-2H7.5A3.5 3.5 0 1 1 7.5 4Zm0 2A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 6Zm9 0A1.5 1.5 0 1 0 18 7.5 1.5 1.5 0 0 0 16.5 6Zm-9 8A1.5 1.5 0 1 0 9 15.5 1.5 1.5 0 0 0 7.5 14Zm9 0a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5ZM12 10.5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"/></svg></a><a class="social-icon social-icon--youtube" href="https://www.youtube.com/@metronomeliststudio" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.97 2.97 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5a2.97 2.97 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 2.97 2.97 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a2.97 2.97 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5Z"/></svg></a><a class="social-icon social-icon--instagram" href="https://www.instagram.com/metronome_list_studio?igsh=dzk0b3BzYndyMDBj" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2A3 3 0 0 0 4 7v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5ZM17.75 6.5a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg></a></span></p>
     </footer>
 
+    <script>
+        window.METRONOME_FIREBASE_CONFIG = window.METRONOME_FIREBASE_CONFIG || {
+            apiKey: "AIzaSyAT-2gV4dUFJ2TKKqhD040ml2PIWnhD1DU",
+            authDomain: "metronome-list-web.firebaseapp.com",
+            projectId: "metronome-list-web",
+            appId: "1:6002613587:web:2f6891091f75cc71c115a6",
+            storageBucket: "metronome-list-web.firebasestorage.app",
+            messagingSenderId: "6002613587"
+        };
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
     <script>
         function toggleMenu() {
             const navMenu = document.querySelector('.nav-menu');
             navMenu.classList.toggle('active');
         }
-        
+
+        function toggleAccountMenu(forceState) {
+            const dropdown = document.getElementById('accountDropdown');
+            const button = document.getElementById('accountMenuButton');
+            if (!dropdown || !button) return;
+
+            const willOpen = typeof forceState === 'boolean' ? forceState : !dropdown.classList.contains('open');
+            dropdown.classList.toggle('open', willOpen);
+            button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        }
+
         function toggleSetlistManager() {
             const content = document.getElementById('setlistManager');
             const button = document.querySelector('.toggle-setlists');
@@ -733,6 +795,12 @@
 
         // Inicializar animações quando página carregar
         window.addEventListener('load', initScrollAnimations);
+
+        document.addEventListener('click', function(event) {
+            const accountMenu = document.querySelector('.account-menu');
+            if (!accountMenu || accountMenu.contains(event.target)) return;
+            toggleAccountMenu(false);
+        });
     </script>
 
     <script>

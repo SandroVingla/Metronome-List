@@ -11,6 +11,17 @@ let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
 let sharedSetlists = [];
+let firebaseApp = null;
+let firebaseAuth = null;
+let firestoreDb = null;
+let googleProvider = null;
+let currentUser = null;
+let firebaseConfigured = false;
+let authInitialized = false;
+let authReadyResolver = null;
+const authReadyPromise = new Promise(resolve => {
+    authReadyResolver = resolve;
+});
 
 // Variáveis para Tap Tempo
 let tapTimes = [];
@@ -275,9 +286,7 @@ function togglePadPanel(id) {
 
 function setPadNote(id, note) {
     const ps = getPadState(id);
-    const wasDefaultPlaying = !!ps.audioEl && !ps.audioEl.paused;
-    const wasCustomPlaying = !!ps.customAudioEl && !ps.customAudioEl.paused;
-    const wasPlaying = wasDefaultPlaying || wasCustomPlaying;
+    const wasPlaying = (!!ps.audioEl && !ps.audioEl.paused) || (!!ps.customAudioEl && !ps.customAudioEl.paused);
 
     // Para o atual com fade rápido se estiver tocando
     if (wasPlaying) stopPad(id);
@@ -292,11 +301,7 @@ function setPadNote(id, note) {
     // Retoma se estava tocando
     const metro = metronomes.find(m => m.id === id);
     if (wasPlaying && metro && metro.isPlaying && ps.enabled) {
-        if (wasCustomPlaying && ps.customAudioEl) {
-            startCustomPad(id);
-        } else {
-            startPad(id);
-        }
+        startPad(id);
     }
 
     updatePadNoteUI(id);
@@ -331,6 +336,12 @@ function syncPadEnabledUI(id) {
     if (toggleBtn) {
         toggleBtn.textContent = ps.enabled ? 'ON' : 'OFF';
         toggleBtn.className = 'pad-toggle-btn' + (ps.enabled ? ' pad-toggle-on' : '');
+    }
+
+    const statusChip = document.getElementById('pad-status-' + id);
+    if (statusChip) {
+        statusChip.textContent = ps.enabled ? 'ON' : 'OFF';
+        statusChip.className = 'pad-status-chip' + (ps.enabled ? ' pad-status-on' : '');
     }
 }
 
@@ -446,6 +457,194 @@ function buildPadHTML(id) {
 // Variável para lembrar último metrônomo usado com espaço
 let lastSpacebarMetronome = null;
 
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getInitials(name) {
+    const cleanName = (name || 'Minha Conta').trim();
+    const parts = cleanName.split(/\s+/).filter(Boolean).slice(0, 2);
+    if (parts.length === 0) return 'ML';
+    return parts.map(part => part[0].toUpperCase()).join('');
+}
+
+function buildAvatarMarkup(user, fallbackText) {
+    if (user && user.photoURL) {
+        return `<img src="${escapeHtml(user.photoURL)}" alt="${escapeHtml(user.displayName || 'Usuário')}">`;
+    }
+    return escapeHtml(fallbackText);
+}
+
+function getFirebaseConfig() {
+    return window.METRONOME_FIREBASE_CONFIG || {};
+}
+
+function isFirebaseConfigValid(config) {
+    const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
+    return requiredKeys.every(key => {
+        const value = config[key];
+        return typeof value === 'string' && value.trim() !== '';
+    });
+}
+
+function isCloudAvailable() {
+    return firebaseConfigured && !!firebaseAuth && !!firestoreDb && !!currentUser;
+}
+
+function getSetlistsCollection() {
+    if (!isCloudAvailable()) return null;
+    return firestoreDb.collection('users').doc(currentUser.uid).collection('setlists');
+}
+
+function getSyncStatusText() {
+    if (isCloudAvailable()) return 'Setlists sincronizados na nuvem';
+    if (firebaseConfigured) return 'Entre com Google para sincronizar na nuvem';
+    return 'Setlists locais neste navegador';
+}
+
+function setAccountAvatar(el, user, fallbackText) {
+    if (!el) return;
+    el.innerHTML = buildAvatarMarkup(user, fallbackText);
+}
+
+function updateAccountUI() {
+    const buttonLabel = document.getElementById('accountButtonLabel');
+    const buttonStatus = document.getElementById('accountButtonStatus');
+    const syncBadge = document.getElementById('accountSyncBadge');
+    const panelTitle = document.getElementById('accountPanelTitle');
+    const panelSubtitle = document.getElementById('accountPanelSubtitle');
+    const userInfo = document.getElementById('accountUserInfo');
+    const userName = document.getElementById('accountUserName');
+    const userEmail = document.getElementById('accountUserEmail');
+    const loginButton = document.getElementById('accountLoginButton');
+    const logoutButton = document.getElementById('accountLogoutButton');
+    const syncButton = document.getElementById('accountSyncButton');
+    const dropdownNote = document.getElementById('accountDropdownNote');
+    const syncStatus = document.getElementById('setlistSyncStatus');
+    const accountAvatar = document.getElementById('accountAvatar');
+    const accountUserAvatar = document.getElementById('accountUserAvatar');
+
+    if (syncStatus) syncStatus.textContent = getSyncStatusText();
+
+    if (!firebaseConfigured) {
+        if (buttonLabel) buttonLabel.textContent = 'Minha Conta';
+        if (buttonStatus) buttonStatus.textContent = 'Configure o Firebase';
+        if (syncBadge) {
+            syncBadge.textContent = 'Local';
+            syncBadge.className = 'account-sync-badge warning';
+        }
+        if (panelTitle) panelTitle.textContent = 'Ative login com Google';
+        if (panelSubtitle) panelSubtitle.textContent = 'Preencha a configuração do Firebase para liberar cadastro, login e setlists na nuvem.';
+        if (dropdownNote) dropdownNote.textContent = 'Enquanto isso, o app continua salvando tudo localmente neste navegador.';
+        if (loginButton) {
+            loginButton.textContent = 'Firebase não configurado';
+            loginButton.disabled = true;
+        }
+        if (logoutButton) logoutButton.hidden = true;
+        if (syncButton) syncButton.hidden = true;
+        if (userInfo) userInfo.hidden = true;
+        setAccountAvatar(accountAvatar, null, 'ML');
+        setAccountAvatar(accountUserAvatar, null, 'ML');
+        return;
+    }
+
+    if (!currentUser) {
+        if (buttonLabel) buttonLabel.textContent = 'Minha Conta';
+        if (buttonStatus) buttonStatus.textContent = 'Login com Google';
+        if (syncBadge) {
+            syncBadge.textContent = 'Local';
+            syncBadge.className = 'account-sync-badge';
+        }
+        if (panelTitle) panelTitle.textContent = 'Cadastro e login com Google';
+        if (panelSubtitle) panelSubtitle.textContent = 'Entre para salvar seus setlists na nuvem e acessar em qualquer dispositivo.';
+        if (dropdownNote) dropdownNote.textContent = 'Sem login, os setlists continuam salvos só no navegador atual.';
+        if (loginButton) {
+            loginButton.textContent = 'Entrar com Google';
+            loginButton.disabled = false;
+            loginButton.hidden = false;
+        }
+        if (logoutButton) logoutButton.hidden = true;
+        if (syncButton) {
+            syncButton.hidden = false;
+            syncButton.textContent = 'Atualizar setlists';
+        }
+        if (userInfo) userInfo.hidden = true;
+        setAccountAvatar(accountAvatar, null, 'ML');
+        setAccountAvatar(accountUserAvatar, null, 'ML');
+        return;
+    }
+
+    const displayName = currentUser.displayName || 'Minha Conta';
+    const fallbackText = getInitials(displayName);
+    if (buttonLabel) buttonLabel.textContent = displayName;
+    if (buttonStatus) buttonStatus.textContent = 'Google conectado';
+    if (syncBadge) {
+        syncBadge.textContent = 'Nuvem';
+        syncBadge.className = 'account-sync-badge cloud';
+    }
+    if (panelTitle) panelTitle.textContent = 'Minha Conta';
+    if (panelSubtitle) panelSubtitle.textContent = 'Seus setlists novos passam a ser salvos automaticamente na nuvem.';
+    if (dropdownNote) dropdownNote.textContent = 'Os setlists locais existentes sao enviados para a nuvem no primeiro login.';
+    if (loginButton) loginButton.hidden = true;
+    if (logoutButton) logoutButton.hidden = false;
+    if (syncButton) {
+        syncButton.hidden = false;
+        syncButton.textContent = 'Atualizar setlists da nuvem';
+    }
+    if (userInfo) userInfo.hidden = false;
+    if (userName) userName.textContent = displayName;
+    if (userEmail) userEmail.textContent = currentUser.email || 'Conta Google conectada';
+    setAccountAvatar(accountAvatar, currentUser, fallbackText);
+    setAccountAvatar(accountUserAvatar, currentUser, fallbackText);
+}
+
+async function initializeFirebase() {
+    const config = getFirebaseConfig();
+    if (!window.firebase || !isFirebaseConfigValid(config)) {
+        firebaseConfigured = false;
+        authInitialized = true;
+        updateAccountUI();
+        if (authReadyResolver) authReadyResolver();
+        return;
+    }
+
+    try {
+        firebaseApp = window.firebase.apps && window.firebase.apps.length
+            ? window.firebase.app()
+            : window.firebase.initializeApp(config);
+        firebaseAuth = window.firebase.auth();
+        firestoreDb = window.firebase.firestore();
+        googleProvider = new window.firebase.auth.GoogleAuthProvider();
+        firebaseConfigured = true;
+
+        firebaseAuth.onAuthStateChanged(async user => {
+            currentUser = user || null;
+            updateAccountUI();
+            if (currentUser) {
+                await migrateLocalSetlistsToCloud();
+            }
+            await loadSavedSetlists();
+            renderSetlistManager();
+
+            if (!authInitialized) {
+                authInitialized = true;
+                if (authReadyResolver) authReadyResolver();
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao inicializar Firebase:', error);
+        firebaseConfigured = false;
+        authInitialized = true;
+        updateAccountUI();
+        if (authReadyResolver) authReadyResolver();
+    }
+}
+
 // Detectar se storage está disponível
 const hasClaudeStorage = typeof window.storage !== 'undefined';
 
@@ -509,6 +708,80 @@ async function storageList(prefix, shared = false) {
     }
 }
 
+async function signInWithGoogle() {
+    if (!firebaseConfigured || !firebaseAuth || !googleProvider) {
+        alert('Configure o Firebase para habilitar o login com Google.');
+        return;
+    }
+
+    try {
+        await firebaseAuth.signInWithPopup(googleProvider);
+        if (typeof toggleAccountMenu === 'function') toggleAccountMenu(false);
+    } catch (error) {
+        console.error('Erro no login com Google:', error);
+        alert('Nao foi possivel entrar com Google agora. Tente novamente.');
+    }
+}
+
+async function signOutUser() {
+    if (!firebaseAuth) return;
+
+    try {
+        await firebaseAuth.signOut();
+        if (typeof toggleAccountMenu === 'function') toggleAccountMenu(false);
+        alert('Voce saiu da sua conta.');
+    } catch (error) {
+        console.error('Erro ao sair:', error);
+        alert('Nao foi possivel sair da conta agora.');
+    }
+}
+
+async function refreshCloudSetlists() {
+    await loadSavedSetlists();
+    renderSetlistManager();
+    updateAccountUI();
+
+    if (isCloudAvailable()) {
+        alert('Setlists da nuvem atualizados.');
+    } else {
+        alert('Lista local atualizada.');
+    }
+}
+
+async function migrateLocalSetlistsToCloud() {
+    const collection = getSetlistsCollection();
+    if (!collection) return;
+
+    try {
+        const localResult = await storageList('setlist-', false);
+        const localKeys = (localResult && localResult.keys) ? localResult.keys : [];
+        if (localKeys.length === 0) return;
+
+        const existingSnapshot = await collection.get();
+        const importedKeys = new Set();
+        existingSnapshot.forEach(doc => {
+            const data = doc.data() || {};
+            if (data.importedFromLocalKey) {
+                importedKeys.add(data.importedFromLocalKey);
+            }
+        });
+
+        for (const key of localKeys) {
+            if (importedKeys.has(key)) continue;
+            const localEntry = await storageGet(key, false);
+            if (!localEntry || !localEntry.value) continue;
+
+            const data = JSON.parse(localEntry.value);
+            data.importedFromLocalKey = key;
+            data.ownerUid = currentUser.uid;
+            data.syncedAt = new Date().toISOString();
+            await collection.add(data);
+        }
+    } catch (error) {
+        console.error('Erro ao migrar setlists locais:', error);
+    }
+}
+
 // Inicializar
 async function init() {
     try {
@@ -526,6 +799,10 @@ async function init() {
                 audioContext.resume();
             }
         }, { once: true });
+
+        await initializeFirebase();
+        await authReadyPromise;
+        updateAccountUI();
 
         // Remover controle de volume (agora é fixo)
         // const volumeSlider = document.getElementById('volumeSlider');
@@ -776,12 +1053,19 @@ async function saveSetlist() {
             }
         };
 
-        const setlistId = 'setlist-' + Date.now();
-        await storageSet(setlistId, JSON.stringify(setlistData), false);
+        if (isCloudAvailable()) {
+            setlistData.ownerUid = currentUser.uid;
+            setlistData.syncedAt = new Date().toISOString();
+            await getSetlistsCollection().add(setlistData);
+        } else {
+            const setlistId = 'setlist-' + Date.now();
+            await storageSet(setlistId, JSON.stringify(setlistData), false);
+        }
         
         alert('Setlist "' + name + '" salvo!');
         await loadSavedSetlists();
         renderSetlistManager();
+        updateAccountUI();
     } catch (error) {
         alert('Erro: ' + error.message);
     }
@@ -829,20 +1113,34 @@ async function shareSetlist() {
 
 async function loadSavedSetlists() {
     try {
+        savedSetlists = [];
+
+        if (isCloudAvailable()) {
+            const snapshot = await getSetlistsCollection().orderBy('date', 'desc').get();
+            snapshot.forEach(doc => {
+                savedSetlists.push({
+                    key: 'cloud:' + doc.id,
+                    source: 'cloud',
+                    data: doc.data()
+                });
+            });
+        }
+
         const result = await storageList('setlist-', false);
         if (result && result.keys) {
-            savedSetlists = [];
             for (const key of result.keys) {
                 const data = await storageGet(key, false);
                 if (data && data.value) {
                     savedSetlists.push({
                         key: key,
+                        source: 'local',
                         data: JSON.parse(data.value)
                     });
                 }
             }
-            savedSetlists.sort((a, b) => new Date(b.data.date) - new Date(a.data.date));
         }
+
+        savedSetlists.sort((a, b) => new Date(b.data.date) - new Date(a.data.date));
     } catch (error) {
         console.log('Erro ao listar setlists:', error);
     }
@@ -876,9 +1174,22 @@ async function loadSharedSetlists() {
 
 async function loadSetlist(key, isShared = false) {
     try {
-        const result = await storageGet(key, isShared);
-        if (result && result.value) {
-            const setlistData = JSON.parse(result.value);
+        let setlistData = null;
+
+        if (!isShared && key.startsWith('cloud:') && isCloudAvailable()) {
+            const docId = key.replace('cloud:', '');
+            const doc = await getSetlistsCollection().doc(docId).get();
+            if (doc.exists) {
+                setlistData = doc.data();
+            }
+        } else {
+            const result = await storageGet(key, isShared);
+            if (result && result.value) {
+                setlistData = JSON.parse(result.value);
+            }
+        }
+
+        if (setlistData) {
             
             metronomes.forEach(m => {
                 if (m.isPlaying) stopMetronome(m.id);
@@ -938,7 +1249,12 @@ async function deleteSetlist(key) {
     if (!confirm('Deletar este setlist?')) return;
     
     try {
-        await storageDelete(key, false);
+        if (key.startsWith('cloud:') && isCloudAvailable()) {
+            const docId = key.replace('cloud:', '');
+            await getSetlistsCollection().doc(docId).delete();
+        } else {
+            await storageDelete(key, false);
+        }
         await loadSavedSetlists();
         renderSetlistManager();
         alert('Setlist deletado!');
@@ -1060,11 +1376,12 @@ function renderSetlistManager() {
     } else {
         savedSetlists.forEach(setlist => {
             const date = new Date(setlist.data.date).toLocaleDateString('pt-BR');
+            const storageLabel = setlist.source === 'cloud' ? 'Nuvem' : 'Local';
             html += `
                 <div class="setlist-item">
                     <div class="setlist-info">
-                        <strong>${setlist.data.name}</strong>
-                        <small>${setlist.data.metronomes.length} músicas • ${date}</small>
+                        <strong>${escapeHtml(setlist.data.name)}</strong>
+                        <small>${setlist.data.metronomes.length} músicas • ${date} • ${storageLabel}</small>
                     </div>
                     <div class="setlist-actions">
                         <button onclick="loadSetlist('${setlist.key}')" class="btn-load">Carregar</button>
@@ -1089,8 +1406,8 @@ function renderSetlistManager() {
             html += `
                 <div class="setlist-item shared">
                     <div class="setlist-info">
-                        <strong>${setlist.data.name}</strong>
-                        <small>Por ${setlist.data.author} • ${setlist.data.metronomes.length} músicas • ${date}</small>
+                        <strong>${escapeHtml(setlist.data.name)}</strong>
+                        <small>Por ${escapeHtml(setlist.data.author)} • ${setlist.data.metronomes.length} músicas • ${date}</small>
                     </div>
                     <div class="setlist-actions">
                         <button onclick="loadSetlist('${setlist.key}', true)" class="btn-load">Carregar</button>
@@ -1102,6 +1419,7 @@ function renderSetlistManager() {
     html += '</div>';
     
     container.innerHTML = html;
+    updateAccountUI();
 }
 
 function setGlobalChannel(channel) {

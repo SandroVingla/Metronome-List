@@ -141,6 +141,192 @@ body {
     align-items: center;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-menu {
+    position: relative;
+}
+
+.nav-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.78);
+    color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-account-btn:hover {
+    border-color: rgba(251, 191, 36, 0.5);
+    transform: translateY(-1px);
+}
+
+.nav-account-avatar,
+.account-user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #16a34a 0%, #0f766e 100%);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    overflow: hidden;
+}
+
+.nav-account-avatar img,
+.account-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav-account-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+}
+
+.nav-account-copy strong {
+    font-size: 0.92rem;
+}
+
+.nav-account-copy small {
+    color: #94a3b8;
+    font-size: 0.72rem;
+}
+
+.account-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(320px, calc(100vw - 24px));
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.98);
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 1200;
+}
+
+.account-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.account-dropdown-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.account-sync-badge {
+    align-self: flex-start;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.28);
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.account-sync-badge.cloud {
+    background: rgba(22, 163, 74, 0.2);
+    color: #86efac;
+}
+
+.account-sync-badge.warning {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fcd34d;
+}
+
+.account-dropdown-header strong {
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.account-dropdown-header p,
+.account-dropdown-note {
+    color: #94a3b8;
+    font-size: 0.88rem;
+}
+
+.account-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(30, 41, 59, 0.9);
+    margin-bottom: 14px;
+}
+
+.account-user strong {
+    display: block;
+    color: #ffffff;
+}
+
+.account-user small {
+    color: #94a3b8;
+}
+
+.account-dropdown-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.account-primary-btn,
+.account-secondary-btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.account-primary-btn {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: #ffffff;
+}
+
+.account-primary-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+.account-secondary-btn {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.account-secondary-btn:hover {
+    background: #475569;
+}
+
 .nav-logo {
     display: flex;
     align-items: center;
@@ -717,10 +903,22 @@ body {
     cursor: pointer;
 }
 
+.setlist-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .setlist-header h2 {
     color: #fff;
     font-size: 1.5rem;
     margin: 0;
+}
+
+.setlist-sync-status {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    text-align: right;
 }
 
 .toggle-setlists {
@@ -2257,6 +2455,23 @@ footer a:hover {
         left: 0;
     }
 
+    .nav-actions {
+        gap: 8px;
+    }
+
+    .nav-account-copy {
+        display: none;
+    }
+
+    .nav-account-btn {
+        padding: 6px;
+        border-radius: 12px;
+    }
+
+    .account-dropdown {
+        right: -6px;
+    }
+
     .nav-menu li {
         width: 100%;
     }
@@ -2551,10 +2766,21 @@ footer a:hover {
 
     .setlist-header {
         padding: 15px;
+        align-items: flex-start;
     }
 
     .setlist-header h2 {
         font-size: 1.2rem;
+    }
+
+    .setlist-header-actions {
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .setlist-sync-status {
+        max-width: 140px;
+        font-size: 0.74rem;
     }
 
     .setlist-content {
@@ -2610,6 +2836,14 @@ footer a:hover {
         display: block;
     }
 
+    .account-dropdown {
+        position: fixed;
+        top: 78px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+
     .nav-logo-mark {
         width: 38px;
         height: 38px;
@@ -2623,6 +2857,16 @@ footer a:hover {
     .nav-logo-subtitle {
         font-size: 0.68rem;
         letter-spacing: 0.14em;
+    }
+
+    .setlist-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .setlist-header-actions {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .intro-content {
@@ -2871,6 +3115,25 @@ footer a:hover {
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.02em;
+}
+
+.pad-status-chip {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.5);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    flex-shrink: 0;
+}
+
+.pad-status-chip.pad-status-on {
+    background: rgba(22, 163, 74, 0.16);
+    color: #86efac;
+    border-color: rgba(134, 239, 172, 0.35);
 }
 
 .pad-toggle-btn {
