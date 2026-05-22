@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isModerator() {
+      return signedIn() &&
+        request.auth.token.email == "metronomeliststudio@gmail.com";
+    }
+
+    match /blogArticles/{articleId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /likes/{userId} {
+        allow read: if true;
+        allow create: if signedIn() && request.auth.uid == userId;
+        allow delete: if signedIn() && request.auth.uid == userId;
+        allow update: if false;
+      }
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 2
+          && request.resource.data.text.size() <= 800;
+        allow delete: if isModerator()
+          || (signedIn() && resource.data.authorUid == request.auth.uid);
+        allow update: if false;
+      }
+    }
+  }
+}
