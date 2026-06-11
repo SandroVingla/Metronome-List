@@ -1505,6 +1505,13 @@ function updateMetronome(id, field, value) {
     }
 
     // Atualiza somente o que mudou no DOM, sem recriar tudo
+    if (field === 'bpm') {
+        const item = document.querySelector('[data-id="' + id + '"]');
+        if (item) {
+            const bpmInput = item.querySelector('.bpm-input');
+            if (bpmInput) bpmInput.value = metronome.bpm;
+        }
+    }
     if (field === 'timeSignature' || field === 'beats') {
         // Precisa recriar só os beat indicators
         const item = document.querySelector('[data-id="' + id + '"]');
