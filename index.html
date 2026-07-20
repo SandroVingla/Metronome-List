@@ -41,7 +41,12 @@
     <link rel="preload" href="style.css" as="style">
     <link rel="preload" href="script.js" as="script">
     <link rel="stylesheet" href="style.css">
-    
+
+    <!-- Fonte da cifra (letra/acordes) — mais legível que a mono genérica do sistema -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
     <!-- DNS Prefetch -->
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
     
@@ -272,8 +277,11 @@
         </div>
     </div>
     
+    <!-- Split layout wrapper -->
+    <div class="container-split-wrapper">
+
     <!-- Aplicação do Metrônomo -->
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="header">
             <div class="subtitle">
                 ⌨️ Use teclas 1-9 e 0 para tocar/pausar | Espaço para play/pause do metrônomo atual
@@ -369,8 +377,210 @@
             </div>
             <div id="setlistManager" class="setlist-content"></div>
         </div>
+    </div> <!-- fim #mainContainer -->
+
+    <!-- Cifra Panel (painel lateral direito - dentro do wrapper para o flex funcionar) -->
+    <div id="cifraPanel" class="cifra-panel" style="display:none">
+        <div class="cifra-panel-inner">
+        <div class="cifra-resize-handle" id="cifraResizeHandle" title="Arraste para redimensionar"></div>
+        <div class="cifra-panel-header">
+            <span class="cifra-panel-icon">🎵</span>
+            <span class="cifra-panel-title" id="cifraPanelTitle">Cifra</span>
+            <div class="cifra-panel-header-actions">
+                <button class="cifra-mode-btn" id="cifraModeEdit" onclick="setCifraMode('edit')" title="Editar cifra" style="display:none">✏️ Editar</button>
+                <button class="cifra-mode-btn" onclick="openCifraLibraryModal()" title="Minha Biblioteca de Cifras">📚 Biblioteca</button>
+                <button class="cifra-mode-btn" onclick="printCifra()" title="Imprimir cifra">🖨️ Imprimir</button>
+                <button class="cifra-mode-btn" onclick="openCifraFullscreen()" title="Tela cheia (modo palco)">⛶ Tela Cheia</button>
+                <button class="cifra-save-btn" onclick="saveCifraPanel()" title="Salvar cifra" id="cifraSaveBtn">💾 Salvar</button>
+                <button class="cifra-close-btn" onclick="closeCifraPanel()" title="Fechar">✕</button>
+            </div>
+        </div>
+        <div class="cifra-transpose-bar">
+            <span class="cifra-t-label">Tom:</span>
+            <button class="cifra-t-btn" onclick="cifraTranspose(-1)" title="Meio tom abaixo">−</button>
+            <span class="cifra-t-key" id="cifraCurKey">A</span>
+            <button class="cifra-t-btn" onclick="cifraTranspose(+1)" title="Meio tom acima">+</button>
+            <span class="cifra-t-sep">|</span>
+            <span class="cifra-t-label">Pad:</span>
+            <span class="cifra-pad-key" id="cifraPadKey">A</span>
+            <span class="cifra-t-sep">|</span>
+            <button class="cifra-t-btn" onclick="cifraZoom(-1)" title="Diminuir fonte">A−</button>
+            <span class="cifra-zoom-label" id="cifraZoomLabel">14px</span>
+            <button class="cifra-t-btn" onclick="cifraZoom(+1)" title="Aumentar fonte">A+</button>
+            <span class="cifra-t-sep">|</span>
+            <button class="cifra-theme-btn" id="cifraThemeBtn" onclick="cifraToggleTheme()" title="Alternar tema">🌙</button>
+            <!-- Barra de auto-scroll do painel lateral -->
+            <div class="cifra-scroll-bar" id="cifraScrollBar">
+                <span class="cifra-t-label">Auto-scroll</span>
+                <label class="cifra-panel-toggle">
+                    <input type="checkbox" id="cifraScrollToggle" onchange="cifraTogglePanelScroll()">
+                    <span class="cifra-panel-toggle-slider"></span>
+                </label>
+                <span class="cifra-t-sep">|</span>
+                <span class="cifra-t-label">Velocidade</span>
+                <select id="cifraScrollSpeedPanel" class="cifra-scroll-select" onchange="cifraUpdatePanelScrollSpeed()">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="cifra-editor-area">
+            <textarea id="cifraTextarea" class="cifra-textarea" placeholder="Digite a cifra aqui...&#10;&#10;Exemplo:&#10;[Intro]&#10;Am  G  F  E&#10;&#10;[Verso]&#10;Am            G&#10;Linha da letra aqui&#10;F             E&#10;Outra linha..."></textarea>
+            <div id="cifraPreview" class="cifra-preview"></div>
+        </div>
+        </div> <!-- fim cifra-panel-inner -->
+    </div> <!-- fim cifraPanel -->
+    </div> <!-- fim container-split-wrapper -->
+
+    <!-- Cifra Fullscreen (modo palco) -->
+    <div id="cifraFullscreen" class="cifra-fullscreen" style="display:none">
+
+        <!-- Barra de transporte: Anterior / Play / Próxima -->
+        <div class="cifra-fs-transport">
+            <div class="cifra-fs-song-banner">
+                <span class="cifra-fs-info-icon">🎵</span>
+                <div class="cifra-fs-song-copy">
+                    <strong id="cifraFsTitle">Cifra</strong>
+                    <small id="cifraFsPosition">1 de 1 na lista</small>
+                </div>
+            </div>
+
+            <div class="cifra-fs-transport-spacer"></div>
+
+            <div class="cifra-fs-transport-center">
+                <button class="cifra-fs-transport-btn" onclick="cifraFsPrev()" id="cifraFsPrevBtn">
+                    <span class="cifra-fs-transport-icon">⏮</span>
+                    <span class="cifra-fs-transport-text">
+                        <strong>Anterior</strong>
+                        <small id="cifraFsPrevName">—</small>
+                    </span>
+                </button>
+
+                <button class="cifra-fs-play-btn" onclick="cifraFsTogglePlay()" id="cifraFsPlayBtn">
+                    <span class="cifra-fs-play-icon" id="cifraFsPlayIcon">▶</span>
+                </button>
+                <div class="cifra-fs-play-info">
+                    <strong id="cifraFsPlayLabel">Play</strong>
+                    <small id="cifraFsPlaySub">Iniciar metrônomo</small>
+                    <small class="cifra-fs-play-status"><span id="cifraFsPlayDot" class="cifra-fs-dot"></span><span id="cifraFsPlayStatus">Parado</span></small>
+                </div>
+
+                <button class="cifra-fs-transport-btn" onclick="cifraFsNext()" id="cifraFsNextBtn">
+                    <span class="cifra-fs-transport-text cifra-fs-transport-text-right">
+                        <strong>Próxima</strong>
+                        <small id="cifraFsNextName">—</small>
+                    </span>
+                    <span class="cifra-fs-transport-icon">⏭</span>
+                </button>
+            </div>
+
+            <div class="cifra-fs-transport-actions">
+                <button class="cifra-fs-icon-btn" onclick="setCifraMode('edit'); openCifraFullscreen()" title="Editar">
+                    <span>✏️</span><small>Editar</small>
+                </button>
+                <button class="cifra-fs-icon-btn" onclick="closeCifraFullscreen()" title="Sair do full screen">
+                    <span>✕</span><small>Sair</small>
+                </button>
+            </div>
+        </div>
+
+        <!-- Área principal: sidebar + conteúdo -->
+        <div class="cifra-fs-main">
+
+            <!-- Sidebar esquerda: música, BPM, compasso, tom + controles -->
+            <div class="cifra-fs-sidebar">
+                <div class="cifra-fs-info-center">
+                    <div class="cifra-fs-info-stat">
+                        <small>BPM</small>
+                        <strong id="cifraFsBpm">120</strong>
+                    </div>
+                    <div class="cifra-fs-info-stat">
+                        <small>COMPASSO</small>
+                        <strong id="cifraFsTimeSig">4/4</strong>
+                    </div>
+                    <div class="cifra-fs-info-stat cifra-fs-stat-tom">
+                        <small>TOM</small>
+                        <strong id="cifraFsCurKey" class="cifra-fs-tone">A</strong>
+                        <div class="cifra-fs-tone-btns">
+                            <button class="cifra-t-btn" onclick="cifraTranspose(-1)" title="Meio tom abaixo">−</button>
+                            <button class="cifra-t-btn" onclick="cifraTranspose(+1)" title="Meio tom acima">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divisor -->
+                <div class="cifra-fs-sidebar-divider"></div>
+
+                <!-- Controles movidos do rodapé -->
+                <div class="cifra-fs-sidebar-controls">
+                    <div class="cifra-fs-sidebar-ctrl">
+                        <small>AUTO-SCROLL</small>
+                        <label class="cifra-fs-toggle">
+                            <input type="checkbox" id="cifraFsAutoscroll" onchange="cifraFsToggleAutoscroll()">
+                            <span class="cifra-fs-toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="cifra-fs-sidebar-ctrl">
+                        <small>VELOCIDADE</small>
+                        <select id="cifraFsScrollSpeed" class="cifra-fs-select cifra-fs-select-full" onchange="cifraFsUpdateScrollSpeed()">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>1x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+                    </div>
+
+                    <div class="cifra-fs-sidebar-ctrl">
+                        <small>FONTE</small>
+                        <div class="cifra-fs-font-btns">
+                            <button class="cifra-t-btn" onclick="cifraZoom(-1)" title="Diminuir fonte">A−</button>
+                            <span id="cifraFsZoomLabel">14px</span>
+                            <button class="cifra-t-btn" onclick="cifraZoom(+1)" title="Aumentar fonte">A+</button>
+                        </div>
+                    </div>
+
+                    <div class="cifra-fs-sidebar-ctrl">
+                        <button class="cifra-fs-sidebar-btn" onclick="cifraToggleTheme()" id="cifraFsThemeBtn">
+                            <span>🌙</span> Tema
+                        </button>
+                    </div>
+
+                    <div class="cifra-fs-sidebar-ctrl">
+                        <button class="cifra-fs-sidebar-btn" onclick="cifraFsToggleColumns()" id="cifraFsColumnsBtn2">
+                            <span>▦</span> 2 Colunas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área central: conteúdo da cifra -->
+            <div class="cifra-fs-center-area">
+                <div id="cifraFsContent" class="cifra-fs-content"></div>
+            </div>
+
+        </div><!-- fim cifra-fs-main -->
+    </div>
     </div>
 
+    <!-- Modal: Minha Biblioteca de Cifras -->
+    <div id="cifraLibraryModal" class="cifra-library-overlay" style="display:none" onclick="if(event.target===this) closeCifraLibraryModal()">
+        <div class="cifra-library-modal">
+            <div class="cifra-library-header">
+                <span class="cifra-panel-icon">📚</span>
+                <span class="cifra-library-title">Minha Biblioteca de Cifras</span>
+                <button class="cifra-close-btn" onclick="closeCifraLibraryModal()" title="Fechar">✕</button>
+            </div>
+            <div class="cifra-library-search-bar">
+                <input type="text" id="cifraLibrarySearch" class="cifra-library-search" placeholder="🔍 Buscar por nome da música..." oninput="renderCifraLibraryModal()">
+                <span class="cifra-library-status" id="cifraLibraryStatus"></span>
+            </div>
+            <div id="cifraLibraryList" class="cifra-library-list"></div>
+        </div>
+    </div>
 
     <!-- Carrossel de Artigos do Blog -->
     <div class="blog-carousel-section">
@@ -479,6 +689,27 @@
                             <span class="carousel-tag">🎓 Teoria Musical</span>
                             <h3>Harmonia Musical: Guia Completo</h3>
                             <p>Entenda como funcionam acordes, campo harmônico, funções tonais e progressões usadas em milhares de músicas.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/campo-harmonico-simples.html" class="carousel-card">
+                            <span class="carousel-tag">🎓 Teoria Musical</span>
+                            <h3>Como Entender Campo Harmônico</h3>
+                            <p>Aprenda o campo harmônico de forma simples, com exemplos práticos e aplicação imediata nas cifras.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/rock-violao-classico.html" class="carousel-card">
+                            <span class="carousel-tag">🎸 Técnica Musical</span>
+                            <h3>Rock e Violão Clássico</h3>
+                            <p>Veja por que guitarristas de rock estudam violão clássico e como isso melhora técnica, leitura e musicalidade.</p>
+                            <span class="carousel-read">Ler artigo →</span>
+                        </a>
+
+                        <a href="blog/beethoven-surdo.html" class="carousel-card">
+                            <span class="carousel-tag">🎼 História da Música</span>
+                            <h3>Beethoven e a Surdez</h3>
+                            <p>Entenda como Beethoven continuou compondo obras-primas mesmo após perder a audição.</p>
                             <span class="carousel-read">Ler artigo →</span>
                         </a>
 

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aprenda o que é campo harmônico de forma simples. Veja exemplos práticos, entenda os graus da escala e descubra como usar esse conceito na música.">
+    <title>Como Entender Campo Harmônico de Forma Simples | Metronome List</title>
+    <link rel="canonical" href="https://metronome-list.netlify.app/blog/campo-harmonico-simples.html">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 95 L65 95 L50 15 Z' fill='%23654321' stroke='%23000' stroke-width='3'/><line x1='50' y1='20' x2='70' y2='55' stroke='%23ff0000' stroke-width='5' stroke-linecap='round'/><circle cx='50' cy='55' r='6' fill='%23000'/><rect x='30' y='90' width='40' height='8' rx='2' fill='%238b4513'/></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f766e 0%, #14532d 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.6rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #0f766e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover { color: #14532d; }
+
+        article {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .intro {
+            font-size: 1.18rem;
+            color: #555;
+            padding: 1.5rem;
+            background: #f0fdf4;
+            border-left: 4px solid #0f766e;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #0f766e;
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        h3 {
+            color: #14532d;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        p { margin-bottom: 1.5rem; font-size: 1.05rem; }
+        ul, ol { margin-left: 2rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.7rem; }
+
+        .tip-box {
+            background: #ecfeff;
+            border-left: 4px solid #06b6d4;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .tip-box h4 { color: #155e75; margin-bottom: 0.5rem; }
+
+        .warning-box {
+            background: #fff7ed;
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h4 { color: #92400e; margin-bottom: 0.5rem; }
+
+        .highlight-box {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+
+        .highlight-box h4 { color: #166534; margin-bottom: 0.5rem; }
+
+        .cta-box {
+            background: linear-gradient(135deg, #0f766e 0%, #14532d 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .cta-box h3 { color: white; margin: 0 0 1rem 0; }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #0f766e;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover { transform: scale(1.05); }
+
+        footer {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        footer a { color: #0f766e; text-decoration: none; }
+
+        .social-links { margin-top: 1rem; }
+        .social-icons { display: inline-flex; align-items: center; gap: 10px; }
+        .social-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #334155;
+            text-decoration: none;
+        }
+        .social-icon svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            article { padding: 2rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>🎓 Como Entender Campo Harmônico de Forma Simples</h1>
+        <p class="article-meta">📅 Julho de 2026 • ⏱️ 10 min de leitura • 🎼 Teoria Musical</p>
+    </div>
+</header>
+
+<nav>
+    <ul class="nav-links container">
+        <li><a href="../index.html">← Voltar ao Metrônomo</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+<article>
+
+<p class="intro">
+    Campo harmônico parece um assunto complicado quando você vê pela primeira vez, mas na prática ele segue uma lógica bem simples.
+    Se você entende a relação entre escala e acordes, já dá para começar a enxergar como as músicas são construídas e por que certos
+    acordes combinam tão bem entre si.
+</p>
+
+<h2>O que é campo harmônico?</h2>
+
+<p>
+    Campo harmônico é o conjunto de acordes que nasce de uma tonalidade. Em vez de pensar nele como uma lista decorada, imagine uma
+    família de acordes que pertence a uma mesma escala. Esses acordes funcionam juntos porque compartilham as mesmas notas de origem.
+</p>
+
+<p>
+    Na prática, isso significa que se uma música está em Dó maior, por exemplo, existe um grupo de acordes que combina naturalmente
+    com esse tom. Esse grupo é o campo harmônico de Dó maior.
+</p>
+
+<h2>A forma mais simples de entender</h2>
+
+<p>
+    A maneira mais fácil de entender o campo harmônico é começar pela escala maior. Cada nota da escala gera um acorde. E esses
+    acordes seguem um padrão fixo:
+</p>
+
+<ul>
+    <li>1º grau: maior</li>
+    <li>2º grau: menor</li>
+    <li>3º grau: menor</li>
+    <li>4º grau: maior</li>
+    <li>5º grau: maior</li>
+    <li>6º grau: menor</li>
+    <li>7º grau: diminuto</li>
+</ul>
+
+<p>
+    Esse padrão vale para qualquer tonalidade maior. Você não precisa decorar vários campos harmônicos separados no começo. Basta
+    aprender a lógica e aplicar em qualquer tom.
+</p>
+
+<div class="highlight-box">
+    <h4>Dica prática</h4>
+    <p>
+        Se você memorizar apenas a sequência <strong>maior, menor, menor, maior, maior, menor, diminuto</strong>, já consegue montar
+        vários campos harmônicos sem sofrimento.
+    </p>
+</div>
+
+<h2>Exemplo em Dó maior</h2>
+
+<p>A escala de Dó maior é:</p>
+
+<p><strong>C - D - E - F - G - A - B</strong></p>
+
+<p>Aplicando o padrão de acordes, temos:</p>
+
+<ul>
+    <li>C</li>
+    <li>Dm</li>
+    <li>Em</li>
+    <li>F</li>
+    <li>G</li>
+    <li>Am</li>
+    <li>Bdim</li>
+</ul>
+
+<p>
+    Então o campo harmônico de Dó maior é <strong>C - Dm - Em - F - G - Am - Bdim</strong>.
+    Essa sequência já aparece em milhares de músicas populares e é uma base excelente para começar a treinar.
+</p>
+
+<h2>Por que isso funciona?</h2>
+
+<p>
+    Porque todos esses acordes vêm da mesma escala. Eles compartilham notas em comum e criam uma sensação de coerência sonora.
+    É por isso que, quando uma música usa acordes do mesmo campo harmônico, ela costuma soar “natural” e bem encaixada.
+</p>
+
+<p>
+    O campo harmônico ajuda você a entender não só quais acordes podem aparecer, mas também quais têm mais força de resolução.
+    Por exemplo, o acorde de dominante geralmente cria expectativa para voltar ao centro tonal.
+</p>
+
+<h2>Exemplo em Sol maior</h2>
+
+<p>A escala de Sol maior é:</p>
+
+<p><strong>G - A - B - C - D - E - F#</strong></p>
+
+<p>Seguindo o mesmo padrão, o campo harmônico fica:</p>
+
+<ul>
+    <li>G</li>
+    <li>Am</li>
+    <li>Bm</li>
+    <li>C</li>
+    <li>D</li>
+    <li>Em</li>
+    <li>F#dim</li>
+</ul>
+
+<p>
+    Repare que a estrutura é igual. O que muda é a tonalidade de base. Isso é o que torna o conceito tão útil:
+    você aprende a regra uma vez e aplica em qualquer tom.
+</p>
+
+<h2>Como usar no dia a dia</h2>
+
+<p>
+    Depois de entender a teoria, o próximo passo é usar isso na prática. Veja algumas aplicações reais:
+</p>
+
+<ul>
+    <li>descobrir acordes que combinam com uma melodia</li>
+    <li>montar uma sequência de acordes para compor</li>
+    <li>transpor músicas para um tom mais confortável</li>
+    <li>entender cifras com mais rapidez</li>
+    <li>improvisar com mais segurança</li>
+</ul>
+
+<p>
+    Se você toca violão, teclado, baixo ou canta, esse conhecimento acelera muito o aprendizado musical. Em vez de tocar por tentativa
+    e erro, você passa a enxergar a lógica por trás dos acordes.
+</p>
+
+<div class="tip-box">
+    <h4>Exercício simples</h4>
+    <p>
+        Escolha um tom maior, monte a escala e tente escrever os sete acordes. Depois toque cada um e perceba como eles soam em conjunto.
+        Faça isso em C, G, D e F para treinar a lógica em diferentes tonalidades.
+    </p>
+</div>
+
+<h2>Campo harmônico e cifra</h2>
+
+<p>
+    Quando você lê cifras, o campo harmônico vira um mapa. Se uma música está em C maior e você vê acordes como C, Am, F e G,
+    provavelmente você está diante de acordes que pertencem à mesma família tonal.
+</p>
+
+<p>
+    Isso não quer dizer que toda música siga uma fórmula rígida, mas entender esse mapa facilita muito a leitura, a transposição e
+    a memorização de repertório.
+</p>
+
+<h2>Erros comuns ao estudar</h2>
+
+<p>Alguns erros atrapalham bastante quem está começando:</p>
+
+<ul>
+    <li>querer decorar tudo sem entender a lógica</li>
+    <li>pular direto para assuntos avançados sem dominar o básico</li>
+    <li>não praticar com músicas reais</li>
+    <li>confundir tonalidade com acorde isolado</li>
+    <li>estudar teoria sem tocar ao mesmo tempo</li>
+</ul>
+
+<div class="warning-box">
+    <h4>Atenção</h4>
+    <p>
+        Campo harmônico não é só teoria para prova. Ele é uma ferramenta prática para tocar melhor, compor melhor e entender
+        o que você está ouvindo.
+    </p>
+</div>
+
+<h2>Como estudar sem travar</h2>
+
+<p>
+    Se você quiser aprender campo harmônico sem complicar, siga esta sequência:
+</p>
+
+<ol>
+    <li>aprenda a escala maior</li>
+    <li>entenda os graus da escala</li>
+    <li>monte os acordes de cada grau</li>
+    <li>compare com músicas reais</li>
+    <li>repita em outros tons</li>
+</ol>
+
+<p>
+    Esse método é mais leve do que tentar memorizar dezenas de fórmulas de uma vez. Com repetição, você começa a reconhecer os padrões
+    de forma natural.
+</p>
+
+<h2>Resumo rápido</h2>
+
+<p>
+    Campo harmônico é o conjunto de acordes que pertence a uma tonalidade. Para entender isso de forma simples, pense na escala maior
+    e aplique o padrão:
+</p>
+
+<p><strong>maior - menor - menor - maior - maior - menor - diminuto</strong></p>
+
+<p>
+    Com essa base, você já consegue montar campos harmônicos, reconhecer acordes em músicas e dar um passo importante na teoria musical.
+</p>
+
+<div class="cta-box">
+    <h3>Quer praticar isso na rotina?</h3>
+    <p>
+        Use o metrônomo, toque a escala em diferentes tons e teste progressões simples para fixar o conceito na prática.
+    </p>
+    <a href="../index.html" class="cta-button">Voltar para o Metronome List</a>
+</div>
+
+</article>
+</div>
+
+<footer>
+    <p>© 2026 Metronome List. Todos os direitos reservados.</p>
+    <p>
+        <a href="../privacy.html">Política de Privacidade</a> |
+        <a href="../sobre.html">Sobre</a>
+    </p>
+    <p class="social-links"><strong>Siga nas redes:</strong> <span class="social-icons"><a class="social-icon social-icon--tiktok" href="https://tiktok.com/@metronomeliststud3" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3c.34 1.86 1.47 3.54 3 4.46A6.9 6.9 0 0 0 21 8.5V12a10.7 10.7 0 0 1-4-.79V16.3a5.8 5.8 0 1 1-5.8-5.8c.33 0 .65.03.96.08v3.28a2.6 2.6 0 1 0 1.84 2.49V3z"/></svg></a><a class="social-icon social-icon--kwai" href="https://kwaivideo.com/u/@metronomeliststudio/s3xx8CDN" target="_blank" rel="noopener noreferrer" aria-label="Kwai" title="Kwai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4A3.5 3.5 0 0 1 11 7.5V9h2V7.5A3.5 3.5 0 1 1 16.5 11H15v2h1.5A3.5 3.5 0 1 1 13 16.5V15h-2v1.5A3.5 3.5 0 1 1 7.5 13H9v-2H7.5A3.5 3.5 0 1 1 7.5 4Zm0 2A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 6Zm9 0A1.5 1.5 0 1 0 18 7.5 1.5 1.5 0 0 0 16.5 6Zm-9 8A1.5 1.5 0 1 0 9 15.5 1.5 1.5 0 0 0 7.5 14Zm9 0a1.5 1.5 0 1 0 1.5 1.5 1.5 1.5 0 0 0-1.5-1.5ZM12 10.5A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5Z"/></svg></a><a class="social-icon social-icon--youtube" href="https://www.youtube.com/@metronomeliststudio" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.97 2.97 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5a2.97 2.97 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 2.97 2.97 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a2.97 2.97 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.5v-7l6 3.5Z"/></svg></a><a class="social-icon social-icon--instagram" href="https://www.instagram.com/metronome_list_studio?igsh=dzk0b3BzYndyMDBj" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2A3 3 0 0 0 4 7v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5ZM17.75 6.5a1.25 1.25 0 1 1-1.25 1.25 1.25 1.25 0 0 1 1.25-1.25Z"/></svg></a></span></p>
+</footer>
+
+</body>
+</html>
