@@ -860,14 +860,6 @@
   <span id="status"></span>
 </div>
 
-<div id="server-tip">
-  <strong>⚠ O microfone requer servidor HTTP (não funciona via file://)</strong><br><br>
-  <strong style="color:#90ee90">Opção 1 — Python:</strong><br>
-  <code>cd pasta/do/arquivo</code> &nbsp;→&nbsp; <code>python3 -m http.server 8080</code><br>
-  Abra: <code>http://localhost:8080/tuner.html</code><br><br>
-  <strong style="color:#90ee90">Opção 2 — VS Code:</strong> extensão <code>Live Server</code> → botão direito → Open with Live Server<br><br>
-  <strong style="color:#90ee90">Opção 3 — Netlify:</strong> use a versão publicada em <code>https://metronome-list.netlify.app/tuner.html</code>
-</div>
     </div>
   </section>
 
@@ -1299,8 +1291,7 @@
     } catch(e){
       console.error(e);
       if(location.protocol === 'file:'){
-        setSt('⚠ Arquivo local não suporta microfone — veja instruções abaixo.');
-        document.getElementById('server-tip').style.display = 'block';
+        setSt('⚠ Abra esta página por um endereço HTTPS para usar o microfone.');
       } else if(e.name === 'NotAllowedError'){
         setSt('⚠ Permissão negada — permita o microfone nas configurações do browser.');
       } else {

@@ -650,11 +650,11 @@ async function initializeFirebase() {
 }
 
 // Detectar se storage está disponível
-const hasClaudeStorage = typeof window.storage !== 'undefined';
+const hasSharedStorage = typeof window.storage !== 'undefined';
 
 // Funções de storage com fallback para localStorage
 async function storageSet(key, value, shared = false) {
-    if (hasClaudeStorage) {
+    if (hasSharedStorage) {
         try {
             return await window.storage.set(key, value, shared);
         } catch (e) {
@@ -668,7 +668,7 @@ async function storageSet(key, value, shared = false) {
 }
 
 async function storageGet(key, shared = false) {
-    if (hasClaudeStorage) {
+    if (hasSharedStorage) {
         try {
             return await window.storage.get(key, shared);
         } catch (e) {
@@ -681,7 +681,7 @@ async function storageGet(key, shared = false) {
 }
 
 async function storageDelete(key, shared = false) {
-    if (hasClaudeStorage) {
+    if (hasSharedStorage) {
         try {
             return await window.storage.delete(key, shared);
         } catch (e) {
@@ -694,7 +694,7 @@ async function storageDelete(key, shared = false) {
 }
 
 async function storageList(prefix, shared = false) {
-    if (hasClaudeStorage) {
+    if (hasSharedStorage) {
         try {
             return await window.storage.list(prefix, shared);
         } catch (e) {
@@ -1076,7 +1076,7 @@ async function saveSetlist() {
 }
 
 async function shareSetlist() {
-    if (!hasClaudeStorage) {
+    if (!hasSharedStorage) {
         alert('⚠️ "Exportar JSON" para compartilhar manualmente.');
         return;
     }
@@ -1154,7 +1154,7 @@ async function loadSavedSetlists() {
 }
 
 async function loadSharedSetlists() {
-    if (!hasClaudeStorage) {
+    if (!hasSharedStorage) {
         sharedSetlists = [];
         return;
     }
@@ -1409,7 +1409,7 @@ function renderSetlistManager() {
     html += '<div class="setlist-section">';
     html += '<h3>🌐 Setlists Compartilhados</h3>';
     
-    if (!hasClaudeStorage) {
+    if (!hasSharedStorage) {
         html += '<p class="empty-message">⚠️ "Exportar/Importar JSON"</p>';
     } else if (sharedSetlists.length === 0) {
         html += '<p class="empty-message">Nenhum compartilhado</p>';

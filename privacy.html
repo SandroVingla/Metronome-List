@@ -71,23 +71,36 @@
                 para fins de análise de tráfego e melhoria do site.
             </p>
 
-            <h3>2.2 Dados Não Coletados</h3>
-            <p>O Metronome List <strong>não coleta</strong>:</p>
+            <h3>2.2 Dados que não são exigidos</h3>
+            <p>Para usar o metrônomo sem login, o Metronome List <strong>não exige</strong>:</p>
             <ul>
-                <li>Nome, e-mail ou qualquer dado de identificação pessoal (não há cadastro)</li>
+                <li>Nome, e-mail ou cadastro</li>
                 <li>Dados de pagamento (o site é inteiramente gratuito)</li>
-                <li>Conteúdo dos seus setlists (armazenados apenas no seu dispositivo)</li>
+                <li>Conteúdo dos setlists usados sem login, que permanece no seu dispositivo</li>
             </ul>
 
-            <h3>2.3 Armazenamento Local no Seu Dispositivo</h3>
+            <h3>2.3 Conta, setlists sincronizados e interações</h3>
+            <p>
+                O login opcional com o Google é processado pelo Firebase Authentication. Quando você entra,
+                podemos receber seu nome, endereço de e-mail, identificador da conta e foto de perfil. Esses
+                dados são usados para autenticar você e associar seus setlists sincronizados à sua conta.
+            </p>
+            <p>
+                Em páginas que oferecem comentários e curtidas, o Firebase/Firestore pode armazenar o conteúdo
+                da interação, identificador da conta, nome exibido, foto de perfil e data da ação. O login não é
+                obrigatório para usar o metrônomo localmente. Para solicitar exclusão de dados associados à conta,
+                utilize o e-mail informado na seção de contato desta política.
+            </p>
+
+            <h3>2.4 Armazenamento Local no Seu Dispositivo</h3>
             <p>
                 O Metronome List armazena dados diretamente no seu navegador via 
                 <strong>localStorage</strong> — exclusivamente para salvar suas configurações 
-                e setlists. Esses dados:
+                e setlists locais. Esses dados:
             </p>
             <ul>
                 <li>Ficam armazenados apenas no seu dispositivo</li>
-                <li>Nunca são enviados para nossos servidores</li>
+                <li>Não são enviados para a nuvem enquanto você não optar pelo login e sincronização</li>
                 <li>Podem ser apagados a qualquer momento limpando os dados do navegador</li>
             </ul>
         </div>
@@ -95,9 +108,9 @@
         <div class="content-section">
             <h2>3. Google AdSense e Publicidade</h2>
             <p>
-                Este site utiliza o <strong>Google AdSense</strong> para exibir anúncios. 
-                O Google AdSense usa cookies e tecnologias similares para veicular anúncios 
-                relevantes com base no seu histórico de navegação.
+                Este site utiliza o <strong>Google AdSense</strong> para exibir anúncios em páginas que contenham
+                publicidade. O Google e outros fornecedores terceiros podem usar cookies e tecnologias similares
+                para veicular anúncios com base nas visitas anteriores deste site ou de outros sites.
             </p>
 
             <h3>3.1 Como o Google Usa seus Dados</h3>
@@ -143,8 +156,8 @@
             </p>
             <ul>
                 <li>
-                    <strong>Cookies essenciais:</strong> Necessários para o funcionamento básico 
-                    do site (armazenar preferências de tema, estado da aplicação).
+                    <strong>Armazenamento essencial:</strong> Necessário para o funcionamento básico do site,
+                    como preferências e estado da aplicação.
                 </li>
                 <li>
                     <strong>Cookies analíticos:</strong> Usados pelo Google Analytics para 
@@ -168,8 +181,8 @@
                 de navegação podem ser compartilhados com:
             </p>
             <ul>
-                <li><strong>Google LLC:</strong> Para serviços de publicidade (AdSense) e 
-                análise (Analytics), sujeitos à 
+                <li><strong>Google LLC:</strong> Para serviços de publicidade (AdSense), autenticação e análise,
+                quando esses serviços estiverem ativos, sujeitos à
                 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">
                     Política de Privacidade do Google
                 </a></li>

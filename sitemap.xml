@@ -144,6 +144,27 @@
   </url>
 
   <url>
+    <loc>https://metronome-list.netlify.app/blog/beethoven-surdo.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/campo-harmonico-simples.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://metronome-list.netlify.app/blog/rock-violao-classico.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://metronome-list.netlify.app/blog/musica-saude-mental.html</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
