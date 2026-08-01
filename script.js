@@ -11,6 +11,7 @@ let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
 let sharedSetlists = [];
+let metronomeSortable = null;
 let firebaseApp = null;
 let firebaseAuth = null;
 let firestoreDb = null;
@@ -1891,6 +1892,11 @@ function updateMetronomeItemUI(id) {
 function renderMetronomes() {
     const list = document.getElementById('metronomeList');
     if (!list) return;
+
+    if (metronomeSortable) {
+        metronomeSortable.destroy();
+        metronomeSortable = null;
+    }
     
     list.innerHTML = '';
 
@@ -1898,6 +1904,7 @@ function renderMetronomes() {
         const item = document.createElement('div');
         item.className = 'metronome-item' + (m.isPlaying ? ' playing' : '');
         item.setAttribute('data-id', m.id);
+        item.title = 'Arraste pelo número para reordenar esta música';
 
         let beatIndicators = '';
         for (let i = 0; i < m.beats; i++) {
@@ -1952,6 +1959,172 @@ function renderMetronomes() {
         syncPadEnabledUI(m.id);
         updatePadIndicator(m.id, m.isPlaying && getPadState(m.id).enabled);
     });
+
+    initMetronomeSortable(list);
+}
+
+function initMetronomeSortable(list) {
+    if (typeof Sortable === 'undefined') {
+        console.error('SortableJS não foi carregado.');
+        return;
+    }
+
+    metronomeSortable = new Sortable(list, {
+        animation: 180,
+        handle: '.item-number',
+        draggable: '.metronome-item',
+        scroll: true,
+        bubbleScroll: true,
+        scrollSensitivity: 70,
+        scrollSpeed: 24,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: () => {
+            const ids = Array.from(list.querySelectorAll('.metronome-item'))
+                .map(element => Number(element.dataset.id));
+            const byId = new Map(metronomes.map(metronome => [metronome.id, metronome]));
+            const reordered = ids.map(id => byId.get(id)).filter(Boolean);
+            const hasChanged = reordered.some((metronome, index) => metronome.id !== metronomes[index]?.id);
+
+            if (hasChanged) {
+                metronomes = reordered;
+                renderMetronomes();
+                saveLastConfig();
+            }
+        }
+    });
+}
+
+function setupMetronomeDrag(item) {
+    let pointerId = null;
+    let startY = 0;
+    let isDragging = false;
+    let lastClientX = 0;
+    let lastClientY = 0;
+    let autoScrollFrame = null;
+
+    // Enquanto arrasta perto do topo/rodapé da janela, rola a página sozinha
+    // (útil quando a lista de músicas é mais alta que a tela) — mesmo
+    // comportamento que já temos no app Android.
+    function autoScrollTick() {
+        const edgeThreshold = 90;
+        const maxSpeed = 16;
+        let speed = 0;
+
+        if (lastClientY < edgeThreshold) {
+            const intensity = (edgeThreshold - lastClientY) / edgeThreshold;
+            speed = -Math.ceil(maxSpeed * intensity);
+        } else if (lastClientY > window.innerHeight - edgeThreshold) {
+            const intensity = (lastClientY - (window.innerHeight - edgeThreshold)) / edgeThreshold;
+            speed = Math.ceil(maxSpeed * intensity);
+        }
+
+        if (speed !== 0) {
+            window.scrollBy(0, speed);
+            // Depois de rolar, a posição do item embaixo do ponteiro mudou —
+            // reavalia pra continuar reordenando enquanto a página rola.
+            const target = document.elementFromPoint(lastClientX, lastClientY)?.closest('.metronome-item');
+            if (target && target !== item) {
+                document.querySelectorAll('.metronome-item').forEach(element => {
+                    element.classList.remove('drag-over');
+                });
+                target.classList.add('drag-over');
+                const shouldInsertBefore = lastClientY < target.getBoundingClientRect().top + target.offsetHeight / 2;
+                target.parentNode.insertBefore(item, shouldInsertBefore ? target : target.nextSibling);
+            }
+        }
+
+        autoScrollFrame = requestAnimationFrame(autoScrollTick);
+    }
+
+    item.addEventListener('pointerdown', event => {
+        if (!event.target.closest('.item-number')) return;
+
+        if (autoScrollFrame) {
+            cancelAnimationFrame(autoScrollFrame);
+            autoScrollFrame = null;
+        }
+
+        pointerId = event.pointerId;
+        startY = event.clientY;
+        lastClientX = event.clientX;
+        lastClientY = event.clientY;
+        isDragging = false;
+        item.setPointerCapture(pointerId);
+        event.preventDefault();
+    });
+
+    item.addEventListener('pointermove', event => {
+        if (event.pointerId !== pointerId) return;
+        lastClientX = event.clientX;
+        lastClientY = event.clientY;
+
+        if (!isDragging && Math.abs(event.clientY - startY) < 6) return;
+        if (!isDragging) {
+            isDragging = true;
+            item.classList.add('dragging');
+            autoScrollFrame = requestAnimationFrame(autoScrollTick);
+        }
+
+        document.querySelectorAll('.metronome-item').forEach(element => {
+            element.classList.remove('drag-over');
+        });
+
+        // Procura a posição pela altura de todos os cartões. Isso evita que
+        // o item fique preso somente entre os dois vizinhos imediatos.
+        const otherItems = Array.from(document.querySelectorAll('#metronomeList .metronome-item'))
+            .filter(element => element !== item);
+        const target = otherItems.find(element => {
+            const rect = element.getBoundingClientRect();
+            return event.clientY < rect.top + rect.height / 2;
+        });
+
+        if (target) {
+            target.classList.add('drag-over');
+            target.parentNode.insertBefore(item, target);
+        } else if (otherItems.length > 0) {
+            otherItems[otherItems.length - 1].parentNode.appendChild(item);
+            otherItems[otherItems.length - 1].classList.add('drag-over');
+        }
+    });
+
+    item.addEventListener('pointerup', finish);
+    item.addEventListener('pointercancel', finish);
+    // O ponteiro pode ser liberado fora do cartão enquanto ele está sendo
+    // arrastado; nesse caso o evento nem sempre chega ao próprio item.
+    window.addEventListener('pointerup', finish);
+    window.addEventListener('pointercancel', finish);
+
+    function finish(event) {
+        if (event.pointerId !== pointerId) return;
+
+        if (autoScrollFrame) {
+            cancelAnimationFrame(autoScrollFrame);
+            autoScrollFrame = null;
+        }
+
+        if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
+        item.classList.remove('dragging', 'drag-over');
+        document.querySelectorAll('.metronome-item').forEach(element => element.classList.remove('drag-over'));
+
+        if (isDragging) {
+            const ids = Array.from(document.querySelectorAll('#metronomeList .metronome-item'))
+                .map(element => Number(element.dataset.id));
+            const currentOrder = metronomes.map(metronome => metronome.id);
+            const hasChanged = ids.some((id, index) => id !== currentOrder[index]);
+
+            if (hasChanged) {
+                const byId = new Map(metronomes.map(metronome => [metronome.id, metronome]));
+                metronomes = ids.map(id => byId.get(id)).filter(Boolean);
+                renderMetronomes();
+                saveLastConfig();
+            }
+        }
+
+        pointerId = null;
+        isDragging = false;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);

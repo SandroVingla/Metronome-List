@@ -1097,6 +1097,17 @@ body {
     position: relative;
 }
 
+.sortable-ghost {
+    opacity: 0.45;
+    outline: 2px dashed #f59e0b;
+    outline-offset: 3px;
+}
+
+.sortable-chosen {
+    cursor: grabbing;
+}
+
+
 /* Desktop: wrappers invisíveis — cada filho participa do grid normalmente */
 .controls-row {
     display: contents;
@@ -1126,6 +1137,12 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 0.9rem;
+    cursor: grab;
+    touch-action: none;
+}
+
+.item-number:active {
+    cursor: grabbing;
 }
 
 .music-input {
@@ -2611,9 +2628,22 @@ footer a:hover {
         border: 2px solid #16a34a;
     }
 
-    /* Número - esconde no mobile */
+    /* O número também funciona como handle de arraste no mobile. */
     .item-number {
-        display: none;
+        display: flex;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 28px;
+        height: 28px;
+        font-size: 0;
+        z-index: 2;
+    }
+
+    .item-number::before {
+        content: '↕';
+        font-size: 1rem;
+        line-height: 1;
     }
 
     /* Linha 1: Nome ocupa espaço restante (BPM e X ficam ao lado) */
@@ -2665,6 +2695,7 @@ footer a:hover {
         align-items: center;
         gap: 8px;
         order: 1;
+        padding-left: 36px;
     }
 
     .remove-cell {
