@@ -11,7 +11,6 @@ let audioContext = null;
 let intervals = {};
 let savedSetlists = [];
 let sharedSetlists = [];
-let metronomeSortable = null;
 let firebaseApp = null;
 let firebaseAuth = null;
 let firestoreDb = null;
@@ -19,6 +18,7 @@ let googleProvider = null;
 let currentUser = null;
 let firebaseConfigured = false;
 let authInitialized = false;
+let metronomeSortable = null;
 let authReadyResolver = null;
 const authReadyPromise = new Promise(resolve => {
     authReadyResolver = resolve;
@@ -27,6 +27,1299 @@ const authReadyPromise = new Promise(resolve => {
 // Variáveis para Tap Tempo
 let tapTimes = [];
 let tapTimeout = null;
+
+// ── CIFRA ──────────────────────────────────────────────────────
+let cifraPanelId = null;      // id do metrônomo com painel aberto
+let cifraSemitones = 0;       // semitons deslocados da tonalidade base
+let cifraBaseNote  = 'C';     // tom original da cifra quando foi salva
+
+// ── BIBLIOTECA DE CIFRAS ───────────────────────────────────────
+// Cache em memória: { 'chave-normalizada': { name, cifra, cifraBaseNote, updatedAt } }
+let cifraLibrary = {};
+
+// Normaliza o nome da música para uma chave de busca/documento segura
+function cifraKeyFromName(name) {
+    return (name || '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 120) || 'sem_nome';
+}
+
+// Retorna a referência da coleção de cifras do usuário no Firestore
+function getCifraLibraryCollection() {
+    if (!isCloudAvailable()) return null;
+    return firestoreDb.collection('users').doc(currentUser.uid).collection('cifras');
+}
+
+// Carrega a biblioteca do localStorage (rápido, sempre disponível)
+function cifraLibraryLoadLocal() {
+    try {
+        const raw = localStorage.getItem('cifra-library');
+        if (raw) cifraLibrary = JSON.parse(raw);
+    } catch(e) { cifraLibrary = {}; }
+
+    // Migra entradas do formato antigo (chave = nome em minúsculas, sem campo 'name')
+    let migrated = false;
+    Object.keys(cifraLibrary).forEach(oldKey => {
+        const entry = cifraLibrary[oldKey];
+        if (entry && entry.cifra && !entry.name) {
+            const newKey = cifraKeyFromName(oldKey);
+            const displayName = oldKey.replace(/[_\s]+/g, ' ')
+                .split(' ')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+            const newEntry = { ...entry, name: displayName, cloudSynced: false };
+            delete cifraLibrary[oldKey];
+            cifraLibrary[newKey] = newEntry;
+            migrated = true;
+        }
+    });
+    if (migrated) cifraLibraryPersistLocal();
+}
+
+function cifraLibraryPersistLocal() {
+    try { localStorage.setItem('cifra-library', JSON.stringify(cifraLibrary)); } catch(e) {}
+}
+
+// Carrega a biblioteca: localStorage primeiro (instantâneo), depois sincroniza com Firestore se logado
+async function cifraLibraryLoad() {
+    cifraLibraryLoadLocal();
+
+    if (isCloudAvailable()) {
+        try {
+            // Migra entradas locais antigas que ainda não têm dono na nuvem
+            await cifraLibraryMigrateLocalToCloud();
+
+            const collection = getCifraLibraryCollection();
+            const snapshot = await collection.get();
+            snapshot.forEach(doc => {
+                const data = doc.data() || {};
+                if (data.nameKey) {
+                    cifraLibrary[data.nameKey] = {
+                        name: data.name || '',
+                        cifra: data.cifra || '',
+                        cifraBaseNote: data.cifraBaseNote || '',
+                        updatedAt: data.updatedAt || ''
+                    };
+                }
+            });
+            cifraLibraryPersistLocal();
+        } catch (e) {
+            console.log('Erro ao sincronizar biblioteca de cifras:', e);
+        }
+    }
+}
+
+// Envia entradas que só existem localmente (sem flag cloudSynced) para o Firestore
+async function cifraLibraryMigrateLocalToCloud() {
+    const collection = getCifraLibraryCollection();
+    if (!collection) return;
+
+    const entries = Object.entries(cifraLibrary).filter(([, v]) => v && v.cifra && !v.cloudSynced);
+    for (const [key, entry] of entries) {
+        try {
+            await collection.doc(key).set({
+                name: entry.name || '',
+                nameKey: key,
+                cifra: entry.cifra,
+                cifraBaseNote: entry.cifraBaseNote || '',
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+            entry.cloudSynced = true;
+        } catch (e) {
+            console.log('Erro ao migrar cifra para nuvem:', key, e);
+        }
+    }
+}
+
+// Salva uma cifra na biblioteca (localStorage sempre + Firestore se logado)
+async function cifraLibrarySave(name, cifra, baseNote, semitones) {
+    if (!name || !cifra) return;
+    const key = cifraKeyFromName(name);
+    const entry = {
+        name: name.trim(),
+        cifra,
+        cifraBaseNote: baseNote || '',
+        cifraSemitones: 0,
+        updatedAt: new Date().toISOString(),
+        cloudSynced: false
+    };
+    cifraLibrary[key] = entry;
+    cifraLibraryPersistLocal();
+
+    const collection = getCifraLibraryCollection();
+    if (collection) {
+        try {
+            await collection.doc(key).set({
+                name: entry.name,
+                nameKey: key,
+                cifra: entry.cifra,
+                cifraBaseNote: entry.cifraBaseNote,
+                cifraSemitones: 0,
+                updatedAt: entry.updatedAt
+            }, { merge: true });
+            entry.cloudSynced = true;
+            cifraLibraryPersistLocal();
+        } catch (e) {
+            console.log('Erro ao salvar cifra na nuvem:', e);
+        }
+    }
+}
+
+function cifraLibraryGet(name) {
+    if (!name) return null;
+    const key = cifraKeyFromName(name);
+    // Busca exata primeiro
+    if (cifraLibrary[key]) return cifraLibrary[key];
+
+    // Fallback: busca parcial (nome digitado contido no nome salvo ou vice-versa)
+    const entries = Object.entries(cifraLibrary);
+    const partial = entries.find(([k]) => k.includes(key) || key.includes(k));
+    return partial ? partial[1] : null;
+}
+
+// Retorna todas as entradas, ordenadas por nome
+function cifraLibraryGetAll() {
+    return Object.entries(cifraLibrary)
+        .filter(([, v]) => v && v.cifra)
+        .map(([key, v]) => ({ key, ...v }))
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+}
+
+// Exclui uma cifra da biblioteca (localStorage + Firestore)
+async function cifraLibraryDelete(key) {
+    delete cifraLibrary[key];
+    cifraLibraryPersistLocal();
+
+    const collection = getCifraLibraryCollection();
+    if (collection) {
+        try {
+            await collection.doc(key).delete();
+        } catch (e) {
+            console.log('Erro ao excluir cifra da nuvem:', e);
+        }
+    }
+}
+
+// ── MODAL DA BIBLIOTECA DE CIFRAS ───────────────────────────────
+function openCifraLibraryModal() {
+    const modal = document.getElementById('cifraLibraryModal');
+    if (!modal) return;
+    const search = document.getElementById('cifraLibrarySearch');
+    if (search) search.value = '';
+    modal.style.display = 'flex';
+    renderCifraLibraryModal();
+}
+
+function closeCifraLibraryModal() {
+    const modal = document.getElementById('cifraLibraryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function renderCifraLibraryModal() {
+    const listEl   = document.getElementById('cifraLibraryList');
+    const statusEl = document.getElementById('cifraLibraryStatus');
+    const searchEl = document.getElementById('cifraLibrarySearch');
+    if (!listEl) return;
+
+    const query = (searchEl?.value || '').trim().toLowerCase();
+    let entries = cifraLibraryGetAll();
+    if (query) {
+        entries = entries.filter(e => (e.name || '').toLowerCase().includes(query));
+    }
+
+    if (statusEl) {
+        statusEl.textContent = isCloudAvailable()
+            ? '☁️ Sincronizado com a nuvem'
+            : '💾 Salvo apenas neste navegador';
+    }
+
+    if (entries.length === 0) {
+        listEl.innerHTML = '<p class="cifra-library-empty">Nenhuma cifra encontrada.</p>';
+        return;
+    }
+
+    listEl.innerHTML = entries.map(e => {
+        const date = e.updatedAt ? new Date(e.updatedAt).toLocaleDateString('pt-BR') : '';
+        const tone = e.cifraBaseNote ? `Tom: ${escapeHtml(e.cifraBaseNote)}` : '';
+        const meta = [tone, date].filter(Boolean).join(' • ');
+        return `
+            <div class="cifra-library-item">
+                <div class="cifra-library-item-info">
+                    <strong>${escapeHtml(e.name)}</strong>
+                    <small>${meta}</small>
+                </div>
+                <div class="cifra-library-item-actions">
+                    <button class="btn-load" onclick="cifraLibraryApplyToCurrent('${e.key}')">Usar nesta música</button>
+                    <button class="btn-delete" onclick="cifraLibraryConfirmDelete('${e.key}')" title="Excluir">×</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Aplica a cifra da biblioteca à música atualmente aberta no painel
+function cifraLibraryApplyToCurrent(key) {
+    if (cifraPanelId === null) {
+        alert('Abra a cifra de uma música primeiro (clique no ícone 🎵 na lista).');
+        return;
+    }
+    const entry = cifraLibrary[key];
+    if (!entry) return;
+
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    const textarea = document.getElementById('cifraTextarea');
+    if (m && textarea) {
+        textarea.value = entry.cifra;
+        m.cifra = entry.cifra;
+        m.cifraBaseNote  = entry.cifraBaseNote || '';
+        m.cifraSemitones = 0;
+
+        // Detecta/atualiza tom e pad
+        const detected = cifraDetectBaseNote(m.cifra) || m.cifraBaseNote;
+        if (detected) {
+            cifraBaseNote = detected;
+            cifraSemitones = 0;
+            m.cifraBaseNote = detected;
+            const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === detected) || detected;
+            setPadNote(cifraPanelId, padMatch);
+        }
+        cifraUpdateTransposeUI();
+        if (cifraMode === 'view') cifraRenderPreview();
+        _saveCurrentCifra();
+    }
+    closeCifraLibraryModal();
+}
+
+async function cifraLibraryConfirmDelete(key) {
+    const entry = cifraLibrary[key];
+    const name = entry ? entry.name : key;
+    if (!confirm(`Excluir a cifra de "${name}" da biblioteca?`)) return;
+    await cifraLibraryDelete(key);
+    renderCifraLibraryModal();
+}
+// ── FIM MODAL BIBLIOTECA ─────────────────────────────────────────
+// ── FIM BIBLIOTECA ─────────────────────────────────────────────
+let cifraMode = 'edit';       // 'edit' | 'view'
+
+const CIFRA_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const CIFRA_ENHARMONIC = {
+    'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#',
+    'Dbm':'C#m','Ebm':'D#m','Gbm':'F#m','Abm':'G#m','Bbm':'A#m'
+};
+
+// Regex que detecta um acorde no texto (ex: Am, G, F#m7, Bb/D, C#maj7, F#7M, F#m7(11))
+const CHORD_REGEX = /\b([A-G](?:#|b)?(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:\([#b]?\d+\))?(?:\/[A-G](?:#|b)?)?)\b/g;
+
+function cifraNormalizeChord(chord) {
+    return CIFRA_ENHARMONIC[chord] || chord;
+}
+
+function cifraTransposeChord(chord, semitones) {
+    // Separa baixo se tiver barra: Am/E
+    const slashIdx = chord.indexOf('/');
+    let base = chord, bass = '';
+    if (slashIdx !== -1) {
+        base = chord.slice(0, slashIdx);
+        bass = chord.slice(slashIdx); // inclui a barra
+    }
+
+    // Transpõe a nota raiz
+    const rootMatch = base.match(/^([A-G](?:#|b)?)(.*)/);
+    if (!rootMatch) return chord;
+    const rootNorm = cifraNormalizeChord(rootMatch[1]);
+    const idx = CIFRA_NOTES.indexOf(rootNorm);
+    if (idx === -1) return chord;
+    const newRoot = CIFRA_NOTES[(idx + semitones + 120) % 12];
+    const transposedBase = newRoot + rootMatch[2];
+
+    // Transpõe o baixo se existir
+    if (bass) {
+        const bassNote = bass.slice(1); // remove a barra
+        const bassNorm = cifraNormalizeChord(bassNote);
+        const bassIdx = CIFRA_NOTES.indexOf(bassNorm);
+        if (bassIdx !== -1) {
+            const newBass = CIFRA_NOTES[(bassIdx + semitones + 120) % 12];
+            return transposedBase + '/' + newBass;
+        }
+    }
+    return transposedBase;
+}
+
+// ── ANÁLISE HARMÔNICA ──────────────────────────────────────────
+// Campo harmônico maior: graus I II III IV V VI VII
+// Ex: C maior → C Dm Em F G Am Bdim
+const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+const MAJOR_CHORD_QUALITY   = ['', 'm', 'm', '', '', 'm', 'dim'];
+
+// Monta o campo harmônico de uma tônica maior
+function buildMajorField(tonicIdx) {
+    return MAJOR_SCALE_INTERVALS.map((interval, degree) => {
+        const noteIdx = (tonicIdx + interval) % 12;
+        return {
+            root: CIFRA_NOTES[noteIdx],
+            quality: MAJOR_CHORD_QUALITY[degree],
+            degree
+        };
+    });
+}
+
+// Extrai a raiz de um acorde (remove qualidade: m, maj, dim, aug, sus, números, /baixo)
+function extractChordRoot(chord) {
+    const m = chord.match(/^([A-G](?:#|b)?)/);
+    return m ? m[1] : null;
+}
+
+// Extrai qualidade simplificada: '' (maior) ou 'm' (menor/dim)
+function extractChordQuality(chord) {
+    // Remove a raiz e o baixo
+    const withoutBass = chord.split('/')[0];
+    const withoutRoot = withoutBass.replace(/^[A-G](?:#|b)?/, '');
+    if (/^m(?!aj)/i.test(withoutRoot) || /dim/.test(withoutRoot)) return 'm';
+    return '';
+}
+
+// Extrai todos os acordes únicos de uma cifra (só tríades)
+function extractChordsFromCifra(text) {
+    if (!text) return [];
+    const chordSet = new Set();
+    const lines = text.split('\n');
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        // Ignora linhas de letra (maioria minúsculas) e seções
+        if (/^\[/.test(trimmed)) return;
+        const words = trimmed.split(/\s+/).filter(Boolean);
+        const chordCount = words.filter(w =>
+            /^[A-G](?:#|b)?(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:\([#b]?\d+\))?(?:\/[A-G](?:#|b)?)?$/.test(w)
+        ).length;
+        if (words.length === 0 || chordCount / words.length < 0.5) return;
+
+        words.forEach(w => {
+            const rootRaw = extractChordRoot(w);
+            if (!rootRaw) return;
+            const root    = cifraNormalizeChord(rootRaw);
+            const quality = extractChordQuality(w);
+            chordSet.add(root + quality);
+        });
+    });
+
+    return [...chordSet];
+}
+
+// Pontua o quanto um conjunto de acordes pertence a um campo harmônico
+function scoreField(chords, field) {
+    let score = 0;
+    let diatonic = 0;
+
+    chords.forEach(chord => {
+        const root    = cifraNormalizeChord(extractChordRoot(chord) || '');
+        const quality = extractChordQuality(chord);
+
+        const match = field.find(f => f.root === root && f.quality === quality);
+        if (match) {
+            diatonic++;
+            // Peso maior para I, IV, V, VI (graus mais importantes)
+            const weights = [3, 1, 1, 2, 2, 2, 0.5];
+            score += weights[match.degree] || 1;
+        }
+        // Dominantes secundárias: acorde maior que não é diatônico pode ser V/x
+        // Não penaliza, apenas não pontua
+    });
+
+    // Bônus proporcional: campo que cobre mais acordes da cifra
+    const coverage = chords.length > 0 ? diatonic / chords.length : 0;
+    score *= (0.5 + coverage);
+
+    return score;
+}
+
+// Detecta o tom da cifra por análise harmônica
+// Retorna a nota raiz MAIOR do campo (ex: música em Am → retorna 'C')
+function cifraDetectKeyByHarmony(text) {
+    const chords = extractChordsFromCifra(text);
+    if (chords.length === 0) return null;
+
+    let bestScore = -1;
+    let bestTonic = null;
+
+    CIFRA_NOTES.forEach((note, idx) => {
+        const field = buildMajorField(idx);
+        const score = scoreField(chords, field);
+        if (score > bestScore) {
+            bestScore = score;
+            bestTonic = note;
+        }
+    });
+
+    return bestTonic;
+}
+
+function cifraDetectBaseNote(text) {
+    if (!text) return null;
+
+    // 1. PRIORIDADE MÁXIMA: linha "Tom: Xx" escrita pelo usuário
+    //    Esta é a única fonte confiável — detecção harmônica falha em muitos casos
+    const match = text.match(/^Tom:\s*([A-G](?:#|b)?m?)/im);
+    if (match) {
+        const raw = match[1].replace(/m$/, '');
+        return cifraNormalizeChord(raw) || raw;
+    }
+
+    // 2. Fallback: análise harmônica (apenas quando não há linha Tom:)
+    const harmonic = cifraDetectKeyByHarmony(text);
+    if (harmonic) return harmonic;
+
+    return null;
+}
+// ── FIM ANÁLISE HARMÔNICA ──────────────────────────────────────
+
+function cifraGetPadKey(id) {
+    const ps = getPadState(id);
+    return ps ? (ps.note || 'A') : 'A';
+}
+
+let cifraFontSize  = 14;      // tamanho da fonte em px
+let cifraTheme     = 'dark';  // 'dark' | 'light'
+
+function cifraZoom(dir) {
+    cifraFontSize = Math.min(28, Math.max(10, cifraFontSize + dir));
+    const textarea = document.getElementById('cifraTextarea');
+    const preview  = document.getElementById('cifraPreview');
+    const fsContent = document.getElementById('cifraFsContent');
+    if (textarea)  textarea.style.fontSize  = cifraFontSize + 'px';
+    if (preview)   preview.style.fontSize   = cifraFontSize + 'px';
+    if (fsContent) fsContent.style.fontSize = cifraFontSize + 'px';
+
+    document.querySelectorAll('#cifraZoomLabel, #cifraFsZoomLabel').forEach(el => {
+        el.textContent = cifraFontSize + 'px';
+    });
+}
+
+function cifraToggleTheme() {
+    cifraTheme = cifraTheme === 'dark' ? 'light' : 'dark';
+    cifraApplyTheme();
+}
+
+function cifraApplyTheme() {
+    const panel = document.getElementById('cifraPanel');
+    const inner = panel ? panel.querySelector('.cifra-panel-inner') : null;
+    const fs    = document.getElementById('cifraFullscreen');
+
+    const icon = cifraTheme === 'light' ? '☀️' : '🌙';
+
+    // Atualiza só o ícone (span interno), preservando o texto do botão
+    const themeBtn = document.getElementById('cifraThemeBtn');
+    if (themeBtn) themeBtn.textContent = icon;
+
+    const fsThemeBtn = document.getElementById('cifraFsThemeBtn');
+    if (fsThemeBtn) {
+        const span = fsThemeBtn.querySelector('span');
+        if (span) span.textContent = icon;
+    }
+
+    [inner, fs].forEach(target => {
+        if (!target) return;
+        if (cifraTheme === 'light') target.classList.add('cifra-light');
+        else target.classList.remove('cifra-light');
+    });
+}
+
+function cifraUpdateTransposeUI() {
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    if (!m) return;
+    const ps     = getPadState(m.id);
+    const curKey = ps ? (ps.note || 'A') : 'A';
+
+    document.querySelectorAll('#cifraCurKey, #cifraFsCurKey').forEach(el => {
+        el.textContent = curKey;
+    });
+    const padEl = document.getElementById('cifraPadKey');
+    if (padEl) padEl.textContent = curKey;
+}
+
+function cifraTranspose(dir) {
+    cifraSemitones = (cifraSemitones + dir + 120) % 12;
+
+    // Atualizar o pad para acompanhar: move 1 semitom na direção escolhida
+    if (cifraPanelId !== null) {
+        const ps = getPadState(cifraPanelId);
+        if (ps) {
+            const curNote  = ps.note || 'A';
+            const curNorm  = cifraNormalizeChord(curNote);
+            const curIdx   = CIFRA_NOTES.indexOf(curNorm);
+            if (curIdx !== -1) {
+                const newNote  = CIFRA_NOTES[(curIdx + dir + 120) % 12];
+                const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === newNote) || newNote;
+                setPadNote(cifraPanelId, padMatch);
+            }
+        }
+    }
+
+    cifraUpdateTransposeUI();
+    if (cifraMode === 'view') cifraRenderPreview();
+    cifraRenderFullscreen();
+}
+
+// Converte texto de cifra em HTML com acordes transpostos e seções destacadas
+// (lógica pura, reaproveitada pela visualização e pela impressão)
+function cifraTextToHtml(rawText, semitones) {
+    const lines = rawText.split('\n');
+    let html = '';
+
+    // Regex local (sem flag g persistente) para evitar problemas de lastIndex
+    const chordPattern = /[A-G](#|b)?(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:\([#b]?\d+\))?(?:\/[A-G](#|b)?)?/g;
+
+    const transposeInline = (text) => {
+        return text.replace(chordPattern, (m) => {
+            return `<span class="cifra-chord">${escapeHtml(cifraTransposeChord(m, semitones))}</span>`;
+        });
+    };
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+
+        if (trimmed === '') {
+            html += '<div class="cifra-empty-line">&nbsp;</div>';
+            return;
+        }
+
+        // Linha "Tom: Xx" — transpõe a nota do tom
+        if (/^Tom:\s*/i.test(trimmed)) {
+            const transposed = trimmed.replace(/^(Tom:\s*)([A-G](?:#|b)?m?)/i, (_, prefix, note) => {
+                const rootMatch = note.match(/^([A-G](?:#|b)?)/);
+                if (!rootMatch) return prefix + note;
+                const root = cifraNormalizeChord(rootMatch[1]);
+                const idx  = CIFRA_NOTES.indexOf(root);
+                const quality = note.slice(rootMatch[1].length); // 'm' ou ''
+                if (idx === -1) return prefix + note;
+                const newRoot = CIFRA_NOTES[(idx + semitones + 120) % 12];
+                return prefix + newRoot + quality;
+            });
+            html += `<div class="cifra-lyric-line">${escapeHtml(transposed)}</div>`;
+            return;
+        }
+
+        // Linha de seção: [Intro], [Verso] etc. — com possíveis acordes depois
+        if (/^\[.+\]/.test(trimmed)) {
+            const secMatch = trimmed.match(/^(\[.+?\])\s*(.*)/);
+            const secLabel = secMatch[1];
+            const rest     = secMatch[2] || '';
+            let secHtml    = `<span class="cifra-section-label">${escapeHtml(secLabel)}</span>`;
+            if (rest) {
+                secHtml += ' ' + transposeInline(escapeHtml(rest)).replace(
+                    /&amp;|&lt;|&gt;/g, m => ({'&amp;':'&','&lt;':'<','&gt;':'>'}[m])
+                );
+                // Mais simples: transpõe direto no texto sem escapar antes
+                secHtml = `<span class="cifra-section-label">${escapeHtml(secLabel)}</span> ` + transposeInline(rest);
+            }
+            html += `<div class="cifra-section">${secHtml}</div>`;
+            return;
+        }
+
+        // Linha de acordes vs linha de letra
+        const words = trimmed.split(/\s+/).filter(Boolean);
+        const chordCount = words.filter(w => /^[A-G](#|b)?(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:m(?:aj)?|M|min|dim|aug|sus|add)?\d*(?:\([#b]?\d+\))?(?:\/[A-G](#|b)?)?$/.test(w)).length;
+        const isChordLine = words.length > 0 && chordCount / words.length >= 0.6;
+
+        if (isChordLine) {
+            html += `<div class="cifra-chord-line">${transposeInline(line)}</div>`;
+        } else {
+            html += `<div class="cifra-lyric-line">${escapeHtml(line)}</div>`;
+        }
+    });
+
+    return html || '<p class="cifra-empty-msg">Sem conteúdo para exibir.</p>';
+}
+
+function cifraRenderPreview() {
+    const textarea = document.getElementById('cifraTextarea');
+    const preview  = document.getElementById('cifraPreview');
+    if (!textarea || !preview) return;
+    preview.innerHTML = cifraTextToHtml(textarea.value, cifraSemitones);
+}
+
+// Abre uma janela limpa com a cifra formatada e dispara a impressão
+function printCifra() {
+    const textarea = document.getElementById('cifraTextarea');
+    if (!textarea || !textarea.value.trim()) {
+        alert('Não há cifra para imprimir nesta música.');
+        return;
+    }
+
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    const title = m && m.name ? m.name : 'Cifra';
+    const tone  = document.getElementById('cifraCurKey')?.textContent || '';
+    const contentHtml = cifraTextToHtml(textarea.value, cifraSemitones);
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert('Não foi possível abrir a janela de impressão. Verifique se o navegador bloqueou pop-ups.');
+        return;
+    }
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(title)} - Cifra</title>
+            <style>
+                @page { margin: 18mm 16mm; }
+                body {
+                    font-family: 'Courier New', Consolas, monospace;
+                    font-size: 13px;
+                    line-height: 1.7;
+                    color: #111;
+                    background: #fff;
+                    margin: 0;
+                    padding: 0;
+                }
+                .print-header {
+                    font-family: Arial, sans-serif;
+                    margin-bottom: 18px;
+                    border-bottom: 2px solid #111;
+                    padding-bottom: 10px;
+                }
+                .print-header h1 {
+                    font-size: 22px;
+                    margin: 0 0 4px 0;
+                }
+                .print-header .tone {
+                    font-size: 13px;
+                    color: #444;
+                }
+                .cifra-section {
+                    font-weight: bold;
+                    text-transform: uppercase;
+                    font-size: 12px;
+                    letter-spacing: 0.05em;
+                    margin-top: 14px;
+                    margin-bottom: 2px;
+                    color: #555;
+                }
+                .cifra-chord {
+                    font-weight: bold;
+                    color: #1a1a1a;
+                }
+                .cifra-chord-line { white-space: pre; color: #333; }
+                .cifra-lyric-line { white-space: pre; }
+                .cifra-empty-line { height: 8px; }
+                @media print {
+                    body { -webkit-print-color-adjust: exact; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                <h1>${escapeHtml(title)}</h1>
+                ${tone ? `<div class="tone">Tom: ${escapeHtml(tone)}</div>` : ''}
+            </div>
+            ${contentHtml}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+
+    // Espera o conteúdo renderizar antes de chamar o print
+    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+    };
+}
+
+// ── MODO TELA CHEIA (PALCO) ──────────────────────────────────────
+let cifraFsColumns = false;     // true = 2 colunas
+let cifraFsScrollRAF = null;       // requestAnimationFrame handle
+let cifraFsScrollSpeed = 1;        // multiplicador de velocidade (0.5, 1, 1.5, 2)
+let cifraFsScrollAccum = 0;        // acumulador de pixels fracionários
+let cifraFsScrollLastTs = null;    // timestamp do último frame
+
+// ── Auto-scroll do painel lateral ──────────────────────────────────
+let cifraPanelScrollRAF    = null;
+let cifraPanelScrollSpeed  = 1;
+let cifraPanelScrollAccum  = 0;
+let cifraPanelScrollLastTs = null;
+
+// Divide o texto da cifra em duas metades equilibradas, preferindo cortar
+// em uma linha vazia (entre seções) para não partir uma estrofe no meio
+function cifraSplitInHalf(rawText) {
+    const lines = rawText.split('\n');
+    const total = lines.length;
+    const target = Math.ceil(total / 2);
+
+    // Procura a linha vazia mais próxima do ponto-alvo (até 8 linhas de tolerância)
+    let cutAt = target;
+    let bestDist = Infinity;
+    for (let i = Math.max(1, target - 8); i <= Math.min(total - 1, target + 8); i++) {
+        if (lines[i].trim() === '') {
+            const dist = Math.abs(i - target);
+            if (dist < bestDist) { bestDist = dist; cutAt = i; }
+        }
+    }
+
+    return [lines.slice(0, cutAt).join('\n'), lines.slice(cutAt).join('\n')];
+}
+
+function cifraRenderFullscreen() {
+    const content  = document.getElementById('cifraFsContent');
+    const textarea = document.getElementById('cifraTextarea');
+    if (!content || !textarea) return;
+
+    content.style.fontSize = cifraFontSize + 'px';
+
+    const rawText = textarea.value.trim();
+
+    if (!rawText) {
+        const m = metronomes.find(m => m.id === cifraPanelId);
+        const nome = m && m.name ? `"${m.name}"` : 'esta música';
+        content.innerHTML = `
+            <div class="cifra-fs-empty">
+                <div class="cifra-fs-empty-icon">🎵</div>
+                <h3>Nenhuma cifra cadastrada</h3>
+                <p>A música ${escapeHtml(nome)} ainda não tem cifra salva.</p>
+                <p>Feche o modo tela cheia, abra o painel de cifra e adicione a letra e os acordes.</p>
+            </div>
+        `;
+        return;
+    }
+
+    if (cifraFsColumns) {
+        const [firstHalf, secondHalf] = cifraSplitInHalf(textarea.value);
+        content.innerHTML = `
+            <div class="cifra-fs-col">${cifraTextToHtml(firstHalf, cifraSemitones)}</div>
+            <div class="cifra-fs-col">${cifraTextToHtml(secondHalf, cifraSemitones)}</div>
+        `;
+    } else {
+        content.innerHTML = cifraTextToHtml(textarea.value, cifraSemitones);
+    }
+}
+
+// Atualiza nome/posição/BPM/compasso/tom e os botões anterior/próxima
+function cifraFsUpdateInfoBar() {
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    if (!m) return;
+
+    const idx = metronomes.findIndex(x => x.id === cifraPanelId);
+    const prev = idx > 0 ? metronomes[idx - 1] : null;
+    const next = idx < metronomes.length - 1 ? metronomes[idx + 1] : null;
+
+    document.getElementById('cifraFsTitle').textContent = m.name || 'Sem nome';
+    document.getElementById('cifraFsPosition').textContent = `${idx + 1} de ${metronomes.length} na lista`;
+    document.getElementById('cifraFsBpm').textContent = m.bpm;
+    document.getElementById('cifraFsTimeSig').textContent = m.timeSignature || '4/4';
+
+    document.getElementById('cifraFsPrevName').textContent = prev ? (prev.name || 'Sem nome') : '—';
+    document.getElementById('cifraFsNextName').textContent = next ? (next.name || 'Sem nome') : '—';
+    document.getElementById('cifraFsPrevBtn').disabled = !prev;
+    document.getElementById('cifraFsNextBtn').disabled = !next;
+
+    cifraFsUpdatePlayUI();
+}
+
+// Sincroniza o botão de play do fullscreen com o estado real do metrônomo
+function cifraFsUpdatePlayUI() {
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    if (!m) return;
+
+    const icon   = document.getElementById('cifraFsPlayIcon');
+    const label  = document.getElementById('cifraFsPlayLabel');
+    const sub    = document.getElementById('cifraFsPlaySub');
+    const status = document.getElementById('cifraFsPlayStatus');
+    const dot    = document.getElementById('cifraFsPlayDot');
+    const btn    = document.getElementById('cifraFsPlayBtn');
+
+    if (m.isPlaying) {
+        icon.textContent = '⏸';
+        label.textContent = 'Pause';
+        sub.textContent = 'Pausar metrônomo';
+        status.textContent = 'Tocando';
+        dot.classList.add('cifra-fs-dot-on');
+        btn.classList.add('cifra-fs-play-btn-on');
+    } else {
+        icon.textContent = '▶';
+        label.textContent = 'Play';
+        sub.textContent = 'Iniciar metrônomo';
+        status.textContent = 'Parado';
+        dot.classList.remove('cifra-fs-dot-on');
+        btn.classList.remove('cifra-fs-play-btn-on');
+    }
+}
+
+function cifraFsTogglePlay() {
+    if (cifraPanelId === null) return;
+    toggleMetronome(cifraPanelId);
+    cifraFsUpdatePlayUI();
+}
+
+// Navega para a música anterior/próxima da lista, mantendo o fullscreen aberto
+function cifraFsGoTo(targetId) {
+    _saveCurrentCifra();
+
+    // Verifica se a música atual estava tocando, para transferir o play pra próxima
+    const previousId = cifraPanelId;
+    const wasPlaying = previousId !== null && metronomes.some(x => x.id === previousId && x.isPlaying);
+
+    cifraPanelId = targetId;
+
+    const m = metronomes.find(x => x.id === targetId);
+    const textarea = document.getElementById('cifraTextarea');
+    if (textarea) textarea.value = (m && m.cifra) ? m.cifra : '';
+
+    const xRoot = (n) => (n || '').match(/^([A-G](?:#|b)?)/)?.[1] || n;
+    // Restaura tom base e semitons salvos ao navegar entre músicas
+    if (m && m.cifraBaseNote) {
+        cifraBaseNote  = cifraNormalizeChord(xRoot(m.cifraBaseNote)) || m.cifraBaseNote;
+        cifraSemitones = 0;
+        m.cifraSemitones = 0;
+        const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === cifraBaseNote) || cifraBaseNote;
+        setPadNote(targetId, padMatch);
+    } else {
+        const ps2      = getPadState(targetId);
+        const padNote2 = cifraNormalizeChord(xRoot(ps2 ? ps2.note || 'C' : 'C')) || 'C';
+        const detected = cifraDetectBaseNote(m ? m.cifra : '');
+        cifraBaseNote  = detected || padNote2;
+        cifraSemitones = 0;
+        if (m) m.cifraBaseNote = cifraBaseNote;
+        if (m) m.cifraSemitones = 0;
+        const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === cifraBaseNote) || cifraBaseNote;
+        setPadNote(targetId, padMatch);
+    }
+
+    document.getElementById('cifraPanelTitle').textContent = m ? (m.name || 'Sem nome') : 'Cifra';
+    cifraRenderFullscreen();
+    cifraUpdateTransposeUI();
+    cifraFsUpdateInfoBar();
+    renderMetronomes();
+
+    // Se a música anterior estava tocando, inicia a nova automaticamente no novo BPM
+    // (startMetronome já para qualquer outro metrônomo tocando antes de iniciar este)
+    if (wasPlaying) {
+        startMetronome(targetId);
+    }
+}
+
+function cifraFsPrev() {
+    const idx = metronomes.findIndex(x => x.id === cifraPanelId);
+    if (idx > 0) cifraFsGoTo(metronomes[idx - 1].id);
+}
+
+function cifraFsNext() {
+    const idx = metronomes.findIndex(x => x.id === cifraPanelId);
+    if (idx < metronomes.length - 1) cifraFsGoTo(metronomes[idx + 1].id);
+}
+
+// Alterna o layout da cifra entre 1 e 2 colunas
+function cifraFsToggleColumns() {
+    cifraFsColumns = !cifraFsColumns;
+    const content = document.getElementById('cifraFsContent');
+    if (content) content.classList.toggle('cifra-fs-two-columns', cifraFsColumns);
+    document.querySelectorAll('#cifraFsColumnsBtn, #cifraFsColumnsBtn2').forEach(btn => {
+        btn.classList.toggle('cifra-fs-bottom-btn-active', cifraFsColumns);
+        btn.classList.toggle('cifra-fs-sidebar-btn-active', cifraFsColumns);
+    });
+    cifraRenderFullscreen();
+}
+
+// Auto-scroll suave do conteúdo da cifra
+function cifraFsStopAutoscroll() {
+    if (cifraFsScrollRAF) {
+        cancelAnimationFrame(cifraFsScrollRAF);
+        cifraFsScrollRAF = null;
+    }
+    cifraFsScrollLastTs = null;
+    cifraFsScrollAccum  = 0;
+}
+
+function cifraFsToggleAutoscroll() {
+    const checkbox = document.getElementById('cifraFsAutoscroll');
+    const content  = document.getElementById('cifraFsContent');
+    if (!checkbox || !content) return;
+
+    // Lê a velocidade atual do select no momento de ativar
+    cifraFsUpdateScrollSpeed();
+
+    if (checkbox.checked) {
+        cifraFsStopAutoscroll();
+
+        // Pixels por segundo: base 30px/s × multiplicador
+        const PX_PER_SEC = 30;
+
+        function step(ts) {
+            if (!cifraFsScrollLastTs) cifraFsScrollLastTs = ts;
+            const delta = ts - cifraFsScrollLastTs;
+            cifraFsScrollLastTs = ts;
+
+            // Acumula pixels fracionários para não perder sub-pixel
+            cifraFsScrollAccum += (PX_PER_SEC * cifraFsScrollSpeed * delta) / 1000;
+            const pixels = Math.floor(cifraFsScrollAccum);
+            if (pixels >= 1) {
+                content.scrollTop += pixels;
+                cifraFsScrollAccum -= pixels;
+            }
+
+            // Para ao chegar no fim
+            if (content.scrollTop + content.clientHeight >= content.scrollHeight - 2) {
+                checkbox.checked = false;
+                cifraFsStopAutoscroll();
+                return;
+            }
+
+            cifraFsScrollRAF = requestAnimationFrame(step);
+        }
+
+        cifraFsScrollRAF = requestAnimationFrame(step);
+    } else {
+        cifraFsStopAutoscroll();
+    }
+}
+
+function cifraFsUpdateScrollSpeed() {
+    const select = document.getElementById('cifraFsScrollSpeed');
+    if (select) cifraFsScrollSpeed = parseFloat(select.value) || 1;
+}
+
+// ── Auto-scroll do painel lateral ──────────────────────────────────
+function cifraPanelStopScroll() {
+    if (cifraPanelScrollRAF) {
+        cancelAnimationFrame(cifraPanelScrollRAF);
+        cifraPanelScrollRAF = null;
+    }
+    cifraPanelScrollLastTs = null;
+    cifraPanelScrollAccum  = 0;
+}
+
+function cifraTogglePanelScroll() {
+    const checkbox = document.getElementById('cifraScrollToggle');
+    const content  = document.getElementById('cifraPreview');
+    if (!checkbox || !content) return;
+
+    cifraUpdatePanelScrollSpeed();
+
+    if (checkbox.checked) {
+        cifraPanelStopScroll();
+        const PX_PER_SEC = 30;
+
+        function step(ts) {
+            if (!cifraPanelScrollLastTs) cifraPanelScrollLastTs = ts;
+            const delta = ts - cifraPanelScrollLastTs;
+            cifraPanelScrollLastTs = ts;
+
+            cifraPanelScrollAccum += (PX_PER_SEC * cifraPanelScrollSpeed * delta) / 1000;
+            const pixels = Math.floor(cifraPanelScrollAccum);
+            if (pixels >= 1) {
+                content.scrollTop += pixels;
+                cifraPanelScrollAccum -= pixels;
+            }
+
+            if (content.scrollTop + content.clientHeight >= content.scrollHeight - 2) {
+                checkbox.checked = false;
+                cifraPanelStopScroll();
+                return;
+            }
+
+            cifraPanelScrollRAF = requestAnimationFrame(step);
+        }
+
+        cifraPanelScrollRAF = requestAnimationFrame(step);
+    } else {
+        cifraPanelStopScroll();
+    }
+}
+
+function cifraUpdatePanelScrollSpeed() {
+    const select = document.getElementById('cifraScrollSpeedPanel');
+    if (select) cifraPanelScrollSpeed = parseFloat(select.value) || 1;
+}
+
+function openCifraFullscreen() {
+    if (cifraPanelId === null) return;
+    const fs = document.getElementById('cifraFullscreen');
+    if (!fs) return;
+
+    cifraRenderFullscreen();
+    cifraUpdateTransposeUI();
+    cifraFsUpdateInfoBar();
+    cifraApplyTheme();
+
+    fs.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCifraFullscreen() {
+    const fs = document.getElementById('cifraFullscreen');
+    if (fs) fs.style.display = 'none';
+    document.body.style.overflow = '';
+
+    cifraFsStopAutoscroll();
+    const checkbox = document.getElementById('cifraFsAutoscroll');
+    if (checkbox) checkbox.checked = false;
+}
+
+// Fecha com a tecla Esc, navega com as setas
+document.addEventListener('keydown', (e) => {
+    const fs = document.getElementById('cifraFullscreen');
+    if (!fs || fs.style.display !== 'flex') return;
+
+    if (e.key === 'Escape') closeCifraFullscreen();
+    if (e.key === 'ArrowRight') cifraFsNext();
+    if (e.key === 'ArrowLeft') cifraFsPrev();
+});
+// ── FIM MODO TELA CHEIA ──────────────────────────────────────────
+
+function setCifraMode(mode) {
+    cifraMode = mode;
+    const textarea  = document.getElementById('cifraTextarea');
+    const preview   = document.getElementById('cifraPreview');
+    const editBtn   = document.getElementById('cifraModeEdit');
+    const scrollBar = document.getElementById('cifraScrollBar');
+    // cifraSaveBtn permanece sempre visível — não esconder
+    if (!textarea || !preview) return;
+
+    if (mode === 'edit') {
+        textarea.style.display = 'block';
+        preview.style.display  = 'none';
+        if (editBtn)   editBtn.style.display = 'none';
+        if (scrollBar) scrollBar.classList.remove('visible');
+        // Para o scroll ao entrar em edição
+        cifraPanelStopScroll();
+        const chk = document.getElementById('cifraScrollToggle');
+        if (chk) chk.checked = false;
+    } else {
+        textarea.style.display = 'none';
+        preview.style.display  = 'block';
+        if (editBtn)   editBtn.style.display = '';
+        if (scrollBar) scrollBar.classList.add('visible');
+    }
+}
+
+function openCifraPanel(id) {
+    // Se clicar no mesmo já aberto, fecha
+    if (cifraPanelId === id) {
+        closeCifraPanel();
+        return;
+    }
+
+    // Salva cifra do painel anterior antes de trocar
+    if (cifraPanelId !== null) _saveCurrentCifra();
+
+    cifraPanelId = id;
+
+    const m = metronomes.find(m => m.id === id);
+    const panel = document.getElementById('cifraPanel');
+    const container = document.getElementById('mainContainer');
+
+    // Título
+    document.getElementById('cifraPanelTitle').textContent = m ? (m.name || 'Sem nome') : 'Cifra';
+
+    // Preenche textarea com cifra salva
+    const textarea = document.getElementById('cifraTextarea');
+    textarea.value = (m && m.cifra) ? m.cifra : '';
+
+    // Restaura tom: usa o que foi salvo. Detect só se nunca definido.
+    const extractRoot = (n) => (n || '').match(/^([A-G](?:#|b)?)/)?.[1] || n;
+    // Restaura o tom base e os semitons salvos.
+    if (m && m.cifraBaseNote) {
+        cifraBaseNote  = cifraNormalizeChord(extractRoot(m.cifraBaseNote)) || m.cifraBaseNote;
+        cifraSemitones = 0;
+        m.cifraSemitones = 0;
+        const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === cifraBaseNote) || cifraBaseNote;
+        setPadNote(id, padMatch);
+    } else {
+        const ps      = getPadState(id);
+        const padRaw  = ps ? (ps.note || 'C') : 'C';
+        const padNote = cifraNormalizeChord(extractRoot(padRaw)) || 'C';
+        const detected = cifraDetectBaseNote(m ? m.cifra : '');
+        cifraBaseNote  = detected || padNote;
+        cifraSemitones = 0;
+        if (m) m.cifraBaseNote = cifraBaseNote;
+        if (m) m.cifraSemitones = 0;
+        const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === cifraBaseNote) || cifraBaseNote;
+        setPadNote(id, padMatch);
+    }
+
+    // Se a cifra já tem conteúdo, abre direto em visualização (com scroll disponível)
+    // Se está vazia, abre em edição para o usuário digitar
+    if (m && m.cifra) {
+        cifraRenderPreview();
+        setCifraMode('view');
+    } else {
+        setCifraMode('edit');
+    }
+
+    // Transpor UI
+    cifraUpdateTransposeUI();
+
+    // Aplicar zoom e tema
+    cifraZoom(0);
+    cifraApplyTheme();
+
+    // Mostrar painel com animação de expand (flex-basis)
+    const wrapper = document.querySelector('.container-split-wrapper');
+    panel.style.display = 'block';
+    initCifraResize();
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            if (wrapper) wrapper.classList.add('is-split');
+            panel.classList.add('cifra-open');
+        });
+    });
+
+    // Destacar botão ativo
+    renderMetronomes();
+}
+
+function _saveCurrentCifra() {
+    if (cifraPanelId === null) return;
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    const textarea = document.getElementById('cifraTextarea');
+    if (m && textarea) {
+        m.cifra         = textarea.value;
+        m.cifraBaseNote = cifraBaseNote;
+        m.cifraSemitones = 0;
+        saveLastConfig();
+    }
+}
+
+async function saveCifraPanel() {
+    const m = metronomes.find(m => m.id === cifraPanelId);
+    const textarea = document.getElementById('cifraTextarea');
+
+    if (m && textarea) {
+        m.cifra = textarea.value;
+
+        // Detect automático SOMENTE na primeira vez (cifraBaseNote ainda vazio).
+        // Se o usuário já definiu o tom via −/+, NUNCA sobrescreve — nem ao editar o texto.
+        if (!cifraBaseNote) {
+            const ps       = getPadState(cifraPanelId);
+            const detected = cifraDetectBaseNote(m.cifra);
+            cifraBaseNote  = detected || (ps ? ps.note || 'C' : 'C');
+            cifraSemitones = 0;
+            m.cifraSemitones = 0;
+            const padMatch = PAD_NOTES.find(n => (CIFRA_ENHARMONIC[n] || n) === cifraBaseNote) || cifraBaseNote;
+            setPadNote(cifraPanelId, padMatch);
+            cifraUpdateTransposeUI();
+        }
+    }
+
+    _saveCurrentCifra();
+    cifraSemitones = 0;
+    if (m) m.cifraSemitones = 0;
+
+    if (m && m.name && m.cifra) {
+        await cifraLibrarySave(m.name, m.cifra, m.cifraBaseNote, cifraSemitones);
+        if (document.getElementById('cifraLibraryModal')?.style.display === 'flex') {
+            renderCifraLibraryModal();
+        }
+    }
+
+    // Renderiza preview e entra em modo visualizar
+    cifraRenderPreview();
+    setCifraMode('view');
+}
+
+function closeCifraPanel() {
+    _saveCurrentCifra();
+    cifraPanelStopScroll();
+    const chk = document.getElementById('cifraScrollToggle');
+    if (chk) chk.checked = false;
+    cifraPanelId = null;
+    cifraSemitones = 0;
+    const panel = document.getElementById('cifraPanel');
+    const wrapper = document.querySelector('.container-split-wrapper');
+
+    if (panel) panel.classList.remove('cifra-open');
+    if (wrapper) wrapper.classList.remove('is-split');
+
+    setTimeout(() => {
+        if (panel && !panel.classList.contains('cifra-open')) {
+            panel.style.display = 'none';
+            panel.style.width = '';
+            panel.style.flexBasis = '';
+        }
+    }, 320);
+
+    renderMetronomes();
+}
+
+// ── RESIZE DO PAINEL DE CIFRA ──────────────────────────────────
+function initCifraResize() {
+    const handle = document.getElementById('cifraResizeHandle');
+    const panel  = document.getElementById('cifraPanel');
+    if (!handle || !panel) return;
+
+    let startX, startWidth;
+
+    handle.addEventListener('mousedown', (e) => {
+        startX     = e.clientX;
+        // getBoundingClientRect é mais confiável que offsetWidth quando height:0
+        startWidth = panel.getBoundingClientRect().width || Math.round(window.innerWidth * 0.41);
+        handle.classList.add('dragging');
+        panel.classList.add('cifra-no-transition');
+        document.getElementById('mainContainer')?.classList.add('cifra-no-transition');
+        document.body.style.cursor    = 'ew-resize';
+        document.body.style.userSelect = 'none';
+
+        function onMove(e) {
+            const delta = startX - e.clientX;
+            // Garante no mínimo 380px para a lista de metrônomos (grid comprimido), teto de 900px
+            const maxAllowed = Math.min(900, Math.max(320, window.innerWidth - 380));
+            const newWidth = Math.min(maxAllowed, Math.max(460, startWidth + delta));
+            panel.style.width = newWidth + 'px';
+            panel.style.flexBasis = newWidth + 'px';
+            const inner = panel.querySelector('.cifra-panel-inner');
+            if (inner) inner.style.width = newWidth + 'px';
+        }
+
+        function onUp() {
+            handle.classList.remove('dragging');
+            panel.classList.remove('cifra-no-transition');
+            document.getElementById('mainContainer')?.classList.remove('cifra-no-transition');
+            document.body.style.cursor    = '';
+            document.body.style.userSelect = '';
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup',   onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onUp);
+        e.preventDefault();
+    });
+
+    // Touch support
+    handle.addEventListener('touchstart', (e) => {
+        startX     = e.touches[0].clientX;
+        startWidth = panel.getBoundingClientRect().width || Math.round(window.innerWidth * 0.41);
+        panel.classList.add('cifra-no-transition');
+        document.getElementById('mainContainer')?.classList.add('cifra-no-transition');
+
+        function onMove(e) {
+            const delta = startX - e.touches[0].clientX;
+            const maxAllowed = Math.min(900, Math.max(320, window.innerWidth - 380));
+            const newWidth = Math.min(maxAllowed, Math.max(460, startWidth + delta));
+            panel.style.width = newWidth + 'px';
+            panel.style.flexBasis = newWidth + 'px';
+            const inner = panel.querySelector('.cifra-panel-inner');
+            if (inner) inner.style.width = newWidth + 'px';
+        }
+
+        function onEnd() {
+            panel.classList.remove('cifra-no-transition');
+            document.getElementById('mainContainer')?.classList.remove('cifra-no-transition');
+            handle.removeEventListener('touchmove', onMove);
+            handle.removeEventListener('touchend',  onEnd);
+        }
+
+        handle.addEventListener('touchmove', onMove);
+        handle.addEventListener('touchend',  onEnd);
+        e.preventDefault();
+    }, { passive: false });
+}
+// ── FIM CIFRA ──────────────────────────────────────────────────
 
 // ── PAD CONTÍNUO ──────────────────────────────────────────────
 // Usa arquivos MP3 da pasta /pads/ — 12 tons, um por nota.
@@ -635,6 +1928,7 @@ async function initializeFirebase() {
             }
             await loadSavedSetlists();
             renderSetlistManager();
+            await cifraLibraryLoad();
 
             if (!authInitialized) {
                 authInitialized = true;
@@ -651,11 +1945,11 @@ async function initializeFirebase() {
 }
 
 // Detectar se storage está disponível
-const hasSharedStorage = typeof window.storage !== 'undefined';
+const hasClaudeStorage = typeof window.storage !== 'undefined';
 
 // Funções de storage com fallback para localStorage
 async function storageSet(key, value, shared = false) {
-    if (hasSharedStorage) {
+    if (hasClaudeStorage) {
         try {
             return await window.storage.set(key, value, shared);
         } catch (e) {
@@ -669,7 +1963,7 @@ async function storageSet(key, value, shared = false) {
 }
 
 async function storageGet(key, shared = false) {
-    if (hasSharedStorage) {
+    if (hasClaudeStorage) {
         try {
             return await window.storage.get(key, shared);
         } catch (e) {
@@ -682,7 +1976,7 @@ async function storageGet(key, shared = false) {
 }
 
 async function storageDelete(key, shared = false) {
-    if (hasSharedStorage) {
+    if (hasClaudeStorage) {
         try {
             return await window.storage.delete(key, shared);
         } catch (e) {
@@ -695,7 +1989,7 @@ async function storageDelete(key, shared = false) {
 }
 
 async function storageList(prefix, shared = false) {
-    if (hasSharedStorage) {
+    if (hasClaudeStorage) {
         try {
             return await window.storage.list(prefix, shared);
         } catch (e) {
@@ -791,6 +2085,7 @@ async function migrateLocalSetlistsToCloud() {
 async function init() {
     try {
         console.log('🚀 Iniciando metrônomo...');
+        cifraLibraryLoadLocal();
         
         try {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -971,6 +2266,9 @@ async function saveLastConfig() {
                     bpm: m.bpm,
                     timeSignature: m.timeSignature,
                     beats: m.beats,
+                    cifra: m.cifra || '',
+                    cifraBaseNote: m.cifraBaseNote || '',
+                    cifraSemitones: 0,
                     padNote: ps ? ps.note : 'A',
                     padEnabled: ps ? ps.enabled : false,
                     padVolume: ps ? ps.volume : 0.7
@@ -1045,6 +2343,9 @@ async function saveSetlist() {
                     bpm: m.bpm,
                     timeSignature: m.timeSignature,
                     beats: m.beats,
+                    cifra: m.cifra || '',
+                    cifraBaseNote: m.cifraBaseNote || '',
+                    cifraSemitones: 0,
                     padNote: ps ? ps.note : 'A',
                     padEnabled: ps ? ps.enabled : false,
                     padVolume: ps ? ps.volume : 0.7
@@ -1077,7 +2378,7 @@ async function saveSetlist() {
 }
 
 async function shareSetlist() {
-    if (!hasSharedStorage) {
+    if (!hasClaudeStorage) {
         alert('⚠️ "Exportar JSON" para compartilhar manualmente.');
         return;
     }
@@ -1155,7 +2456,7 @@ async function loadSavedSetlists() {
 }
 
 async function loadSharedSetlists() {
-    if (!hasSharedStorage) {
+    if (!hasClaudeStorage) {
         sharedSetlists = [];
         return;
     }
@@ -1410,7 +2711,7 @@ function renderSetlistManager() {
     html += '<div class="setlist-section">';
     html += '<h3>🌐 Setlists Compartilhados</h3>';
     
-    if (!hasSharedStorage) {
+    if (!hasClaudeStorage) {
         html += '<p class="empty-message">⚠️ "Exportar/Importar JSON"</p>';
     } else if (sharedSetlists.length === 0) {
         html += '<p class="empty-message">Nenhum compartilhado</p>';
@@ -1471,6 +2772,7 @@ function addMetronome() {
         bpm: 120,
         timeSignature: '4/4',
         beats: 4,
+        cifra: '',
         isPlaying: false,
         currentBeat: 0
     });
@@ -1481,6 +2783,10 @@ function addMetronome() {
 
 function removeMetronome(id) {
     if (metronomes.length <= 1) return;
+    if (cifraPanelId === id) {
+        closeCifraFullscreen();
+        closeCifraPanel();
+    }
     stopMetronome(id);
     metronomes = metronomes.filter(m => m.id !== id);
     renderMetronomes();
@@ -1500,6 +2806,33 @@ function updateMetronome(id, field, value) {
     }
 
     metronome[field] = value;
+
+    // Sincroniza título do painel de cifra se o nome mudou
+    if (field === 'name' && cifraPanelId === id) {
+        const titleEl = document.getElementById('cifraPanelTitle');
+        if (titleEl) titleEl.textContent = value || 'Sem nome';
+    }
+
+    // Busca cifra na biblioteca ao digitar o nome
+    if (field === 'name' && value && value.trim().length >= 3) {
+        const found = cifraLibraryGet(value);
+        if (found && found.cifra && !metronome.cifra) {
+            // Só auto-preenche se a música ainda não tem cifra
+            metronome.cifra = found.cifra;
+            metronome.cifraBaseNote = found.cifraBaseNote || '';
+            metronome.cifraSemitones = 0;
+            // Se o painel desta música está aberto, atualiza o textarea
+            if (cifraPanelId === id) {
+                const textarea = document.getElementById('cifraTextarea');
+                if (textarea) {
+                    textarea.value = found.cifra;
+                    // Notifica visualmente
+                    textarea.style.borderLeft = '3px solid #4ade80';
+                    setTimeout(() => { textarea.style.borderLeft = ''; }, 2000);
+                }
+            }
+        }
+    }
 
     if (metronome.isPlaying && (field === 'bpm' || field === 'timeSignature')) {
         restartMetronomeInterval(id);
@@ -1583,6 +2916,17 @@ function startMetronome(id) {
     }, interval);
 
     updateMetronomeItemUI(id);
+
+    // Auto-navega a cifra se o painel já estiver aberto para outra música com cifra
+    if (cifraPanelId !== null && cifraPanelId !== id) {
+        const fs = document.getElementById('cifraFullscreen');
+        const inFullscreen = fs && fs.style.display === 'flex';
+        if (!inFullscreen && metronome.cifra) {
+            // Só troca a cifra exibida se a nova música também tiver cifra salva
+            openCifraPanel(id);
+        }
+        // Se a nova música não tem cifra, mantém o painel aberto onde estava
+    }
 }
 
 function restartMetronomeInterval(id) {
@@ -1875,6 +3219,13 @@ function updateBeatIndicator(id, currentBeat) {
 function updateMetronomeItemUI(id) {
     const metronome = metronomes.find(m => m.id === id);
     if (!metronome) return;
+
+    // Sincroniza o botão de play do modo tela cheia, se estiver aberto para esta música
+    const fs = document.getElementById('cifraFullscreen');
+    if (fs && fs.style.display === 'flex' && cifraPanelId === id) {
+        cifraFsUpdatePlayUI();
+    }
+
     const item = document.querySelector('[data-id="' + id + '"]');
     if (!item) return;
     const btn = item.querySelector('.play-btn');
@@ -1917,7 +3268,7 @@ function renderMetronomes() {
         }
 
         item.innerHTML = `
-            <div class="item-number">${index + 1}</div>
+            <div class="item-number" title="Arraste para reordenar" aria-label="Arraste para reordenar">${index + 1}</div>
             <div class="name-row">
                 <input type="text" class="music-input" placeholder="Nome da música..." 
                        value="${m.name}" onchange="updateMetronome(${m.id}, 'name', this.value)">
@@ -1948,9 +3299,14 @@ function renderMetronomes() {
                 </div>
             </div>
             <div class="remove-cell">
-                ${metronomes.length > 1 ? 
-                    `<button class="remove-btn" onclick="removeMetronome(${m.id})">×</button>` : ''
-                }
+                <div class="action-btns">
+                    <button class="cifra-btn-item${(cifraPanelId === m.id) ? ' cifra-btn-item-active' : ''}" 
+                            onclick="openCifraPanel(${m.id})"
+                            title="Abrir cifra">🎵</button>
+                    ${metronomes.length > 1 ? 
+                        `<button class="remove-btn" onclick="removeMetronome(${m.id})">×</button>` : ''
+                    }
+                </div>
             </div>
         `;
 
@@ -1980,7 +3336,25 @@ function initMetronomeSortable(list) {
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
+        onMove: event => {
+            document.querySelectorAll('#metronomeList .metronome-item')
+                .forEach(item => item.classList.remove('sortable-target'));
+
+            if (event.related) event.related.classList.add('sortable-target');
+
+            const originalEvent = event.originalEvent;
+            if (originalEvent) {
+                const edge = 90;
+                if (originalEvent.clientY < edge) {
+                    window.scrollBy(0, -12);
+                } else if (originalEvent.clientY > window.innerHeight - edge) {
+                    window.scrollBy(0, 12);
+                }
+            }
+        },
         onEnd: () => {
+            document.querySelectorAll('#metronomeList .metronome-item')
+                .forEach(item => item.classList.remove('sortable-target'));
             const ids = Array.from(list.querySelectorAll('.metronome-item'))
                 .map(element => Number(element.dataset.id));
             const byId = new Map(metronomes.map(metronome => [metronome.id, metronome]));
@@ -1994,137 +3368,6 @@ function initMetronomeSortable(list) {
             }
         }
     });
-}
-
-function setupMetronomeDrag(item) {
-    let pointerId = null;
-    let startY = 0;
-    let isDragging = false;
-    let lastClientX = 0;
-    let lastClientY = 0;
-    let autoScrollFrame = null;
-
-    // Enquanto arrasta perto do topo/rodapé da janela, rola a página sozinha
-    // (útil quando a lista de músicas é mais alta que a tela) — mesmo
-    // comportamento que já temos no app Android.
-    function autoScrollTick() {
-        const edgeThreshold = 90;
-        const maxSpeed = 16;
-        let speed = 0;
-
-        if (lastClientY < edgeThreshold) {
-            const intensity = (edgeThreshold - lastClientY) / edgeThreshold;
-            speed = -Math.ceil(maxSpeed * intensity);
-        } else if (lastClientY > window.innerHeight - edgeThreshold) {
-            const intensity = (lastClientY - (window.innerHeight - edgeThreshold)) / edgeThreshold;
-            speed = Math.ceil(maxSpeed * intensity);
-        }
-
-        if (speed !== 0) {
-            window.scrollBy(0, speed);
-            // Depois de rolar, a posição do item embaixo do ponteiro mudou —
-            // reavalia pra continuar reordenando enquanto a página rola.
-            const target = document.elementFromPoint(lastClientX, lastClientY)?.closest('.metronome-item');
-            if (target && target !== item) {
-                document.querySelectorAll('.metronome-item').forEach(element => {
-                    element.classList.remove('drag-over');
-                });
-                target.classList.add('drag-over');
-                const shouldInsertBefore = lastClientY < target.getBoundingClientRect().top + target.offsetHeight / 2;
-                target.parentNode.insertBefore(item, shouldInsertBefore ? target : target.nextSibling);
-            }
-        }
-
-        autoScrollFrame = requestAnimationFrame(autoScrollTick);
-    }
-
-    item.addEventListener('pointerdown', event => {
-        if (!event.target.closest('.item-number')) return;
-
-        if (autoScrollFrame) {
-            cancelAnimationFrame(autoScrollFrame);
-            autoScrollFrame = null;
-        }
-
-        pointerId = event.pointerId;
-        startY = event.clientY;
-        lastClientX = event.clientX;
-        lastClientY = event.clientY;
-        isDragging = false;
-        item.setPointerCapture(pointerId);
-        event.preventDefault();
-    });
-
-    item.addEventListener('pointermove', event => {
-        if (event.pointerId !== pointerId) return;
-        lastClientX = event.clientX;
-        lastClientY = event.clientY;
-
-        if (!isDragging && Math.abs(event.clientY - startY) < 6) return;
-        if (!isDragging) {
-            isDragging = true;
-            item.classList.add('dragging');
-            autoScrollFrame = requestAnimationFrame(autoScrollTick);
-        }
-
-        document.querySelectorAll('.metronome-item').forEach(element => {
-            element.classList.remove('drag-over');
-        });
-
-        // Procura a posição pela altura de todos os cartões. Isso evita que
-        // o item fique preso somente entre os dois vizinhos imediatos.
-        const otherItems = Array.from(document.querySelectorAll('#metronomeList .metronome-item'))
-            .filter(element => element !== item);
-        const target = otherItems.find(element => {
-            const rect = element.getBoundingClientRect();
-            return event.clientY < rect.top + rect.height / 2;
-        });
-
-        if (target) {
-            target.classList.add('drag-over');
-            target.parentNode.insertBefore(item, target);
-        } else if (otherItems.length > 0) {
-            otherItems[otherItems.length - 1].parentNode.appendChild(item);
-            otherItems[otherItems.length - 1].classList.add('drag-over');
-        }
-    });
-
-    item.addEventListener('pointerup', finish);
-    item.addEventListener('pointercancel', finish);
-    // O ponteiro pode ser liberado fora do cartão enquanto ele está sendo
-    // arrastado; nesse caso o evento nem sempre chega ao próprio item.
-    window.addEventListener('pointerup', finish);
-    window.addEventListener('pointercancel', finish);
-
-    function finish(event) {
-        if (event.pointerId !== pointerId) return;
-
-        if (autoScrollFrame) {
-            cancelAnimationFrame(autoScrollFrame);
-            autoScrollFrame = null;
-        }
-
-        if (item.hasPointerCapture(pointerId)) item.releasePointerCapture(pointerId);
-        item.classList.remove('dragging', 'drag-over');
-        document.querySelectorAll('.metronome-item').forEach(element => element.classList.remove('drag-over'));
-
-        if (isDragging) {
-            const ids = Array.from(document.querySelectorAll('#metronomeList .metronome-item'))
-                .map(element => Number(element.dataset.id));
-            const currentOrder = metronomes.map(metronome => metronome.id);
-            const hasChanged = ids.some((id, index) => id !== currentOrder[index]);
-
-            if (hasChanged) {
-                const byId = new Map(metronomes.map(metronome => [metronome.id, metronome]));
-                metronomes = ids.map(id => byId.get(id)).filter(Boolean);
-                renderMetronomes();
-                saveLastConfig();
-            }
-        }
-
-        pointerId = null;
-        isDragging = false;
-    }
 }
 
 document.addEventListener('DOMContentLoaded', init);

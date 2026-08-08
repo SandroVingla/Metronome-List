@@ -641,6 +641,9 @@ body {
     max-width: 1000px;
     margin: 0 auto;
     padding: 30px 20px;
+    transition: margin-right 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-left 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                max-width 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .header {
@@ -1037,9 +1040,10 @@ body {
 /* Metrônomos */
 .metronome-header {
     display: grid;
-    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px 50px;
+    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px;
     gap: 12px;
     padding: 12px 20px;
+    padding-right: 90px;
     background: rgba(0,0,0,0.2);
     border-radius: 8px;
     margin-bottom: 15px;
@@ -1086,9 +1090,10 @@ body {
 
 .metronome-item {
     display: grid;
-    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px 50px;
+    grid-template-columns: 50px 2fr 110px 80px 150px 110px 80px;
     gap: 12px;
     padding: 14px 20px;
+    padding-right: 90px;
     background: #64748b;
     border-radius: 12px;
     margin-bottom: 12px;
@@ -1096,17 +1101,6 @@ body {
     transition: all 0.2s;
     position: relative;
 }
-
-.sortable-ghost {
-    opacity: 0.45;
-    outline: 2px dashed #f59e0b;
-    outline-offset: 3px;
-}
-
-.sortable-chosen {
-    cursor: grabbing;
-}
-
 
 /* Desktop: wrappers invisíveis — cada filho participa do grid normalmente */
 .controls-row {
@@ -1117,8 +1111,40 @@ body {
     display: contents;
 }
 
+/* remove-cell fora do grid — posição absoluta no canto superior direito */
 .remove-cell {
-    display: contents;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 2;
+}
+
+.action-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.remove-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.remove-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.1);
 }
 
 .metronome-item.playing {
@@ -1138,10 +1164,25 @@ body {
     font-weight: bold;
     font-size: 0.9rem;
     cursor: grab;
-    touch-action: none;
+    user-select: none;
 }
 
 .item-number:active {
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity: 0.35;
+    outline: 2px dashed #fbbf24;
+    outline-offset: 3px;
+}
+
+.sortable-target {
+    outline: 2px solid #fbbf24;
+    outline-offset: 3px;
+}
+
+.sortable-chosen {
     cursor: grabbing;
 }
 
@@ -1258,23 +1299,6 @@ body {
 .beat-dot.accent {
     background: #f59e0b;
     box-shadow: 0 0 8px #f59e0b;
-}
-
-.remove-btn {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: #dc2626;
-    color: white;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: all 0.2s;
-}
-
-.remove-btn:hover {
-    background: #b91c1c;
-    transform: scale(1.1);
 }
 
 /* Links Rápidos */
@@ -2628,7 +2652,7 @@ footer a:hover {
         border: 2px solid #16a34a;
     }
 
-    /* O número também funciona como handle de arraste no mobile. */
+    /* O número também funciona como alça de arraste no mobile. */
     .item-number {
         display: flex;
         position: absolute;
@@ -2695,14 +2719,11 @@ footer a:hover {
         align-items: center;
         gap: 8px;
         order: 1;
-        padding-left: 36px;
     }
 
     .remove-cell {
-        display: block;
-        position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 8px;
+        right: 8px;
     }
 
     /* Linha de controles: Play + BPM + PAD + Compasso */
@@ -3860,3 +3881,1608 @@ footer a:hover {
         padding: 24px 20px;
     }
 }
+/* ── CIFRA PANEL ──────────────────────────────────────────────── */
+
+/* Split layout wrapper */
+.container-split-wrapper {
+    display: block;
+}
+
+.container-split-wrapper.is-split {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+/* Quando split, o container encolhe para dar espaço ao painel */
+.container-split-wrapper.is-split #mainContainer {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    overflow: hidden;
+}
+
+.container-split-wrapper.is-split #mainContainer .container {
+    max-width: 100%;
+    padding-right: 20px;
+}
+
+.container-split-wrapper.is-split .metronome-item {
+    grid-template-columns: 40px 1fr 90px 70px 120px 90px 60px;
+    gap: 8px;
+    padding: 14px 12px;
+    padding-right: 80px;
+}
+
+/* Painel de cifra - placeholder reserva LARGURA no flex, sem altura (inner é fixed) */
+.cifra-panel {
+    flex: 0 0 0px;
+    width: 0;
+    min-width: 0;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: visible;
+    transition: flex-basis 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    align-self: flex-start;
+    display: block;
+}
+
+.cifra-panel.cifra-open {
+    flex: 0 0 50vw;
+    width: 50vw;
+    min-width: 400px;
+    /* SEM height — o inner é fixed e não afeta o fluxo do documento */
+}
+
+/* O conteúdo real do painel fica fixed em cima do placeholder */
+.cifra-panel-inner {
+    position: fixed;
+    top: 68px;
+    right: 0;
+    width: 50vw;
+    min-width: 400px;
+    height: calc(100vh - 68px);
+    background: #0d1117;
+    border-left: 1px solid #21262d;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.3);
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cifra-panel.cifra-open .cifra-panel-inner {
+    transform: translateX(0);
+}
+
+.cifra-panel.cifra-no-transition,
+.cifra-panel.cifra-no-transition .cifra-panel-inner {
+    transition: none !important;
+}
+
+/* Alça de redimensionamento */
+.cifra-resize-handle {
+    display: none; /* resize removido — largura fixa 50/50 */
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+    background: transparent;
+    z-index: 10;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Indicador visual permanente — 3 pontinhos centralizados */
+.cifra-resize-handle::after {
+    content: '';
+    width: 2px;
+    height: 32px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.15s, height 0.15s;
+}
+
+.cifra-resize-handle:hover::after,
+.cifra-resize-handle.dragging::after {
+    background: #4ade80;
+    height: 48px;
+}
+
+.cifra-resize-handle:hover,
+.cifra-resize-handle.dragging {
+    background: rgba(74, 222, 128, 0.1);
+}
+
+/* Header do painel */
+.cifra-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.cifra-panel-icon {
+    font-size: 16px;
+}
+
+.cifra-panel-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cifra-panel-header-actions {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.cifra-mode-btn {
+    padding: 5px 10px;
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.cifra-mode-btn:hover {
+    background: #1e293b;
+    color: #cbd5e1;
+}
+
+.cifra-mode-btn.active {
+    background: #1e293b;
+    color: #4ade80;
+    border-color: #4ade80;
+    font-weight: 600;
+}
+
+.cifra-save-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+    background: #166534;
+    color: #86efac;
+    border: 1px solid #15803d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.cifra-save-btn:hover {
+    background: #15803d;
+}
+
+.cifra-close-btn {
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.cifra-close-btn:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+/* Barra de transposição */
+.cifra-transpose-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.cifra-t-label {
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.cifra-t-btn {
+    width: 26px;
+    height: 26px;
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.cifra-t-btn:hover {
+    background: #21262d;
+}
+
+.cifra-t-key {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c4b5fd;
+    min-width: 30px;
+    text-align: center;
+}
+
+.cifra-t-sep {
+    color: #334155;
+    font-size: 16px;
+}
+
+.cifra-pad-key {
+    font-size: 13px;
+    font-weight: 600;
+    color: #60a5fa;
+}
+
+/* Área do editor */
+.cifra-editor-area {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cifra-textarea {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: none;
+    outline: none;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    resize: none;
+    tab-size: 4;
+}
+
+.cifra-textarea::placeholder {
+    color: #334155;
+}
+
+/* Preview renderizado */
+.cifra-preview {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    display: none;
+}
+
+.cifra-section {
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 16px;
+    margin-bottom: 2px;
+}
+
+.cifra-chord-line {
+    color: #c4b5fd;
+    white-space: pre;
+}
+
+.cifra-chord {
+    color: #c4b5fd;
+    font-weight: 700;
+    background: rgba(196, 181, 253, 0.10);
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
+.cifra-lyric-line {
+    color: #d4d8e0;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: pre;
+}
+
+.cifra-empty-msg {
+    color: #334155;
+    font-style: italic;
+    font-family: sans-serif;
+}
+
+.cifra-empty-line {
+    line-height: 1;
+    height: 10px;
+}
+
+.cifra-section-label {
+    color: #f59e0b;
+    font-weight: 700;
+}
+
+/* Footer modos */
+
+/* ── FIM CIFRA ─────────────────────────────────────────────────── */
+.cifra-btn-item {
+    font-size: 14px;
+    width: 30px;
+    height: 30px;
+    background: #475569;
+    border: 1px solid #64748b;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    opacity: 0.85;
+}
+
+.cifra-btn-item:hover {
+    background: #4ade80;
+    border-color: #22c55e;
+    opacity: 1;
+}
+
+.cifra-btn-item-active {
+    background: #16a34a;
+    border-color: #4ade80;
+    opacity: 1;
+}
+
+/* Responsivo: em telas pequenas o painel vai embaixo */
+@media (max-width: 900px) {
+    .container.container-split {
+        max-width: 100%;
+        padding-right: 20px;
+    }
+    .cifra-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 92vw;
+        max-width: 420px;
+        height: 100vh;
+        border-radius: 12px 0 0 12px;
+        margin: 0;
+        z-index: 1000;
+        box-shadow: -4px 0 24px rgba(0,0,0,0.4);
+    }
+}
+/* ── FIM CIFRA ─────────────────────────────────────────────────── */
+
+.cifra-zoom-label {
+    font-size: 11px;
+    color: #64748b;
+    min-width: 30px;
+    text-align: center;
+}
+
+.cifra-theme-btn {
+    width: 26px;
+    height: 26px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.cifra-theme-btn:hover { background: #334155; }
+
+/* ── Tema claro ── */
+
+/* ── Barra de auto-scroll do painel lateral ── */
+.cifra-scroll-bar {
+    display: none; /* visível só no modo view */
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px 0 10px;
+    margin-left: auto;
+    margin-right: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    border-left: 1px solid #21262d;
+}
+
+.cifra-scroll-bar.visible {
+    display: flex;
+}
+
+.cifra-scroll-select {
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-size: 12px;
+}
+
+/* Mini toggle switch para o painel */
+.cifra-panel-toggle {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.cifra-panel-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cifra-panel-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #30363d;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.cifra-panel-toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.cifra-panel-toggle input:checked + .cifra-panel-toggle-slider {
+    background: #3fb950;
+}
+
+.cifra-panel-toggle input:checked + .cifra-panel-toggle-slider::before {
+    transform: translateX(14px);
+}
+
+/* ── Tema claro do painel lateral — paleta creme/sépia ── */
+.cifra-panel-inner.cifra-light { background: #f5f0e8; border-color: #d4c9b8; }
+.cifra-panel-inner.cifra-light .cifra-panel-header { background: #ede8dc; border-bottom-color: #d4c9b8; }
+.cifra-panel-inner.cifra-light .cifra-panel-title { color: #1c1a16; }
+.cifra-panel-inner.cifra-light .cifra-transpose-bar { background: #ede8dc; border-bottom-color: #d4c9b8; }
+.cifra-panel-inner.cifra-light .cifra-scroll-bar { border-left-color: #d4c9b8; }
+.cifra-panel-inner.cifra-light .cifra-t-label,
+.cifra-panel-inner.cifra-light .cifra-zoom-label { color: #78716c; }
+.cifra-panel-inner.cifra-light .cifra-t-sep { color: #c9bfaf; }
+.cifra-panel-inner.cifra-light .cifra-t-btn,
+.cifra-panel-inner.cifra-light .cifra-theme-btn,
+.cifra-panel-inner.cifra-light .cifra-scroll-select { background: #e0d9cc; border-color: #c9bfaf; color: #2d2a24; }
+.cifra-panel-inner.cifra-light .cifra-t-btn:hover,
+.cifra-panel-inner.cifra-light .cifra-theme-btn:hover { background: #d5cdc0; }
+.cifra-panel-inner.cifra-light .cifra-t-key { color: #92400e; }
+.cifra-panel-inner.cifra-light .cifra-pad-key { color: #7c3d0f; }
+.cifra-panel-inner.cifra-light .cifra-textarea { background: #f5f0e8; color: #2d2a24; }
+.cifra-panel-inner.cifra-light .cifra-textarea::placeholder { color: #a8a29e; }
+.cifra-panel-inner.cifra-light .cifra-preview { background: #f5f0e8; }
+.cifra-panel-inner.cifra-light .cifra-chord { color: #7c3d0f; background: rgba(124,61,15,0.10); }
+.cifra-panel-inner.cifra-light .cifra-chord-line { color: #7c3d0f; }
+.cifra-panel-inner.cifra-light .cifra-section { color: #92400e; }
+.cifra-panel-inner.cifra-light .cifra-section-label { color: #92400e; }
+.cifra-panel-inner.cifra-light .cifra-lyric-line { color: #2d2a24; }
+.cifra-panel-inner.cifra-light .cifra-save-btn { background: #16803d; color: #fff; border-color: #15803d; }
+.cifra-panel-inner.cifra-light .cifra-close-btn { color: #78716c; border-color: #c9bfaf; }
+.cifra-panel-inner.cifra-light .cifra-mode-btn { color: #78716c; border-color: #c9bfaf; }
+.cifra-panel-inner.cifra-light .cifra-mode-btn.active { color: #16803d; border-color: #16803d; background: #f0fdf4; }
+.cifra-panel-inner.cifra-light .cifra-panel-toggle-slider { background: #c9bfaf; }
+.cifra-panel-inner.cifra-light .cifra-panel-toggle input:checked + .cifra-panel-toggle-slider { background: #16803d; }
+
+/* ── MODAL: BIBLIOTECA DE CIFRAS ─────────────────────────────────── */
+.cifra-library-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: cifraLibFadeIn 0.18s ease;
+}
+
+@keyframes cifraLibFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.cifra-library-modal {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    width: 92vw;
+    max-width: 560px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+.cifra-library-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.cifra-library-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.cifra-library-search-bar {
+    padding: 12px 16px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cifra-library-search {
+    width: 100%;
+    background: #0f172a;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.cifra-library-search:focus {
+    border-color: #4ade80;
+}
+
+.cifra-library-search::placeholder {
+    color: #64748b;
+}
+
+.cifra-library-status {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.cifra-library-list {
+    overflow-y: auto;
+    padding: 10px 16px 16px;
+    flex: 1;
+}
+
+.cifra-library-empty {
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.cifra-library-item {
+    background: #334155;
+    border-left: 4px solid #4ade80;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+}
+
+.cifra-library-item:hover {
+    background: #3f4f68;
+}
+
+.cifra-library-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cifra-library-item-info strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cifra-library-item-info small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.cifra-library-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.cifra-library-item-actions .btn-load {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.cifra-library-item-actions .btn-delete {
+    width: 26px;
+    height: 26px;
+    font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+    .cifra-library-modal { width: 95vw; max-height: 85vh; }
+    .cifra-library-item { flex-direction: column; align-items: stretch; }
+    .cifra-library-item-actions { justify-content: space-between; }
+}
+/* ── FIM MODAL BIBLIOTECA ─────────────────────────────────────────── */
+
+/* ── CIFRA FULLSCREEN (MODO PALCO) ───────────────────────────────── */
+.cifra-fullscreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #0d1117;
+    z-index: 5000;
+    display: none;
+    flex-direction: column;
+    animation: cifraFsFadeIn 0.18s ease;
+    color: #e2e8f0;
+}
+
+.cifra-fullscreen[style*="flex"],
+.cifra-fullscreen.active {
+    display: flex;
+}
+
+@keyframes cifraFsFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Barra de transporte ── */
+.cifra-fs-transport {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.cifra-fs-song-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 240px;
+    max-width: 520px;
+    padding: 10px 14px;
+    border: 1px solid rgba(239, 68, 68, 0.8);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0.96) 0%, rgba(15, 23, 42, 0.92) 100%);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.18), 0 10px 24px rgba(0, 0, 0, 0.28);
+    flex: 0 1 420px;
+}
+
+.cifra-fs-song-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.cifra-fs-song-copy strong {
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 800;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cifra-fs-song-copy small {
+    color: #9ca3af;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.cifra-fs-transport-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.cifra-fs-transport-center {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 0 0 auto;
+}
+
+.cifra-fs-transport-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1a2030;
+    border: 1px solid #2a3344;
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.cifra-fs-transport-btn:hover {
+    background: #232b3d;
+}
+
+.cifra-fs-transport-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.cifra-fs-transport-icon {
+    font-size: 18px;
+}
+
+.cifra-fs-transport-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.cifra-fs-transport-text-right {
+    text-align: right;
+}
+
+.cifra-fs-transport-text strong {
+    font-size: 13px;
+}
+
+.cifra-fs-transport-text small {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.cifra-fs-play-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #16a34a;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.cifra-fs-play-btn:hover {
+    transform: scale(1.05);
+}
+
+.cifra-fs-play-btn-on {
+    background: #ea580c;
+}
+
+.cifra-fs-play-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cifra-fs-play-info strong {
+    font-size: 14px;
+}
+
+.cifra-fs-play-info small {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.cifra-fs-play-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+}
+
+.cifra-fs-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #64748b;
+    display: inline-block;
+}
+
+.cifra-fs-dot-on {
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+}
+
+.cifra-fs-transport-actions {
+    display: flex;
+    gap: 6px;
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+.cifra-fs-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+
+.cifra-fs-icon-btn:hover {
+    background: #1a2030;
+}
+
+.cifra-fs-icon-btn span {
+    font-size: 18px;
+}
+
+.cifra-fs-icon-btn small {
+    font-size: 10px;
+}
+
+/* ── Barra de informações ── */
+/* ── Área principal: sidebar + conteúdo ── */
+.cifra-fs-main {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar esquerda — estilo Cifra Club */
+.cifra-fs-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: #0d1117;
+    border-right: 1px solid #21262d;
+    overflow-y: auto;
+    padding: 16px 0 16px 0;
+}
+
+.cifra-fs-info-center {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+.cifra-fs-info-icon {
+    font-size: 20px;
+}
+
+.cifra-fs-info-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cifra-fs-info-stat:last-child {
+    border-bottom: none;
+}
+
+.cifra-fs-info-stat small {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: #8b949e;
+    text-transform: uppercase;
+}
+
+.cifra-fs-info-stat strong {
+    font-size: 20px;
+    margin-top: 2px;
+    font-weight: 700;
+}
+
+#cifraFsBpm { color: #3fb950; }
+
+.cifra-fs-tone-control {
+    display: contents;
+}
+
+.cifra-fs-stat-tom {
+    gap: 4px;
+}
+
+.cifra-fs-tone {
+    color: #c4b5fd;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Botões − Tom + lado a lado com a nota no meio */
+.cifra-fs-tone-btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.cifra-fs-info-spacer { display: none; }
+
+/* ── Divisor na sidebar ── */
+.cifra-fs-sidebar-divider {
+    width: calc(100% - 32px);
+    margin: 8px 16px;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+/* ── Controles na sidebar (ex-rodapé) ── */
+.cifra-fs-sidebar-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+}
+
+.cifra-fs-sidebar-ctrl {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.cifra-fs-sidebar-ctrl:last-child {
+    border-bottom: none;
+}
+
+.cifra-fs-sidebar-ctrl small {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.cifra-fs-select-full {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cifra-fs-font-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #cbd5e1;
+}
+
+.cifra-fs-sidebar-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1a2030;
+    border: 1px solid #2a3344;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+    box-sizing: border-box;
+}
+
+.cifra-fs-sidebar-btn:hover {
+    background: #232b3d;
+}
+
+.cifra-fs-sidebar-btn-active {
+    background: #1e3a5f !important;
+    border-color: #3b82f6 !important;
+    color: #93c5fd !important;
+}
+
+/* ── Área central (só conteúdo agora) ── */
+.cifra-fs-center-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ── Conteúdo da cifra ── */
+.cifra-fs-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px clamp(20px, 4vw, 80px);
+    font-family: 'JetBrains Mono', 'Courier New', Consolas, monospace;
+    line-height: 2;
+    width: 100%;
+    box-sizing: border-box;
+    background: #0d1117;
+    color: #c9d1d9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Inner wrapper to keep chord/lyric alignment correct while centering the block */
+.cifra-fs-content > * {
+    width: 100%;
+    max-width: 800px;
+    text-align: left;
+}
+
+.cifra-fs-content.cifra-fs-two-columns {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 60px;
+    max-width: 1700px;
+    padding: 32px clamp(20px, 4vw, 80px);
+}
+
+.cifra-fs-col {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.cifra-fs-content .cifra-section {
+    color: #f59e0b;
+    font-size: 1em;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 4px;
+    break-after: avoid;
+    break-inside: avoid;
+    letter-spacing: 0.03em;
+}
+
+.cifra-fs-content .cifra-chord {
+    color: #c4b5fd;
+    font-weight: 700;
+}
+
+.cifra-fs-content .cifra-chord-line {
+    color: #c4b5fd;
+    white-space: pre;
+}
+
+.cifra-fs-content .cifra-lyric-line {
+    color: #d4d8e0;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: pre;
+}
+
+.cifra-fs-content .cifra-empty-line {
+    height: 14px;
+}
+
+/* ── Barra inferior ── */
+.cifra-fs-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: #11161f;
+    border-top: 1px solid #1f2937;
+    flex-shrink: 0;
+}
+
+.cifra-fs-bottom-center {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.cifra-fs-bottom-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #cbd5e1;
+}
+
+.cifra-fs-toggle {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 21px;
+}
+
+.cifra-fs-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cifra-fs-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #334155;
+    border-radius: 21px;
+    transition: 0.2s;
+}
+
+.cifra-fs-toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.cifra-fs-toggle input:checked + .cifra-fs-toggle-slider {
+    background: #16a34a;
+}
+
+.cifra-fs-toggle input:checked + .cifra-fs-toggle-slider::before {
+    transform: translateX(17px);
+}
+
+.cifra-fs-select {
+    background: #1a2030;
+    color: #e2e8f0;
+    border: 1px solid #2a3344;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+}
+
+.cifra-fs-bottom-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a2030;
+    border: 1px solid #2a3344;
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: #e2e8f0;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.cifra-fs-bottom-btn:hover {
+    background: #232b3d;
+}
+
+.cifra-fs-bottom-btn-active {
+    background: #16a34a;
+    border-color: #16a34a;
+}
+
+/* ── Tema claro no modo tela cheia: estilo "papel impresso" ── */
+/* ═══════════════════════════════════════════════════════
+   TEMA CLARO — paleta creme/sépia, sem branco puro
+   fundo: #f5f0e8  sidebar: #ede8dc  texto: #2d2a24
+   acordes: #8b5e3c  seções: #b45309  letra: #2d2a24
+   ═══════════════════════════════════════════════════════ */
+.cifra-fullscreen.cifra-light {
+    background: #f0ebe0;
+    color: #2d2a24;
+}
+
+/* Transport + sidebar — tom creme escuro */
+.cifra-fullscreen.cifra-light .cifra-fs-transport {
+    background: #e8e2d6;
+    border-bottom-color: #d4c9b8;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar {
+    background: #ede8dc;
+    border-right-color: #d4c9b8;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-song-banner {
+    background: linear-gradient(180deg, #fefefe 0%, #f4efe5 100%);
+    border-color: rgba(220, 38, 38, 0.55);
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.10), 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-song-copy strong {
+    color: #1c1a16;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-song-copy small {
+    color: #78716c;
+}
+
+/* Área de conteúdo — creme suave */
+.cifra-fullscreen.cifra-light .cifra-fs-content {
+    background: #f5f0e8;
+    color: #2d2a24;
+}
+
+/* ── Texto da cifra no tema claro ── */
+.cifra-fullscreen.cifra-light .cifra-fs-content .cifra-lyric-line {
+    color: #2d2a24;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-content .cifra-chord,
+.cifra-fullscreen.cifra-light .cifra-fs-content .cifra-chord-line {
+    color: #7c3d0f;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-content .cifra-chord {
+    background: rgba(124, 61, 15, 0.10);
+    border-radius: 3px;
+    padding: 0 3px;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-content .cifra-section {
+    color: #92400e;
+    font-weight: 700;
+}
+
+/* ── Sidebar: labels e valores ── */
+.cifra-fullscreen.cifra-light .cifra-fs-info-stat small {
+    color: #78716c;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-info-stat strong {
+    color: #1c1a16;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-info-stat {
+    border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-info-center {
+    background: transparent;
+}
+
+.cifra-fullscreen.cifra-light #cifraFsBpm {
+    color: #16803d;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-tone {
+    color: #92400e;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar-divider {
+    background: rgba(0,0,0,0.10);
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar-ctrl small {
+    color: #92816a;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar-ctrl {
+    border-bottom-color: rgba(0,0,0,0.07);
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar-btn {
+    background: #e0d9cc;
+    border-color: #c9bfaf;
+    color: #2d2a24;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-sidebar-btn:hover {
+    background: #d5cdc0;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-font-btns {
+    color: #2d2a24;
+}
+
+/* ── Transport: botões e textos ── */
+.cifra-fullscreen.cifra-light .cifra-fs-transport-btn {
+    background: #ddd8cc;
+    border-color: #c9bfaf;
+    color: #2d2a24;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-transport-btn:hover {
+    background: #cfc9bc;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-transport-text strong {
+    color: #1c1a16;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-transport-text small {
+    color: #78716c;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-play-info strong {
+    color: #1c1a16;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-play-info small {
+    color: #78716c;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-icon-btn {
+    color: #44403c;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-icon-btn:hover {
+    background: #ddd8cc;
+}
+
+/* ── Controles ── */
+.cifra-fullscreen.cifra-light .cifra-fs-select {
+    background: #ddd8cc;
+    border-color: #c9bfaf;
+    color: #2d2a24;
+}
+
+.cifra-fullscreen.cifra-light .cifra-t-btn {
+    background: #e0d9cc;
+    border-color: #c9bfaf;
+    color: #2d2a24;
+}
+
+.cifra-fullscreen.cifra-light .cifra-t-btn:hover {
+    background: #d5cdc0;
+}
+
+/* Toggle do auto-scroll no tema claro */
+.cifra-fullscreen.cifra-light .cifra-fs-toggle-slider {
+    background: #c9bfaf;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-toggle input:checked + .cifra-fs-toggle-slider {
+    background: #16803d;
+}
+
+@media (max-width: 900px) {
+    .cifra-fs-content.cifra-fs-two-columns {
+        flex-direction: column;
+        gap: 0;
+    }
+    .cifra-fs-transport-text {
+        display: none;
+    }
+    .cifra-fs-sidebar {
+        width: 140px;
+    }
+}
+
+@media (max-width: 700px) {
+    .cifra-fs-transport,
+    .cifra-fs-bottom-bar {
+        padding: 10px 14px;
+    }
+    .cifra-fs-content {
+        padding: 20px 16px;
+    }
+    .cifra-fs-play-info {
+        display: none;
+    }
+    /* On very small screens, collapse sidebar to top strip */
+    .cifra-fs-main {
+        flex-direction: column;
+    }
+    .cifra-fs-sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 8px 12px;
+        border-right: none;
+        border-bottom: 1px solid #1f2937;
+        overflow-y: visible;
+        overflow-x: auto;
+    }
+    .cifra-fs-song-banner {
+        width: 100%;
+        max-width: none;
+        flex: 1 1 100%;
+        margin-bottom: 6px;
+    }
+    .cifra-fs-song-copy strong {
+        white-space: normal;
+    }
+    .cifra-fs-info-center {
+        flex-direction: row;
+    }
+    .cifra-fs-info-stat {
+        padding: 6px 12px;
+        border-bottom: none;
+        border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .cifra-fs-info-stat:last-child {
+        border-right: none;
+    }
+}
+/* Estado vazio no fullscreen (música sem cifra) */
+.cifra-fs-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    color: #64748b;
+    gap: 12px;
+}
+
+.cifra-fs-empty-icon {
+    font-size: 56px;
+    opacity: 0.4;
+}
+
+.cifra-fs-empty h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.cifra-fs-empty p {
+    font-size: 0.95rem;
+    color: #64748b;
+    max-width: 420px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.cifra-fullscreen.cifra-light .cifra-fs-empty h3 { color: #475569; }
+.cifra-fullscreen.cifra-light .cifra-fs-empty p  { color: #64748b; }
+
+/* ── FIM CIFRA FULLSCREEN ─────────────────────────────────────────── */
+
+/* ── BANNER YOUTUBE (como-usar.html) ── */
+.youtube-banner {
+    margin: 0 0 32px 0;
+    padding: 0 20px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.youtube-banner-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #1a0a0a 0%, #2d0d0d 100%);
+    border: 1px solid #ff0000;
+    border-radius: 14px;
+    padding: 22px 28px;
+}
+
+.youtube-banner-icon {
+    flex-shrink: 0;
+}
+
+.youtube-banner-text {
+    flex: 1;
+}
+
+.youtube-banner-text h2 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 0 0 4px 0;
+}
+
+.youtube-banner-text p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.youtube-banner-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ff0000;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.youtube-banner-btn:hover {
+    background: #cc0000;
+    transform: scale(1.03);
+}
+
+@media (max-width: 600px) {
+    .youtube-banner-inner {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    .youtube-banner-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/* ── FIM BANNER YOUTUBE ── */

@@ -37,6 +37,14 @@
             <p class="subtitle">Guia passo a passo para aproveitar todos os recursos</p>
         </div>
 
+        <div class="cta-section" style="margin-bottom: 28px;">
+            <h2>▶️ Tutoriais em vídeo</h2>
+            <p>Aprenda a usar o Metronome List acompanhando nossos tutoriais no YouTube.</p>
+            <a href="https://www.youtube.com/@metronomeliststudio" class="cta-button" target="_blank" rel="noopener noreferrer">
+                Assistir aos tutoriais no YouTube →
+            </a>
+        </div>
+
         <div class="content-section">
             <h2>🚀 Primeiros Passos</h2>
             
@@ -85,6 +93,59 @@
                 </ul>
                 <p><strong>Dica:</strong> Apenas um metrônomo pode tocar por vez. Ao iniciar um novo, o anterior será pausado automaticamente.</p>
             </div>
+
+            <div class="step-box">
+                <h3>Passo 5: Reordenar as músicas</h3>
+                <p>Para mudar a ordem da lista, arraste o número da música (a bolinha à esquerda do cartão) e solte na posição desejada.</p>
+                <ul>
+                    <li>A ordem pode ser alterada pelo número da faixa, sem mexer nos campos de nome, BPM ou compasso</li>
+                    <li>O item destacado indica a posição em que a música será inserida</li>
+                    <li>Em listas longas, a página rola automaticamente ao arrastar perto das bordas</li>
+                    <li>A nova ordem é salva automaticamente e também acompanha os setlists exportados</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎵 Cifras e Biblioteca de Músicas</h2>
+
+            <div class="feature-detail">
+                <h3>Abrir e editar uma cifra</h3>
+                <p>Cada metrônomo possui o botão <strong>🎵</strong> para abrir o painel de cifra da música. Digite ou cole a cifra no editor usando acordes, letra e seções como <code>[Intro]</code> e <code>[Verso]</code>.</p>
+                <ol>
+                    <li>Digite o nome da música no campo <strong>Música</strong></li>
+                    <li>Clique no botão 🎵 da mesma faixa</li>
+                    <li>Digite ou cole a cifra no editor</li>
+                    <li>Clique em <strong>💾 Salvar</strong> para vinculá-la ao metrônomo</li>
+                </ol>
+                <p>O nome da música é usado para localizar cifras salvas anteriormente na biblioteca.</p>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Transpor a cifra e o pad</h3>
+                <p>Use os botões <strong>−</strong> e <strong>+</strong> ao lado de <strong>Tom</strong> para baixar ou subir a cifra em semitons. Os acordes e a indicação de tom são atualizados na visualização, e o pad acompanha a nova tonalidade.</p>
+                <ul>
+                    <li>Uma linha no formato <strong>Tom: C</strong> ou <strong>Tom: Am</strong> ajuda a identificar o tom original</li>
+                    <li>A transposição também funciona com acordes como <strong>F#m7</strong>, <strong>Bb/D</strong> e <strong>C#maj7</strong></li>
+                    <li>O conteúdo original continua preservado para novas transposições</li>
+                </ul>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Biblioteca de Cifras</h3>
+                <p>O botão <strong>📚 Biblioteca</strong> reúne as cifras salvas pelo usuário. É possível pesquisar pelo nome, aplicar uma cifra à música aberta e excluir entradas antigas.</p>
+                <ul>
+                    <li>Sem login, as cifras ficam salvas neste navegador</li>
+                    <li>Com login do Google, a biblioteca é sincronizada com o Firebase e pode ser acessada em outros dispositivos</li>
+                    <li>Ao aplicar uma cifra, o tom detectado e o pad da música também são atualizados</li>
+                </ul>
+            </div>
+
+            <div class="feature-detail">
+                <h3>Modo de apresentação</h3>
+                <p>Use <strong>⛶ Tela Cheia</strong> para tocar com a cifra aberta. Nesse modo você pode navegar entre as músicas da lista, iniciar ou pausar o metrônomo, ajustar o tamanho da fonte, alternar o tema e ativar o auto-scroll.</p>
+                <p>O botão <strong>🖨️ Imprimir</strong> gera uma versão limpa da cifra para impressão ou PDF.</p>
+            </div>
         </div>
 
         <div class="content-section">
@@ -127,18 +188,6 @@
                     <li>Ter configurações salvas para diferentes músicas</li>
                 </ul>
             </div>
-
-            <div class="feature-detail">
-                <h3>↕️ Reordenar a Setlist</h3>
-                <p>Você pode mudar a ordem das músicas arrastando qualquer metrônomo:</p>
-                <ol>
-                    <li>Clique e segure o número da música, à esquerda do cartão</li>
-                    <li>Arraste para cima ou para baixo até a posição desejada</li>
-                    <li>Para levar uma música ao topo, aproxime o cartão da borda superior da tela; a página rolará automaticamente</li>
-                    <li>Solte para confirmar a nova ordem</li>
-                </ol>
-                <p>A música inteira é movida de uma vez: nome, BPM, tom/pad, compasso e demais configurações permanecem juntos. A ordem também é preservada ao salvar ou exportar o setlist.</p>
-            </div>
         </div>         
 
         <!DOCTYPE html>
@@ -156,7 +205,8 @@
                     <li>Nomes das músicas</li>
                     <li>BPM de cada metrônomo</li>
                     <li>Compassos configurados</li>
-                    <li>Ordem das músicas na setlist</li>
+                    <li>Ordem das músicas na lista</li>
+                    <li>Cifras vinculadas às músicas</li>
                     <li>Configurações globais (volume, timbre, canal)</li>
                 </ul>
                 <p><strong>Importante:</strong> Esta configuração fica salva apenas no seu navegador. Se limpar o histórico/cache, será perdida.</p>
@@ -185,6 +235,7 @@
                     <li>Clique OK</li>
                 </ol>
                 <p><strong>⚠️ Atenção:</strong> Setlists compartilhados são <strong>públicos</strong> e visíveis para todos os usuários do Metronome List. Não compartilhe informações privadas!</p>
+                <p><strong>Nota:</strong> Compartilhamento só funciona quando hospedado no Claude.ai. Localmente, use Exportar/Importar JSON.</p>
             </div>
 
             <div class="step-box">
@@ -278,7 +329,7 @@
                 <p><strong>Cenário:</strong> Banda precisa ensaiar setlist do show</p>
                 <ol>
                     <li>Líder da banda cria setlist completo do show</li>
-                    <li>Compartilha usando o botão 🌐</li>
+                    <li>Compartilha usando o botão 🌐 (se no Claude.ai)</li>
                     <li>OU exporta como JSON e envia no grupo do WhatsApp</li>
                     <li>Cada membro importa/carrega o setlist</li>
                     <li>Todos praticam com as mesmas configurações</li>
@@ -425,7 +476,7 @@
 
             <div class="faq-item">
                 <h4>Sobre Compatibilidade</h4>
-                <p>O compartilhamento público exige que você esteja conectado à sua conta. Para enviar um arquivo diretamente a outra pessoa, use também as opções Exportar/Importar JSON.</p>
+                <p>O recurso de compartilhamento (🌐) funciona apenas quando o site está hospedado no Claude.ai. Se você está testando localmente (localhost/127.0.0.1), use Exportar/Importar JSON para compartilhar.</p>
             </div>
 
             <div class="faq-item">
