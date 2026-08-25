@@ -137,7 +137,7 @@ async function cifraLibraryMigrateLocalToCloud() {
 
 // Salva uma cifra na biblioteca (localStorage sempre + Firestore se logado)
 async function cifraLibrarySave(name, cifra, baseNote, semitones) {
-    if (!name || !cifra) return;
+    if (!name || !cifra) return false;
     const key = cifraKeyFromName(name);
     const entry = {
         name: name.trim(),
@@ -167,6 +167,9 @@ async function cifraLibrarySave(name, cifra, baseNote, semitones) {
             console.log('Erro ao salvar cifra na nuvem:', e);
         }
     }
+
+    // A biblioteca local já foi atualizada mesmo quando a nuvem está indisponível.
+    return true;
 }
 
 function cifraLibraryGet(name) {
@@ -1214,6 +1217,18 @@ async function saveCifraPanel() {
         await cifraLibrarySave(m.name, m.cifra, m.cifraBaseNote, cifraSemitones);
         if (document.getElementById('cifraLibraryModal')?.style.display === 'flex') {
             renderCifraLibraryModal();
+        }
+
+        // Confirma visualmente que a cifra foi salva na biblioteca.
+        const saveBtn = document.getElementById('cifraSaveBtn');
+        if (saveBtn) {
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✅ Salva na biblioteca';
+            saveBtn.disabled = true;
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            }, 1600);
         }
     }
 
