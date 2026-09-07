@@ -304,6 +304,89 @@ async function cifraLibraryConfirmDelete(key) {
     await cifraLibraryDelete(key);
     renderCifraLibraryModal();
 }
+
+function exportCifraLibrary() {
+    const data = {
+        format: 'metronome-list-cifras',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        cifras: cifraLibraryGetAll().map(entry => ({
+            name: entry.name,
+            cifra: entry.cifra,
+            cifraBaseNote: entry.cifraBaseNote || '',
+            updatedAt: entry.updatedAt || ''
+        }))
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'biblioteca-de-cifras.json';
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function getCifraImportEntries(data) {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.cifras)) return data.cifras;
+    if (Array.isArray(data?.songs)) return data.songs;
+    if (Array.isArray(data?.songsList)) return data.songsList;
+    if (data?.library && typeof data.library === 'object') {
+        return Object.entries(data.library).map(([key, value]) => ({ name: value?.name || key, ...value }));
+    }
+    if (data?.cifra || data?.chords || data?.lyrics) return [data];
+    return [];
+}
+
+function normalizeCifraImportEntry(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const name = String(raw.name || raw.title || raw.song || raw.music || raw.nome || '').trim();
+    const cifraValue = raw.cifra ?? raw.chords ?? raw.lyrics ?? raw.content ?? raw.text;
+    const cifra = typeof cifraValue === 'string' ? cifraValue.trim() : '';
+    if (!name || !cifra) return null;
+
+    return {
+        name,
+        cifra,
+        cifraBaseNote: String(raw.cifraBaseNote || raw.baseNote || raw.key || raw.tom || '').trim(),
+        updatedAt: raw.updatedAt || new Date().toISOString()
+    };
+}
+
+async function importCifraLibrary() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = event => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async loadEvent => {
+            try {
+                const data = JSON.parse(loadEvent.target.result);
+                const entries = getCifraImportEntries(data)
+                    .map(normalizeCifraImportEntry)
+                    .filter(Boolean);
+
+                if (!entries.length) {
+                    throw new Error('Nenhuma cifra reconhecida no arquivo.');
+                }
+
+                for (const entry of entries) {
+                    await cifraLibrarySave(entry.name, entry.cifra, entry.cifraBaseNote, 0);
+                }
+                renderCifraLibraryModal();
+                alert(`${entries.length} cifra(s) importada(s) com sucesso.`);
+            } catch (error) {
+                alert('Erro ao importar cifras: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
 // ── FIM MODAL BIBLIOTECA ─────────────────────────────────────────
 // ── FIM BIBLIOTECA ─────────────────────────────────────────────
 let cifraMode = 'edit';       // 'edit' | 'view'

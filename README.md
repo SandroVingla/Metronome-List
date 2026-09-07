@@ -15,6 +15,8 @@ Metrônomo online profissional e gratuito com múltiplas faixas simultâneas, pa
 - ✅ Controle estéreo L/R/C
 - ✅ Salvar e carregar setlists
 - ✅ Exportar/Importar setlists em JSON
+- ✅ Biblioteca de cifras com pesquisa, aplicação e exclusão
+- ✅ Exportar/Importar biblioteca de cifras em JSON
 - ✅ Atalhos de teclado (1-9, 0, Espaço)
 - ✅ **Pad Contínuo** com 12 tons (A, A#/Bb, B, C, C#/Db, D, D#/Eb, E, F, F#/Gb, G, G#/Ab)
 - ✅ **Mute do Click** — silencia o metrônomo mantendo o pad tocando
@@ -64,6 +66,22 @@ O botão **🔊 Click** fica na barra de controles globais, ao lado do Tap Tempo
 - O botão fica roxo pulsando para indicar que o click está silenciado
 - Ideal para usar o pad como fundo musical em pregações, palestras ou ensaios sem metrônomo audível
 - Clique novamente para reativar o click
+
+## 🎵 Biblioteca de Cifras
+
+Cada metrônomo possui um painel de cifra para salvar letra, acordes e seções da música. O botão **📚 Biblioteca** permite pesquisar, aplicar e excluir cifras salvas.
+
+### Importação e exportação
+
+Dentro da biblioteca:
+
+- **📥 Exportar** baixa todas as cifras em um arquivo JSON versionado
+- **📤 Importar** adiciona cifras de um arquivo JSON à biblioteca atual
+- Uma cifra com o mesmo nome normalizado atualiza a entrada existente
+- Maiúsculas, acentos e pontuação não criam nomes duplicados
+- Nomes diferentes com o mesmo conteúdo ainda são tratados como entradas distintas
+
+Sem login, a biblioteca fica no `localStorage` deste navegador. Com login do Google, ela também é sincronizada com o Firebase. O arquivo JSON exportado pela web pode ser usado como base para compartilhar a biblioteca com o app; a compatibilidade exata com o formato nativo do app depende dos campos usados por ele.
 
 ## 🚀 Tecnologias
 
