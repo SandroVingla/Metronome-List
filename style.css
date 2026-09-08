@@ -123,6 +123,10 @@ body {
 }
 
 /* Menu de Navegação */
+:root {
+    --nav-height: 72px;
+}
+
 .main-nav {
     background: #1e293b;
     border-bottom: 3px solid #16a34a;
@@ -130,6 +134,7 @@ body {
     top: 0;
     z-index: 1000;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --nav-height: 68px;
 }
 
 .nav-container {
@@ -389,6 +394,7 @@ body {
     display: flex;
     list-style: none;
     gap: 5px;
+    flex-shrink: 1;
 }
 
 .nav-menu li a {
@@ -398,6 +404,7 @@ body {
     display: block;
     transition: all 0.3s;
     border-bottom: 3px solid transparent;
+    white-space: nowrap;
 }
 
 .nav-menu li a:hover {
@@ -3956,11 +3963,11 @@ footer a:hover {
 /* O conteúdo real do painel fica fixed em cima do placeholder */
 .cifra-panel-inner {
     position: fixed;
-    top: 68px;
+    top: var(--nav-height, 68px);
     right: 0;
     width: 50vw;
     min-width: 400px;
-    height: calc(100vh - 68px);
+    height: calc(100vh - var(--nav-height, 68px));
     background: #0d1117;
     border-left: 1px solid #21262d;
     display: flex;
