@@ -160,7 +160,8 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    max-width: min(270px, 24vw);
+    width: 210px;
+    max-width: 210px;
     padding: 8px 12px;
     border: 1px solid rgba(148, 163, 184, 0.3);
     border-radius: 14px;
@@ -221,6 +222,13 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+    .nav-account-btn {
+        width: 180px;
+        max-width: 180px;
+    }
 }
 
 .account-dropdown {
