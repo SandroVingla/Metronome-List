@@ -155,6 +155,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    max-width: min(270px, 24vw);
     padding: 8px 12px;
     border: 1px solid rgba(148, 163, 184, 0.3);
     border-radius: 14px;
@@ -196,15 +197,25 @@ body {
     flex-direction: column;
     align-items: flex-start;
     line-height: 1.15;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .nav-account-copy strong {
     font-size: 0.92rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nav-account-copy small {
     color: #94a3b8;
     font-size: 0.72rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .account-dropdown {
@@ -4018,6 +4029,7 @@ footer a:hover {
     border-bottom: 1px solid #21262d;
     flex-shrink: 0;
     flex-wrap: wrap;
+    min-width: 0;
 }
 
 .cifra-panel-icon {
@@ -4040,6 +4052,7 @@ footer a:hover {
     flex-shrink: 0;
     align-items: center;
     flex-wrap: wrap;
+    max-width: 100%;
 }
 
 .cifra-mode-btn {
