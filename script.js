@@ -2213,6 +2213,14 @@ async function migrateLocalSetlistsToCloud() {
 }
 
 // Inicializar
+function hideStartupLoader() {
+    const loader = document.getElementById('startupLoader');
+    if (!loader || loader.classList.contains('is-hidden')) return;
+
+    loader.classList.add('is-hidden');
+    window.setTimeout(() => loader.remove(), 300);
+}
+
 async function init() {
     try {
         console.log('🚀 Iniciando metrônomo...');
@@ -2317,6 +2325,7 @@ async function init() {
         // Migra a configuração local atual para a conta na primeira utilização.
         if (isCloudAvailable() && !cloudLastConfigLoaded && !cloudConfigReadFailed) await saveLastConfig();
         console.log('✅ Inicialização completa!');
+        hideStartupLoader();
     } catch (error) {
         console.error('💥 ERRO FATAL na inicialização:', error);
         console.error('Stack:', error.stack);
@@ -2329,6 +2338,7 @@ async function init() {
         } catch (e2) {
             console.error('💥 Falha total:', e2);
         }
+        hideStartupLoader();
     }
 }
 

@@ -122,6 +122,98 @@ body {
     line-height: 1.6;
 }
 
+.startup-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at 50% 42%, rgba(30, 41, 59, 0.96), rgba(10, 15, 25, 0.99));
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 260ms ease, visibility 260ms ease;
+}
+
+.startup-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.startup-loader-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #f8fafc;
+    text-align: center;
+    animation: startup-loader-enter 500ms cubic-bezier(.2,.75,.25,1) both;
+}
+
+.startup-loader-mark {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border: 1px solid rgba(251, 191, 36, 0.42);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #f97316, #f59e0b);
+    box-shadow: 0 10px 35px rgba(249, 115, 22, 0.24);
+    font-size: 1.7rem;
+    font-weight: 900;
+}
+
+.startup-loader-equalizer {
+    display: flex;
+    height: 32px;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+}
+
+.startup-loader-equalizer span {
+    width: 4px;
+    height: 9px;
+    border-radius: 999px;
+    background: #4ade80;
+    animation: startup-equalize 900ms ease-in-out infinite;
+}
+
+.startup-loader-equalizer span:nth-child(2) { animation-delay: 120ms; }
+.startup-loader-equalizer span:nth-child(3) { animation-delay: 240ms; }
+.startup-loader-equalizer span:nth-child(4) { animation-delay: 360ms; }
+.startup-loader-equalizer span:nth-child(5) { animation-delay: 480ms; }
+
+.startup-loader-card strong {
+    font-size: 1.08rem;
+    letter-spacing: 0.01em;
+}
+
+.startup-loader-caption {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+@keyframes startup-loader-enter {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes startup-equalize {
+    0%, 100% { height: 8px; opacity: 0.55; }
+    50% { height: 28px; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .startup-loader,
+    .startup-loader-card,
+    .startup-loader-equalizer span {
+        animation: none;
+        transition: none;
+    }
+}
+
 /* Menu de Navegação */
 :root {
     --nav-height: 72px;
