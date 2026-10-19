@@ -20,6 +20,11 @@ let firebaseConfigured = false;
 let authInitialized = false;
 let metronomeSortable = null;
 let authReadyResolver = null;
+let cloudConfigSaveTimer = null;
+let cloudConfigSaveQueue = Promise.resolve();
+let cloudLastConfigLoaded = false;
+let cloudConfigReadFailed = false;
+const CLOUD_CONFIG_DOC_ID = 'metronome-config';
 const authReadyPromise = new Promise(resolve => {
     authReadyResolver = resolve;
 });
@@ -1897,10 +1902,16 @@ function getSetlistsCollection() {
     return firestoreDb.collection('users').doc(currentUser.uid).collection('setlists');
 }
 
+function getCloudConfigDocument(uid = currentUser && currentUser.uid) {
+    if (!firestoreDb || !uid) return null;
+    return firestoreDb.collection('users').doc(uid)
+        .collection('settings').doc(CLOUD_CONFIG_DOC_ID);
+}
+
 function getSyncStatusText() {
-    if (isCloudAvailable()) return 'Setlists sincronizados na nuvem';
-    if (firebaseConfigured) return 'Entre com Google para sincronizar na nuvem';
-    return 'Setlists locais neste navegador';
+    if (isCloudAvailable()) return 'Músicas e setlists sincronizados na nuvem';
+    if (firebaseConfigured) return 'Entre com Google para sincronizar entre dispositivos';
+    return 'Músicas e setlists locais neste navegador';
 }
 
 function setAccountAvatar(el, user, fallbackText) {
@@ -1984,8 +1995,8 @@ function updateAccountUI() {
         syncBadge.className = 'account-sync-badge cloud';
     }
     if (panelTitle) panelTitle.textContent = 'Minha Conta';
-    if (panelSubtitle) panelSubtitle.textContent = 'Seus setlists novos passam a ser salvos automaticamente na nuvem.';
-    if (dropdownNote) dropdownNote.textContent = 'Os setlists locais existentes sao enviados para a nuvem no primeiro login.';
+    if (panelSubtitle) panelSubtitle.textContent = 'Sua configuração atual e seus setlists ficam disponíveis nesta conta em outros dispositivos.';
+    if (dropdownNote) dropdownNote.textContent = 'A configuração e os setlists locais deste navegador são migrados para a nuvem no primeiro login.';
     if (loginButton) loginButton.hidden = true;
     if (logoutButton) logoutButton.hidden = false;
     if (syncButton) {
@@ -2019,7 +2030,12 @@ async function initializeFirebase() {
         firebaseConfigured = true;
 
         firebaseAuth.onAuthStateChanged(async user => {
+            const previousUid = currentUser && currentUser.uid;
             currentUser = user || null;
+            if (previousUid !== (currentUser && currentUser.uid)) {
+                cloudLastConfigLoaded = false;
+                cloudConfigReadFailed = false;
+            }
             updateAccountUI();
             if (currentUser) {
                 await migrateLocalSetlistsToCloud();
@@ -2027,6 +2043,23 @@ async function initializeFirebase() {
             await loadSavedSetlists();
             renderSetlistManager();
             await cifraLibraryLoad();
+
+            // Em um login feito com o app já aberto, prioriza a configuração da conta.
+            // Se ainda não existir configuração na nuvem, envia a configuração deste aparelho.
+            if (authInitialized && currentUser) {
+                const cloudConfig = await readCloudLastConfig();
+                if (cloudConfig.exists) {
+                    const loadedMetronomes = applyLastConfig(cloudConfig.config);
+                    if (loadedMetronomes && loadedMetronomes.length) {
+                        metronomes = loadedMetronomes;
+                        nextId = Math.max(...metronomes.map(m => Number(m.id) || 0)) + 1;
+                        renderMetronomes();
+                        await storageSet('last-config', JSON.stringify(buildLastConfig()), false);
+                    }
+                } else if (!cloudConfig.error) {
+                    await saveLastConfig();
+                }
+            }
 
             if (!authInitialized) {
                 authInitialized = true;
@@ -2281,6 +2314,8 @@ async function init() {
         console.log('🎨 Renderizando interface...');
         renderMetronomes();
         renderSetlistManager();
+        // Migra a configuração local atual para a conta na primeira utilização.
+        if (isCloudAvailable() && !cloudLastConfigLoaded && !cloudConfigReadFailed) await saveLastConfig();
         console.log('✅ Inicialização completa!');
     } catch (error) {
         console.error('💥 ERRO FATAL na inicialização:', error);
@@ -2355,69 +2390,139 @@ function tapTempo() {
 
 async function saveLastConfig() {
     try {
-        const config = {
-            metronomes: metronomes.map(m => {
-                const ps = padState[m.id];
-                return {
-                    id: m.id,
-                    name: m.name,
-                    bpm: m.bpm,
-                    timeSignature: m.timeSignature,
-                    beats: m.beats,
-                    cifra: m.cifra || '',
-                    cifraBaseNote: m.cifraBaseNote || '',
-                    cifraSemitones: 0,
-                    padNote: ps ? ps.note : 'A',
-                    padEnabled: ps ? ps.enabled : false,
-                    padVolume: ps ? ps.volume : 0.7
-                };
-            }),
-            globalAccentEnabled: globalAccentEnabled
-        };
+        const config = buildLastConfig();
         await storageSet('last-config', JSON.stringify(config), false);
+        scheduleCloudConfigSave(config);
     } catch (error) {
         console.log('Erro ao salvar:', error);
     }
 }
 
+function buildLastConfig() {
+    return {
+        metronomes: metronomes.map(m => {
+            const ps = padState[m.id];
+            return {
+                id: m.id,
+                name: m.name,
+                bpm: m.bpm,
+                timeSignature: m.timeSignature,
+                beats: m.beats,
+                cifra: m.cifra || '',
+                cifraBaseNote: m.cifraBaseNote || '',
+                cifraSemitones: 0,
+                padNote: ps ? ps.note : 'A',
+                padEnabled: ps ? ps.enabled : false,
+                padVolume: ps ? ps.volume : 0.7
+            };
+        }),
+        globalSettings: {
+            channel: globalChannel,
+            volume: globalVolume,
+            timbre: selectedTimbre,
+            accentEnabled: globalAccentEnabled
+        },
+        globalAccentEnabled: globalAccentEnabled
+    };
+}
+
+function scheduleCloudConfigSave(config) {
+    if (!isCloudAvailable()) return;
+
+    const uid = currentUser.uid;
+    const serializedConfig = JSON.parse(JSON.stringify(config));
+    if (cloudConfigSaveTimer) clearTimeout(cloudConfigSaveTimer);
+    cloudConfigSaveTimer = setTimeout(() => {
+        cloudConfigSaveTimer = null;
+        cloudConfigSaveQueue = cloudConfigSaveQueue.then(async () => {
+            // Nunca gravar uma configuração de uma sessão anterior em outra conta.
+            if (!isCloudAvailable() || currentUser.uid !== uid) return;
+            const configDocument = getCloudConfigDocument(uid);
+            await configDocument.set({
+                config: serializedConfig,
+                ownerUid: uid,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+        }).catch(error => {
+            console.error('Erro ao sincronizar configuração com a nuvem:', error);
+            const status = document.getElementById('setlistSyncStatus');
+            if (status) status.textContent = 'Falha ao sincronizar — verifique as regras do Firebase';
+        });
+    }, 500);
+}
+
+async function readCloudLastConfig() {
+    const configDocument = getCloudConfigDocument();
+    if (!configDocument || !isCloudAvailable()) return { exists: false, config: null };
+
+    try {
+        const snapshot = await configDocument.get();
+        cloudConfigReadFailed = false;
+        if (!snapshot.exists) return { exists: false, config: null };
+        const config = (snapshot.data() || {}).config || null;
+        cloudLastConfigLoaded = !!config;
+        return { exists: !!config, config };
+    } catch (error) {
+        cloudConfigReadFailed = true;
+        console.error('Erro ao carregar configuração da nuvem:', error);
+        return { exists: false, config: null, error };
+    }
+}
+
+function applyLastConfig(config) {
+    if (!config) return null;
+
+    if (Array.isArray(config)) {
+        return config.map(m => ({ ...m, isPlaying: false, currentBeat: 0 }));
+    }
+
+    if (!Array.isArray(config.metronomes)) return null;
+    const globalSettings = config.globalSettings || {};
+    globalChannel = globalSettings.channel || globalChannel;
+    globalVolume = globalSettings.volume !== undefined ? globalSettings.volume : globalVolume;
+    selectedTimbre = globalSettings.timbre || selectedTimbre;
+    globalAccentEnabled = config.globalAccentEnabled !== undefined
+        ? config.globalAccentEnabled
+        : (globalSettings.accentEnabled !== undefined ? globalSettings.accentEnabled : true);
+
+    const btn = document.getElementById('globalAccentToggle');
+    if (btn) {
+        btn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
+        btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
+    }
+    const timbreSelect = document.getElementById('timbreSelect');
+    if (timbreSelect) timbreSelect.value = selectedTimbre;
+    document.querySelectorAll('.channel-btn').forEach(channelBtn => {
+        const isActive = channelBtn.textContent.trim() === globalChannel;
+        channelBtn.className = 'channel-btn ' + (isActive ? 'active' : 'inactive');
+    });
+
+    config.metronomes.forEach(m => {
+        const ps = getPadState(m.id);
+        ps.note = m.padNote !== undefined ? m.padNote : 'A';
+        ps.enabled = m.padEnabled !== undefined ? m.padEnabled : false;
+        ps.volume = m.padVolume !== undefined ? m.padVolume : 0.7;
+    });
+    return config.metronomes.map(m => ({ ...m, isPlaying: false, currentBeat: 0 }));
+}
+
 async function loadLastConfig() {
     try {
+        if (isCloudAvailable()) {
+            const cloudResult = await readCloudLastConfig();
+            if (cloudResult.exists && cloudResult.config) {
+                const loadedMetronomes = applyLastConfig(cloudResult.config);
+                if (loadedMetronomes) {
+                    await storageSet('last-config', JSON.stringify(cloudResult.config), false);
+                }
+                return loadedMetronomes;
+            }
+        }
+
         const result = await storageGet('last-config', false);
         if (result && result.value) {
             const config = JSON.parse(result.value);
-            
-            // Suportar formato antigo (array) e novo (objeto)
-            if (Array.isArray(config)) {
-                return config.map(m => ({
-                    ...m,
-                    isPlaying: false,
-                    currentBeat: 0
-                }));
-            } else {
-                // Formato novo com globalAccentEnabled
-                globalAccentEnabled = config.globalAccentEnabled !== undefined ? config.globalAccentEnabled : true;
-                
-                // Atualizar UI do botão
-                const btn = document.getElementById('globalAccentToggle');
-                if (btn) {
-                    btn.className = globalAccentEnabled ? 'global-accent-toggle enabled' : 'global-accent-toggle disabled';
-                    btn.title = globalAccentEnabled ? 'Desabilitar acentuação global' : 'Habilitar acentuação global';
-                }
-                
-                const loadedMetronomes = config.metronomes.map(m => ({
-                    ...m,
-                    isPlaying: false,
-                    currentBeat: 0
-                }));
-                // Restaurar padState
-                config.metronomes.forEach(m => {
-                    const ps = getPadState(m.id);
-                    ps.note    = m.padNote    !== undefined ? m.padNote    : 'A';
-                    ps.enabled = m.padEnabled !== undefined ? m.padEnabled : false;
-                    ps.volume  = m.padVolume  !== undefined ? m.padVolume  : 0.7;
-                });
-                return loadedMetronomes;
-            }
+            return applyLastConfig(config);
         }
     } catch (error) {
         console.log('Sem config anterior');
@@ -2651,6 +2756,7 @@ async function loadSetlist(key, isShared = false) {
             });
 
             renderMetronomes();
+            await saveLastConfig();
             alert('Setlist carregado!');
         }
     } catch (error) {
@@ -2767,6 +2873,7 @@ function importSetlist() {
                 }
                 
                 renderMetronomes();
+                saveLastConfig();
                 alert('Setlist importado!');
             } catch (error) {
                 alert('Erro ao importar: ' + error.message);

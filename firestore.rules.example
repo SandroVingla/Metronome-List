@@ -10,6 +10,12 @@ service cloud.firestore {
         request.auth.token.email == "metronomeliststudio@gmail.com";
     }
 
+    // Dados privados do metrônomo: setlists, cifras e configuração sincronizada.
+    // Cada usuário só pode ler e alterar documentos dentro do próprio UID.
+    match /users/{userId}/{document=**} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+
     match /blogArticles/{articleId} {
       allow read: if true;
       allow write: if false;

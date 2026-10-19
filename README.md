@@ -14,6 +14,7 @@ Metrônomo online profissional e gratuito com múltiplas faixas simultâneas, pa
 - ✅ Tap Tempo
 - ✅ Controle estéreo L/R/C
 - ✅ Salvar e carregar setlists
+- ✅ Sincronização da configuração atual, setlists e cifras com a conta Google/Firebase
 - ✅ Exportar/Importar setlists em JSON
 - ✅ Biblioteca de cifras com pesquisa, aplicação e exclusão
 - ✅ Exportar/Importar biblioteca de cifras em JSON
@@ -81,13 +82,17 @@ Dentro da biblioteca:
 - Maiúsculas, acentos e pontuação não criam nomes duplicados
 - Nomes diferentes com o mesmo conteúdo ainda são tratados como entradas distintas
 
-Sem login, a biblioteca fica no `localStorage` deste navegador. Com login do Google, ela também é sincronizada com o Firebase. O arquivo JSON exportado pela web pode ser usado como base para compartilhar a biblioteca com o app; a compatibilidade exata com o formato nativo do app depende dos campos usados por ele.
+Sem login, a biblioteca fica no `localStorage` deste navegador. Com login do Google, ela também é sincronizada com o Firebase. A configuração atual e os setlists nomeados também são sincronizados com a conta; no primeiro login, os dados locais são migrados. Entre com a mesma conta Google nos outros dispositivos para acessá-los. O arquivo JSON exportado pela web pode ser usado como base para compartilhar a biblioteca com o app; a compatibilidade exata com o formato nativo do app depende dos campos usados por ele.
+
+### Regras do Firestore
+
+Para permitir a sincronização, publique no Firebase as regras de acesso por usuário presentes em [`firestore.rules.example`](firestore.rules.example). Elas permitem que cada conta leia e grave somente seus próprios documentos em `users/{uid}` (setlists, cifras e configuração). Sem essas permissões, a autenticação pode funcionar, mas a sincronização será recusada pelo Firestore.
 
 ## 🚀 Tecnologias
 
 - **HTML5 + CSS3 + JavaScript** puro — zero dependências
 - **Web Audio API** — síntese e roteamento de áudio em tempo real
-- **localStorage** — persistência de setlists e configurações
+- **localStorage + Firebase/Firestore** — armazenamento local sem login e sincronização por conta Google
 
 ## 📦 Instalação Local
 
@@ -142,7 +147,7 @@ metronome-list/
 ### Planejado 🔜
 - [ ] Modo escuro
 - [ ] Polirritmos
-- [ ] Sincronização em nuvem
+- [x] Sincronização em nuvem por conta Google
 - [ ] App mobile nativo (React Native / Expo)
 - [ ] Integração MIDI
 - [ ] Mais packs de pad
