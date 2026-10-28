@@ -427,6 +427,73 @@
       width: 100%;
     }
   }
+
+  /* Fullscreen layout modeled on the Android app's landscape tuner screen. */
+  .tuner-shell:fullscreen,
+  .tuner-shell:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #171717;
+  }
+
+  .tuner-shell:fullscreen .tuner-stage,
+  .tuner-shell:-webkit-full-screen .tuner-stage {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-width: none;
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 0;
+  }
+
+  .tuner-shell:fullscreen .tuner-stage-toolbar,
+  .tuner-shell:-webkit-full-screen .tuner-stage-toolbar {
+    display: none;
+  }
+
+  .tuner-shell:fullscreen #tuner-svg,
+  .tuner-shell:-webkit-full-screen #tuner-svg {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    filter: none;
+  }
+
+  .tuner-shell:fullscreen #hz-menu,
+  .tuner-shell:-webkit-full-screen #hz-menu {
+    display: none !important;
+  }
+
+  .tuner-shell:fullscreen .controls,
+  .tuner-shell:-webkit-full-screen .controls {
+    flex: 0 0 30px;
+    width: 100%;
+    max-width: none;
+    min-height: 30px;
+    padding: 0 8px;
+    background: #171717;
+  }
+
+  .tuner-shell:fullscreen #mic-btn,
+  .tuner-shell:-webkit-full-screen #mic-btn {
+    display: none;
+  }
+
+  .tuner-shell:fullscreen #status,
+  .tuner-shell:-webkit-full-screen #status {
+    width: 100%;
+    max-width: none;
+    color: #929292;
+  }
 </style>
 </head>
 <body>
@@ -515,7 +582,7 @@
         </button>
       </div>
 
-<svg id="tuner-svg" viewBox="0 0 780 340" xmlns="http://www.w3.org/2000/svg">
+<svg id="tuner-svg" viewBox="0 0 780 340" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 <defs>
 
   <linearGradient id="chassisL" x1="0" y1="0" x2="0" y2="1">
@@ -563,6 +630,11 @@
     <stop offset="0" stop-color="#343437"/>
     <stop offset="1" stop-color="#1e1e20"/>
   </linearGradient>
+  <!-- Faixa inferior do bisel: mesmo tom da moldura, para não sobrar chassi escuro embaixo do visor -->
+  <linearGradient id="m-grad-faixa" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#242527"/>
+    <stop offset="1" stop-color="#1b1c1e"/>
+  </linearGradient>
   <radialGradient id="m-grad-parafuso" cx=".35" cy=".3" r=".8">
     <stop offset="0" stop-color="#b4b4b9"/>
     <stop offset=".55" stop-color="#5c5c61"/>
@@ -584,10 +656,12 @@
     <stop offset="100%" stop-color="#c8c3b0"/>
   </linearGradient>
 
-  <radialGradient id="displayBg" cx="50%" cy="70%" r="65%">
-    <stop offset="0%"   stop-color="#ff7900" stop-opacity="1"/>
-    <stop offset="60%"  stop-color="#f26300" stop-opacity="1"/>
-    <stop offset="100%" stop-color="#a93b00" stop-opacity="1"/>
+  <!-- Luz de fundo do visor: âmbar no centro, escurecendo nas bordas (igual ao original) -->
+  <radialGradient id="displayBg" cx="50%" cy="62%" r="78%">
+    <stop offset="0%"   stop-color="#ff9000" stop-opacity="1"/>
+    <stop offset="45%"  stop-color="#f06a00" stop-opacity="1"/>
+    <stop offset="80%"  stop-color="#a83a00" stop-opacity="1"/>
+    <stop offset="100%" stop-color="#4a1200" stop-opacity="1"/>
   </radialGradient>
 
   <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
@@ -637,6 +711,16 @@
     <stop offset="100%" stop-color="#cc7700"/>
   </radialGradient>
 
+  <!-- Setas do visor acesas: vermelho profundo com leve degradê (igual ao original) -->
+  <linearGradient id="arrowRedG" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#9e010b"/>
+    <stop offset="100%" stop-color="#c40214"/>
+  </linearGradient>
+  <radialGradient id="arrowGlowG" cx="50%" cy="50%" r="50%">
+    <stop offset="0%"   stop-color="#ff2222" stop-opacity=".55"/>
+    <stop offset="100%" stop-color="#ff2222" stop-opacity="0"/>
+  </radialGradient>
+
   <!-- BATT aceso — verde suave como bateria boa -->
   <radialGradient id="battActiveG" cx="50%" cy="40%" r="70%">
     <stop offset="0%"   stop-color="#60ee40"/>
@@ -655,10 +739,25 @@
     <feComposite in2="SourceGraphic" operator="over"/>
   </filter>
 
+  <!-- Acabamento do visor (igual ao app) -->
+  <linearGradient id="glassTopShadow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000" stop-opacity=".69"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="notchG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#303236"/>
+    <stop offset=".5"  stop-color="#26272a"/>
+    <stop offset="1"   stop-color="#212225"/>
+  </linearGradient>
+  <linearGradient id="barG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#26272a"/>
+    <stop offset="1" stop-color="#212224"/>
+  </linearGradient>
+
 </defs>
 
 <!-- ══ CHASSIS ══ -->
-<rect x="4" y="4" width="772" height="332" rx="10" fill="#111" />
+<rect x="4" y="4" width="772" height="336" rx="10" fill="#111" />
 <rect x="8" y="8" width="764" height="324" rx="8" fill="url(#chassisL)" />
 <circle cx="22" cy="22" r="5" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="1"/>
 <line x1="19" y1="22" x2="25" y2="22" stroke="#0a0a0a" stroke-width="1.2"/>
@@ -677,109 +776,80 @@
 <rect x="354" y="8" width="6" height="324" fill="#0a0a0a"/>
 <rect x="355" y="8" width="2" height="324" fill="#2a2a2a"/>
 
-<!-- ══ PAINEL ESQUERDO — DISPLAY ══ -->
-<rect x="18" y="18" width="326" height="268" rx="6" fill="#0d0d0d"/>
-<rect x="22" y="22" width="318" height="260" rx="5" fill="#0a0a0a"/>
-<rect x="26" y="26" width="310" height="252" rx="4" fill="url(#displayBg)" clip-path="url(#displayClip)"/>
-<rect x="26" y="26" width="310" height="252" rx="4" fill="url(#vignette)" clip-path="url(#displayClip)"/>
+<!-- ══ PAINEL ESQUERDO — DISPLAY (mesmo acabamento do app Android) ══ -->
+<!-- Placa lisa em cinza-grafite -->
+<path d="M16,8 H354 V332 H16 A8 8 0 0 1 8,324 V16 A8 8 0 0 1 16,8 Z" fill="#232426" stroke="#121313" stroke-width="1.6"/>
+<line x1="16" y1="12" x2="348" y2="12" stroke="#fff" stroke-opacity=".19" stroke-width=".8"/>
 
-<!-- Escala analógica inspirada no visor do afinador físico -->
-<path d="M 73,169 Q 181,57 289,169" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="butt"/>
+<!-- Anel de bisel ao redor do vidro -->
+<rect x="35.2" y="38.1" width="293.0" height="252.0" rx="13.5" fill="#2c2d30" stroke="#45474c" stroke-width="1.5"/>
 
-<!-- Marcas principais da escala -->
-<g stroke="#171717" stroke-width="2.2" opacity=".98">
-  <line x1="181" y1="77" x2="181" y2="112" transform="rotate(-42 181 250)"/>
-  <line x1="181" y1="86" x2="181" y2="111" transform="rotate(-33.6 181 250)"/>
-  <line x1="181" y1="86" x2="181" y2="111" transform="rotate(-25.2 181 250)"/>
-  <line x1="181" y1="82" x2="181" y2="112" transform="rotate(-16.8 181 250)"/>
-  <line x1="181" y1="82" x2="181" y2="112" transform="rotate(-8.4 181 250)"/>
-  <line x1="181" y1="73" x2="181" y2="113"/>
-  <line x1="181" y1="82" x2="181" y2="112" transform="rotate(8.4 181 250)"/>
-  <line x1="181" y1="82" x2="181" y2="112" transform="rotate(16.8 181 250)"/>
-  <line x1="181" y1="86" x2="181" y2="111" transform="rotate(25.2 181 250)"/>
-  <line x1="181" y1="86" x2="181" y2="111" transform="rotate(33.6 181 250)"/>
-  <line x1="181" y1="77" x2="181" y2="112" transform="rotate(42 181 250)"/>
+<!-- Vidro com luz de fundo -->
+<clipPath id="glassClip"><rect x="42.2" y="45.1" width="279.0" height="238.0" rx="9"/></clipPath>
+<rect x="42.2" y="45.1" width="279.0" height="238.0" rx="9" fill="url(#displayBg)"/>
+
+<g clip-path="url(#glassClip)">
+  <!-- Sombra projetada pela borda superior -->
+  <rect x="42.2" y="45.1" width="279.0" height="24" fill="url(#glassTopShadow)"/>
+
+  <!-- Setas laterais (ancoradas no bloco central) -->
+<circle id="arrow-glow-left"  cx="63.5" cy="246.3" r="26" fill="url(#arrowGlowG)" opacity="0"/>
+<circle id="arrow-glow-right" cx="299.9" cy="246.3" r="26" fill="url(#arrowGlowG)" opacity="0"/>
+<polygon id="arrow-left"  points="55.8,236.1 55.8,256.5 77.1,246.3" fill="#4a0808" stroke="#2a0000" stroke-width="1" stroke-linejoin="round"/>
+<polygon id="arrow-right" points="307.5,236.1 307.5,256.5 286.3,246.3" fill="#4a0808" stroke="#2a0000" stroke-width="1" stroke-linejoin="round"/>
+
+  <!-- Escala + ponteiro: descem 22u para ficarem centralizados no vidro maior -->
+  <g id="scale-group" transform="translate(0 22)">
+<path d="M 90.6,144.1 A 139.2,139.2 0 0 1 271.4,144.1" fill="none" stroke="#151515" stroke-width="11.4" stroke-linecap="butt"/>
+
+<g stroke="#151515" stroke-linecap="round">
+  <line x1="74.5" y1="122.6" x2="88.3" y2="139.1" stroke-width="1.91"/>
+  <line x1="88.8" y1="118.4" x2="98.1" y2="131.6" stroke-width="1.19"/>
+  <line x1="98.9" y1="108.4" x2="108.5" y2="124.9" stroke-width="1.51"/>
+  <line x1="110.3" y1="99.8" x2="119.5" y2="119.2" stroke-width="1.91"/>
+  <line x1="128.9" y1="98.0" x2="134.2" y2="113.2" stroke-width="1.19"/>
+  <line x1="144.8" y1="88.0" x2="149.5" y2="108.9" stroke-width="1.91"/>
+  <line x1="163.4" y1="90.3" x2="165.1" y2="106.3" stroke-width="1.19"/>
+  <line x1="181.0" y1="79.4" x2="181.0" y2="105.4" stroke-width="2.55"/>
+  <line x1="198.6" y1="90.3" x2="196.9" y2="106.3" stroke-width="1.19"/>
+  <line x1="217.2" y1="88.0" x2="212.5" y2="108.9" stroke-width="1.91"/>
+  <line x1="233.1" y1="98.0" x2="227.8" y2="113.2" stroke-width="1.19"/>
+  <line x1="251.7" y1="99.8" x2="242.5" y2="119.2" stroke-width="1.91"/>
+  <line x1="263.1" y1="108.4" x2="253.5" y2="124.9" stroke-width="1.51"/>
+  <line x1="273.2" y1="118.4" x2="263.9" y2="131.6" stroke-width="1.19"/>
+  <line x1="287.5" y1="122.6" x2="273.7" y2="139.1" stroke-width="1.91"/>
 </g>
 
-<!-- Marcas intermediárias -->
-<g stroke="#171717" stroke-width="1.3" opacity=".9">
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(-37.8 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(-29.4 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(-21 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(-12.6 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(-4.2 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(4.2 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(12.6 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(21 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(29.4 181 250)"/>
-  <line x1="181" y1="91" x2="181" y2="111" transform="rotate(37.8 181 250)"/>
+<g fill="#151515" font-family="Roboto,Arial,Helvetica,sans-serif" font-weight="bold" text-anchor="middle">
+  <text x="68.7" y="120.9" font-size="14.4">-50</text>
+  <text x="105.2" y="94.0" font-size="14.4">-20</text>
+  <text x="142.0" y="80.6" font-size="14.4">-10</text>
+  <text x="181.0" y="75.9" font-size="17.4">0</text>
+  <text x="220.0" y="80.6" font-size="14.4">+10</text>
+  <text x="256.8" y="94.0" font-size="14.4">+20</text>
+  <text x="293.3" y="120.9" font-size="14.4">+50</text>
 </g>
 
-<!-- Valores de cents no arco -->
-<g fill="#171717" font-family="Arial Narrow,Arial,sans-serif" font-weight="bold" text-anchor="middle">
-  <text x="56" y="137" font-size="17">-50</text>
-  <text x="100" y="94" font-size="16">-20</text>
-  <text x="138" y="75" font-size="16">-10</text>
-  <text x="181" y="60" font-size="17">0</text>
-  <text x="224" y="75" font-size="16">+10</text>
-  <text x="262" y="94" font-size="16">+20</text>
-  <text x="306" y="137" font-size="17">+50</text>
-</g>
+<text x="183.0" y="160.8" font-size="9.1" fill="#151515" font-family="Roboto,Arial,Helvetica,sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="4.5">TUNING GUIDE</text>
 
-<!-- Indicadores laterais e identificação do visor -->
-<polygon id="arrow-left" points="42,205 65,194 65,216" fill="#d92323" stroke="#541010" stroke-width="2"/>
-<polygon id="arrow-right" points="320,205 297,194 297,216" fill="#d92323" stroke="#541010" stroke-width="2"/>
-<text x="181" y="187" font-size="11" fill="#241100" font-family="Arial Narrow,Arial,sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="2.5">TUNING GUIDE</text>
-
-<!-- Ponteiro -->
 <g id="needle">
-  <line x1="181" y1="245" x2="181" y2="99" stroke="#0a0500" stroke-width="3" stroke-linecap="round" opacity=".4"/>
-  <line x1="181" y1="245" x2="181" y2="99" stroke="#f5f0e2" stroke-width="2.2" stroke-linecap="round"/>
-  <polygon points="181,83 175,98 187,98" fill="#f5f0e2"/>
+  <line x1="181" y1="250" x2="181" y2="84.8" stroke="#250000" stroke-opacity=".35" stroke-width="2" stroke-linecap="round" transform="translate(1.9 0)"/>
+  <line x1="181" y1="250" x2="181" y2="84.8" stroke="#fffee8" stroke-width="1.7" stroke-linecap="round"/>
+</g>
+  </g>
 </g>
 
-<!-- Moldura metálica retrô do SVG fornecido, sobre o vidro e o ponteiro -->
-<g id="display-bezel-metal" transform="translate(11.69 9.447) scale(.35054 .35638)" stroke-linejoin="round">
-  <path fill="url(#m-grad-corpo)" fill-rule="evenodd" stroke="#050505" stroke-width="3"
-        d="M52 24 H914 A34 34 0 0 1 948 58 V742 A34 34 0 0 1 914 776 H52 A34 34 0 0 1 18 742 V58 A34 34 0 0 1 52 24 Z M87 100 H883 A22 22 0 0 1 905 122 V591 A22 22 0 0 1 883 613 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V613 H87 A22 22 0 0 1 65 591 V122 A22 22 0 0 1 87 100 Z"/>
-  <g opacity=".85">
-    <path fill="url(#m-linhas-escovadas)" fill-rule="evenodd"
-          d="M52 24 H914 A34 34 0 0 1 948 58 V742 A34 34 0 0 1 914 776 H52 A34 34 0 0 1 18 742 V58 A34 34 0 0 1 52 24 Z M87 100 H883 A22 22 0 0 1 905 122 V591 A22 22 0 0 1 883 613 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V613 H87 A22 22 0 0 1 65 591 V122 A22 22 0 0 1 87 100 Z"/>
-    <path fill="#fff" fill-rule="evenodd" filter="url(#m-filtro-grao)" opacity=".11"
-          d="M52 24 H914 A34 34 0 0 1 948 58 V742 A34 34 0 0 1 914 776 H52 A34 34 0 0 1 18 742 V58 A34 34 0 0 1 52 24 Z M87 100 H883 A22 22 0 0 1 905 122 V591 A22 22 0 0 1 883 613 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V613 H87 A22 22 0 0 1 65 591 V122 A22 22 0 0 1 87 100 Z"/>
-  </g>
+<!-- Contorno interno do vidro (efeito "afundado") -->
+<rect x="42.2" y="45.1" width="279.0" height="238.0" rx="9" fill="none" stroke="#0b0b0c" stroke-width="3"/>
 
-  <g fill="none">
-    <path d="M53 28 H913 A31 31 0 0 1 944 59 V741 A31 31 0 0 1 913 772 H53 A31 31 0 0 1 22 741 V59 A31 31 0 0 1 53 28 Z" stroke="url(#m-grad-chanfro)" stroke-width="3" opacity=".75"/>
-    <path d="M54 32 H912 A28 28 0 0 1 940 60 V740 A28 28 0 0 1 912 768 H54 A28 28 0 0 1 26 740 V60 A28 28 0 0 1 54 32 Z" stroke="#000" stroke-opacity=".4" stroke-width="2"/>
-  </g>
+<!-- Bloco central de onde sai o ponteiro -->
+<path d="M119.5,290.1 V259.5 Q119.5,253.5 125.5,253.5 H236.5 Q242.5,253.5 242.5,259.5 V290.1 Z" fill="url(#notchG)" stroke="#55575d" stroke-width="1.2"/>
+<line x1="127.5" y1="255.9" x2="234.5" y2="255.9" stroke="#fff" stroke-opacity=".2" stroke-width=".8"/>
 
-  <g>
-    <g transform="translate(44 50) rotate(35)"><circle r="12" fill="#000" opacity=".4" cx="1.5" cy="2"/><circle r="11" fill="url(#m-grad-parafuso)" stroke="#0a0a0a" stroke-width="1.2"/><line x1="-7" y1="0" x2="7" y2="0" stroke="#0d0d0e" stroke-width="2.6" stroke-linecap="round"/><line x1="-7" y1="2.2" x2="7" y2="2.2" stroke="#fff" stroke-opacity=".25" stroke-width="1"/></g>
-    <g transform="translate(922 50) rotate(-20)"><circle r="12" fill="#000" opacity=".4" cx="1.5" cy="2"/><circle r="11" fill="url(#m-grad-parafuso)" stroke="#0a0a0a" stroke-width="1.2"/><line x1="-7" y1="0" x2="7" y2="0" stroke="#0d0d0e" stroke-width="2.6" stroke-linecap="round"/><line x1="-7" y1="2.2" x2="7" y2="2.2" stroke="#fff" stroke-opacity=".25" stroke-width="1"/></g>
-    <g transform="translate(44 752) rotate(70)"><circle r="12" fill="#000" opacity=".4" cx="1.5" cy="2"/><circle r="11" fill="url(#m-grad-parafuso)" stroke="#0a0a0a" stroke-width="1.2"/><line x1="-7" y1="0" x2="7" y2="0" stroke="#0d0d0e" stroke-width="2.6" stroke-linecap="round"/><line x1="-7" y1="2.2" x2="7" y2="2.2" stroke="#fff" stroke-opacity=".25" stroke-width="1"/></g>
-    <g transform="translate(922 752) rotate(10)"><circle r="12" fill="#000" opacity=".4" cx="1.5" cy="2"/><circle r="11" fill="url(#m-grad-parafuso)" stroke="#0a0a0a" stroke-width="1.2"/><line x1="-7" y1="0" x2="7" y2="0" stroke="#0d0d0e" stroke-width="2.6" stroke-linecap="round"/><line x1="-7" y1="2.2" x2="7" y2="2.2" stroke="#fff" stroke-opacity=".25" stroke-width="1"/></g>
-  </g>
-
-  <path fill="url(#m-grad-aro)" fill-rule="evenodd" stroke="#060606" stroke-width="2"
-        d="M83 78 H887 A38 38 0 0 1 925 116 V600 A38 38 0 0 1 887 638 H83 A38 38 0 0 1 45 600 V116 A38 38 0 0 1 83 78 Z M85 88 H885 A30 30 0 0 1 915 118 V598 A30 30 0 0 1 885 628 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V628 H85 A30 30 0 0 1 55 598 V118 A30 30 0 0 1 85 88 Z"/>
-  <path fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.5" d="M83 79 H887 A37 37 0 0 1 924 116 V600 A37 37 0 0 1 887 637 H83 A37 37 0 0 1 46 600 V116 A37 37 0 0 1 83 79 Z"/>
-  <path fill="none" stroke="url(#m-grad-labio)" stroke-width="2.5" d="M85 88 H885 A30 30 0 0 1 915 118 V598 A30 30 0 0 1 885 628 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V628 H85 A30 30 0 0 1 55 598 V118 A30 30 0 0 1 85 88 Z"/>
-
-  <path fill="url(#m-grad-recesso)" fill-rule="evenodd"
-        d="M85 88 H885 A30 30 0 0 1 915 118 V598 A30 30 0 0 1 885 628 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V628 H85 A30 30 0 0 1 55 598 V118 A30 30 0 0 1 85 88 Z M87 100 H883 A22 22 0 0 1 905 122 V591 A22 22 0 0 1 883 613 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V613 H87 A22 22 0 0 1 65 591 V122 A22 22 0 0 1 87 100 Z"/>
-  <path fill="none" stroke="#000" stroke-opacity=".6" stroke-width="5" d="M87 100 H883 A22 22 0 0 1 905 122 V591 A22 22 0 0 1 883 613 H672 V568 Q672 522 626 522 H344 Q298 522 298 568 V613 H87 A22 22 0 0 1 65 591 V122 A22 22 0 0 1 87 100 Z"/>
-
-  <path fill="url(#m-grad-aba-borda)" stroke="#0a0a0a" stroke-width="2" d="M298 628 V568 Q298 522 344 522 H626 Q672 522 672 568 V628 Z"/>
-  <path fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2" d="M301 568 Q301 525 344 525 H626 Q669 525 669 568"/>
-  <path fill="url(#m-grad-aba-face)" d="M314 628 V572 Q314 538 346 538 H624 Q656 538 656 572 V628 Z"/>
-  <path fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" d="M318 572 Q318 543 348 543 H622 Q652 543 652 572"/>
-  <g stroke-linecap="round">
-    <line x1="352" y1="578" x2="618" y2="578" stroke="#000" stroke-opacity=".45" stroke-width="2"/><line x1="352" y1="580.5" x2="618" y2="580.5" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
-    <line x1="352" y1="592" x2="618" y2="592" stroke="#000" stroke-opacity=".45" stroke-width="2"/><line x1="352" y1="594.5" x2="618" y2="594.5" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
-    <line x1="352" y1="606" x2="618" y2="606" stroke="#000" stroke-opacity=".45" stroke-width="2"/><line x1="352" y1="608.5" x2="618" y2="608.5" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
-  </g>
-</g>
+<!-- Faixa inferior: mesmo tom da moldura, separada por uma linha fina -->
+<path d="M8,304.0 H354 V332 H16 A8 8 0 0 1 8,324 Z" fill="url(#barG)"/>
+<line x1="9" y1="304.0" x2="353" y2="304.0" stroke="#3a3b3f" stroke-width="1.2"/>
+<line x1="9" y1="305.8" x2="353" y2="305.8" stroke="#000" stroke-opacity=".08" stroke-width="1.2"/>
 
 <!-- ══ PAINEL DIREITO ══ -->
 <rect x="360" y="8" width="412" height="324" rx="4" fill="url(#panelRG)"/>
@@ -1076,10 +1146,17 @@
   const GUITAR_NOTES = ['E', 'A', 'D', 'G', 'B']; // nomes únicos para LEDs
 
   const PIVOT_X = 181, PIVOT_Y = 250;
-  const MAX_ANGLE = 52;
+  const MAX_ANGLE = 40;      // ângulo da agulha em ±50 cents (igual ao visor original)
   const REST_CENTS = -20;
 
-  function centsToAngle(cents){ return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, cents*(MAX_ANGLE/50))); }
+  // Cents -> ângulo, medido no visor original: ~1,26°/cent até ±20 e ~0,49°/cent de 20 a 50.
+  // (a mesma escala não-linear do app Android; as marcas do SVG usam esses mesmos ângulos)
+  function centsToAngle(cents){
+    const c = Math.max(-50, Math.min(50, cents));
+    const a = Math.abs(c);
+    const angle = a <= 20 ? a * 1.26 : 25.2 + (a - 20) * 0.49;
+    return c < 0 ? -angle : angle;
+  }
 
   let position = centsToAngle(REST_CENTS);
   let target = centsToAngle(REST_CENTS);
@@ -1089,17 +1166,22 @@
   let needleRaf = null;
 
   const IN_TUNE_THRESHOLD = 2;
-  const ARROW_ON = 'url(#arrowActiveG)', ARROW_OFF = '#d92323';
+  // Setas do visor: acesa = vermelho profundo com degradê e brilho; apagada = vinho escuro (igual ao original)
+  const ARROW_ON = 'url(#arrowRedG)', ARROW_OFF = '#4a0808';
 
   function updateArrows(cents){
     const l = document.getElementById('arrow-left');
     const r = document.getElementById('arrow-right');
+    const gl = document.getElementById('arrow-glow-left');
+    const gr = document.getElementById('arrow-glow-right');
     const isRestState = cents === REST_CENTS;
     const isInTune = Math.abs(cents) <= IN_TUNE_THRESHOLD;
     const leftOn  = !isRestState && (isInTune || cents < -IN_TUNE_THRESHOLD);
     const rightOn = !isRestState && (isInTune || cents > IN_TUNE_THRESHOLD);
-    if(l) l.setAttribute('fill', leftOn  ? ARROW_ON : ARROW_OFF);
-    if(r) r.setAttribute('fill', rightOn ? ARROW_ON : ARROW_OFF);
+    if(l)  l.setAttribute('fill', leftOn  ? ARROW_ON : ARROW_OFF);
+    if(r)  r.setAttribute('fill', rightOn ? ARROW_ON : ARROW_OFF);
+    if(gl) gl.setAttribute('opacity', leftOn  ? '1' : '0');
+    if(gr) gr.setAttribute('opacity', rightOn ? '1' : '0');
   }
 
   function setNeedle(cents){
